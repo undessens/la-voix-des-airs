@@ -6,31 +6,65 @@ void ofApp::setup(){
     
     //ofSetFrameRate(2);
     
-    polyBackground = PolyBackground();
+    // Background Image, ofPolyline ...
+    polyBackground = new PolyBackground(&pg_polyBackground);
     
-    birdManager = BirdManager(&polyBackground);
-    birdManager.newSequence("oo");
+    // OSC, Gui parameters
+    pg_birdManager.setName("birdmanager");
+    
+    //BirdManager
+    birdManager = new BirdManager( polyBackground, &pg_birdManager);
+    birdManager->newSequence("o");
+    
+    
+    //Adding all OSC parameter to gui
+    pg.setName("main");
+    pg.add(color.set("color",200,0,255));
+    pg.add(frameRate.set("frameRate", 30, 0, 50));
+    pg.add(debug.set("debug", false));
+    
+    gui.setup(pg);
+    gui.add(pg_birdManager);
+    gui.add(pg_polyBackground);
+    sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
+    
+    
+    
     
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    birdManager.update();
+    birdManager->update();
+    
+    // GUI update
+    sync.update();
     
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(100);
+    ofBackground(color);
+    
+    //GUI
+    gui.draw();
     
     ofColor(255);
     ofNoFill();
-    birdManager.draw(true);
+    birdManager->draw();
     
-    ofDrawBitmapStringHighlight("X: "+ofToString(ofGetMouseX() )+" - Y: "+ofToString(ofGetMouseY()), ofGetMouseX(), ofGetMouseY());
+    polyBackground->draw();
     
-    polyBackground.draw();
+    //DEBUG PART
+    if(debug){
+      
+        ofDrawBitmapStringHighlight("X: "+ofToString(ofGetMouseX() )+" - Y: "+ofToString(ofGetMouseY()), ofGetMouseX(), ofGetMouseY());
+        
+    }
+    
+    
+    
     
 }
 

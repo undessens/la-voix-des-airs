@@ -7,15 +7,35 @@
 
 #include "PolyBackground.hpp"
 
-
 PolyBackground::PolyBackground(){
     
-    int maxObstacle = 5;
+    
+}
+
+PolyBackground::PolyBackground(ofParameterGroup* _pg){
+    
+    //Listener
+    nbObstacle.addListener(this, &PolyBackground::addObstacle);
+    
+    //Parameters
+    pg = _pg;
+    pg->setName("polyBg");
+    pg->add(lineSize.set("lineSize", 1, 1, 5));
+    pg->add(nbObstacle.set("nbObstacle", 5, 1, 10));
+    
+    listOfPoly.clear();
+    
+    
+    createObstacle();
 
     
     
-    for(int i = 0; i< maxObstacle; i++){
-        
+}
+
+void PolyBackground::createObstacle(){
+    
+    //Construct fake obstacle
+    
         ofRectangle r = ofRectangle(ofRandom(ofGetWidth()),ofRandom(ofGetHeight()), ofRandom(50, 120), ofRandom(50, 120));
         
         ofPolyline p ;
@@ -27,20 +47,46 @@ PolyBackground::PolyBackground(){
         p = p.getResampledBySpacing(10);
         
         listOfPoly.push_back(p);
+        nbObstacle++;
+    
+}
+
+void PolyBackground::addObstacle(int &nb){
+    
+    if(listOfPoly.size() < nb){
+        // Create no obstacle
+        int nbToCreate = nb-listOfPoly.size();
+        for (int i = 0 ; i<nbToCreate; i++){
+            createObstacle();
+        }
         
     }
+    else if(listOfPoly.size()> nb){
+        //delete obstacle
+        int nbToDelete = listOfPoly.size()-nb;
+        for( int i= 0 ; i<nbToDelete; i++){
+            listOfPoly.pop_back();
+            
+        }
+        
+        
+    }
+    
+    nbObstacle = listOfPoly.size();
     
     
 }
 
 void PolyBackground::draw(){
     
+    ofSetLineWidth(lineSize);
     for( vector<ofPolyline>::iterator it = listOfPoly.begin(); it < listOfPoly.end() ; it++){
     
         ofSetColor(255);
         it->draw();
         
     }
+    ofSetLineWidth(1);
         
 }
 

@@ -22,6 +22,7 @@ public:
     
     void update(ofPoint t);
     void drawBasic();
+    void drawDebug(int l);
     void updateAttraction(ofPoint p);
     void getEjected(ofVec2f v);
     void updateEjection(ofPoint p);
@@ -30,6 +31,7 @@ public:
     ofPoint origin;
     ofVec2f speed;
     ofVec2f force;
+    ofVec2f noisedForce;
     
     //Environnement
     int w;
@@ -37,12 +39,21 @@ public:
     PolyBackground* polyBg;
     float eject_force ;     //force being ejected for an obstacle
     bool is_ejected;        // situation of ejection during the count
-    int eject_count;         // ejected until count is 0;
     ofVec2f eject_direction;
     
+    // Noise stuff ... not really clear
     float size;
-    float noiseSpeed;  //noise difference between the target speed, and the real speed
-    ofVec2f noisePos; // noise between the target position, and the real position
+    
+    float force_amp;
+    
+    ofVec2f noiseD;
+    float noiseDAmplitude;   // Direction noise
+    float noiseDFreq;
+    
+    float noiseS;
+    float noiseSAmplitude;
+    float noiseSFreq;
+    
     float stiffness;  //force to join centroid
     float damping;
     
@@ -52,6 +63,7 @@ public:
     
     //Debug stuff
     int debugLevel;
+    int debugScale;
     
     
     

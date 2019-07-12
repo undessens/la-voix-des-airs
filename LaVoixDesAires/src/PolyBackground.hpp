@@ -16,11 +16,21 @@ class PolyBackground{
 public :
     
     PolyBackground();
+    PolyBackground(ofParameterGroup* pg);
     void draw();
+    void createObstacle();
+    void addObstacle(int & nb);
+    
     ofVec2f isInside( ofPoint p);
     
     bool isEditing;
     vector<ofPolyline> listOfPoly;
+    
+    
+    //Parameters Group
+    ofParameterGroup* pg;
+    ofParameter<int> lineSize;
+    ofParameter<int> nbObstacle;
     
     
     

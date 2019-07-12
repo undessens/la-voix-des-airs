@@ -6,6 +6,8 @@
 #include "Centroid.hpp"
 #include "TrajectoryPlayer.hpp"
 #include "PolyBackground.hpp"
+#include "ofxGui.h"
+#include "ofxOscParameterSync.h"
 
 
 class ofApp : public ofBaseApp{
@@ -15,8 +17,23 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
     
-        BirdManager birdManager;
-        PolyBackground polyBackground;
+        BirdManager* birdManager;
+        PolyBackground* polyBackground;
+    
+    
+        //GUI
+        ofxPanel gui;
+        ofxOscParameterSync sync;
+        ofParameterGroup pg;
+        ofParameterGroup pg_birdManager;
+        ofParameterGroup pg_polyBackground;
+        ofParameterGroup pg_trajectoryPlayer;
+    
+        //Parameters of main program
+        ofParameter<int> color;
+        ofParameter<int> frameRate;
+        ofParameter<bool> debug;
+
     
     
 
