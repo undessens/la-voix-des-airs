@@ -71,12 +71,24 @@ void BirdManager::setup(){
 		//addBird((char)60 + i, i+1);
 	}
     
+	//3D model
+
+	model.loadModel("Bird_Asset.fbx", false);
+	model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+	model.setPosition(0, 10, -5);
+	model.resetAllAnimations();
+	model.playAllAnimations();
+
+
 }
 
 //-------------------------------------------------------------
 void BirdManager::update(){
 
     ofPoint targetMouse = ofPoint(ofGetMouseX(), ofGetMouseY());
+
+	//3D MODEL
+	model.update();
     
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
@@ -97,7 +109,8 @@ void BirdManager::draw(){
      ofPushView();
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
-        it->drawBasic();
+		drawModel(it);
+		//it->drawBasic();
         //it->drawDebug(debug);
     }
     ofPopView();
@@ -109,6 +122,56 @@ void BirdManager::draw(){
     }
     
 }
+//-------------------------------------------------------------
+void BirdManager::drawModel(vector<Bird>::iterator it) {
+
+	ofPushMatrix();
+	ofTranslate(it->pos.x, it->pos.y, 0);
+
+	
+
+
+
+	
+	//ROTATE ON Y ( LEFT - RIGHT )
+	
+	float angleRotateY = 0;
+	if (abs(it->speed.x) > 1) {
+		angleRotateY = abs(it->speed.x) / it->speed.x * 90;
+	}
+	else {
+		angleRotateY = it->speed.x / 1 * 90.0f;
+	}
+
+	// ROTATE ON Z ( before Y but need Y )
+	float angleRotateZ = 0;
+	float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
+	if (angleRotateY > 0) {
+		angleRotateZ = onY * 90;
+	}
+	else
+	{
+		angleRotateZ = -onY * 90;
+	}
+
+
+	
+	ofRotateDeg(angleRotateZ, 0, 0, 1);
+	ofRotateDeg(angleRotateY, 0, 1, 0);
+	
+	
+	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
+	//FINAL TRANSLATE
+	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
+	model.setScale(0.1, 0.1, 0.1);
+	model.drawFaces();
+	ofPopMatrix();
+	ofSetColor(ofColor::blue);
+	ofDrawLine(it->pos, it->pos + it->speed * 10);
+
+
+}
+
 
 //-------------------------------------------------------------
 void BirdManager::addBird(char l, int order){

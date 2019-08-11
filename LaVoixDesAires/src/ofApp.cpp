@@ -28,7 +28,8 @@ void ofApp::setup(){
     gui.add(pg_polyBackground);
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
     
-    
+    //3D stuff
+	ofDisableArbTex();
     
     
 }
@@ -52,7 +53,27 @@ void ofApp::draw(){
     
     ofColor(255);
     ofNoFill();
+
+	// LIGHT MANAGEMENT
+	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+	ofEnableDepthTest();
+#ifndef TARGET_PROGRAMMABLE_GL
+	glShadeModel(GL_SMOOTH);
+#endif // !TARGET_PROGRAMMABLE_GL
+	light.enable();
+	ofEnableSeparateSpecularLight();
+	
+	// BIRD MANAGER
     birdManager->draw();
+
+
+	ofDisableDepthTest();
+	light.disable();
+	ofDisableLighting();
+	ofDisableSeparateSpecularLight();
+
+
+
     
     //polyBackground->draw();
     

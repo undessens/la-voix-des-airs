@@ -34,6 +34,9 @@ class ofApp : public ofBaseApp{
         ofParameter<int> frameRate;
         ofParameter<bool> debug;
 
+		//Lighting
+		ofLight light;
+
     
     
 

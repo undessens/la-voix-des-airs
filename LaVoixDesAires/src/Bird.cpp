@@ -59,6 +59,8 @@ Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p ){
     //Debug Level
     debugLevel = 0;
     debugScale = 10;
+
+
     
     
     
@@ -82,10 +84,13 @@ void Bird::update(ofPoint target){
         //getEjected(result );
    // }
 
+
+
 	speed += acc;
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
 	pos += speed;
 
+	// OK but reset later, maybe after drawing
 	acc = ofVec2f(0, 0);		// RESET ACCELERATION TO EACH CYCLE
     //updateAttraction(target);
     
@@ -143,6 +148,7 @@ void Bird::drawDebug(int level){
     }
     
 }
+
 
 //-------------------------------------------------------------
 void Bird::getEjected(ofVec2f v ){

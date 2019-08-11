@@ -25,6 +25,7 @@ public:
     void setup();
     void update();
     void draw();
+	void drawModel(vector<Bird>::iterator i);
     
     void changeToLetter();
     
@@ -68,6 +69,9 @@ public:
 	ofParameter<float> separation;
 	ofParameter<float> alignment;
 	ofParameter<float> cohesion;
+
+	//3D MODEL
+	ofxAssimpModelLoader model;
 
     
     

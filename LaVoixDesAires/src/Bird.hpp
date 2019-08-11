@@ -9,7 +9,7 @@
 #define bird_hpp
 #include "ofMain.h"
 #include "PolyBackground.hpp"
-
+#include "ofxAssimpModelLoader.h"
 #include <stdio.h>
 
 class Bird
@@ -49,6 +49,9 @@ public:
 	float swt; //multiply these force
 	float awt;
 	float cwt;
+
+
+
     
     //Environnement
     int w;
