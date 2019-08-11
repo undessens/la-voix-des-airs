@@ -45,6 +45,10 @@ public:
     void setDebugScale(int &i);
     void setStiffness(float &f);
     void setDamping(float &f);
+	void setSeparation(float &f);
+	void setCohesion(float &f);
+	void setAlignment(float &f);
+	void setSize(int &f);
     
     vector<Bird> listOfBird;
     PolyBackground* polyBg;
@@ -61,6 +65,10 @@ public:
     ofParameter<float> noiseSFreq;        // Speed Noise
     ofParameter<float> stiffness;
     ofParameter<float> damping;
+	ofParameter<float> separation;
+	ofParameter<float> alignment;
+	ofParameter<float> cohesion;
+
     
     
     

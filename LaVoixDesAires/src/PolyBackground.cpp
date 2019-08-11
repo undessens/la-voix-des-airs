@@ -26,7 +26,7 @@ PolyBackground::PolyBackground(ofParameterGroup* _pg){
     listOfPoly.clear();
     
     
-    createObstacle();
+    //createObstacle();
 
     
     

@@ -14,7 +14,7 @@ void ofApp::setup(){
     
     //BirdManager
     birdManager = new BirdManager( polyBackground, &pg_birdManager);
-    birdManager->newSequence("o");
+    //birdManager->newSequence("o");
     
     
     //Adding all OSC parameter to gui
@@ -54,12 +54,12 @@ void ofApp::draw(){
     ofNoFill();
     birdManager->draw();
     
-    polyBackground->draw();
+    //polyBackground->draw();
     
     //DEBUG PART
     if(debug){
       
-        ofDrawBitmapStringHighlight("X: "+ofToString(ofGetMouseX() )+" - Y: "+ofToString(ofGetMouseY()), ofGetMouseX(), ofGetMouseY());
+        ofDrawBitmapStringHighlight("FrameRate : "+ofToString(ofGetFrameRate()), ofGetWidth()/2, ofGetHeight());
         
     }
     

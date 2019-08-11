@@ -26,12 +26,29 @@ public:
     void updateAttraction(ofPoint p);
     void getEjected(ofVec2f v);
     void updateEjection(ofPoint p);
+	void applyForce(ofVec2f force);
+	void flock(vector<Bird> Birds);
+	ofVec2f separate(vector<Bird> Birds);
+	ofVec2f  align(vector<Bird> Birds);
+	ofVec2f  cohesion(vector<Bird> Birds);
+	ofVec2f seek(ofVec2f);
+	void borders();
     
     ofPoint pos;
     ofPoint origin;
     ofVec2f speed;
+	ofVec2f acc;
     ofVec2f force;
     ofVec2f noisedForce;
+
+	//max
+	float maxForce;
+	float maxSpeed;
+
+	//Flocking
+	float swt; //multiply these force
+	float awt;
+	float cwt;
     
     //Environnement
     int w;
