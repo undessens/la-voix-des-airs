@@ -205,7 +205,7 @@ void Bird::updateAttraction(ofPoint target){
     
 }
 //-------------------------------------------------------------
-void Bird::flock(vector<Bird> birds) {
+void Bird::flock(vector<Bird>* birds) {
 
 	ofVec2f sep = separate(birds);
 	ofVec2f ali = align(birds);
@@ -230,12 +230,12 @@ void Bird::borders() {
 
 }
 //-------------------------------------------------------------
-ofVec2f Bird::separate(vector<Bird> birds) {
+ofVec2f Bird::separate(vector<Bird>* birds) {
 
 	float desiredseparation = 25;
 	ofVec2f steer = ofVec2f(0,0	);
 	int count = 0;
-	for (vector<Bird>::iterator it = birds.begin(); it < birds.end(); it++)
+	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
 		if ((d > 0) && (d < desiredseparation)) {
@@ -261,11 +261,11 @@ ofVec2f Bird::separate(vector<Bird> birds) {
 }
 
 //-------------------------------------------------------------
-ofVec2f Bird::align(vector<Bird> birds) {
+ofVec2f Bird::align(vector<Bird> *birds) {
 	float neighbordist = 25;
 	ofVec2f steer = ofVec2f(0,0);
 	int count = 0;
-	for (vector<Bird>::iterator it = birds.begin(); it < birds.end(); it++)
+	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
 		if (d > 0 && d < neighbordist) {
@@ -286,11 +286,11 @@ ofVec2f Bird::align(vector<Bird> birds) {
 }
 
 //-------------------------------------------------------------
-ofVec2f Bird::cohesion(vector<Bird> birds) {
+ofVec2f Bird::cohesion(vector<Bird>* birds) {
 	float neighbordist = 50;
 	ofVec2f sum = ofVec2f(0, 0);
 	int count = 0;
-	for (vector<Bird>::iterator it = birds.begin(); it < birds.end(); it++)
+	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
 		if ((d > 0) &&( d < neighbordist)) {

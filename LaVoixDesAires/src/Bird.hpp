@@ -27,10 +27,10 @@ public:
     void getEjected(ofVec2f v);
     void updateEjection(ofPoint p);
 	void applyForce(ofVec2f force);
-	void flock(vector<Bird> Birds);
-	ofVec2f separate(vector<Bird> Birds);
-	ofVec2f  align(vector<Bird> Birds);
-	ofVec2f  cohesion(vector<Bird> Birds);
+	void flock(vector<Bird>* Birds);
+	ofVec2f separate(vector<Bird>* Birds);
+	ofVec2f  align(vector<Bird>* Birds);
+	ofVec2f  cohesion(vector<Bird>* Birds);
 	ofVec2f seek(ofVec2f);
 	void borders();
     

@@ -47,6 +47,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(color);
+	ofSetVerticalSync(true);
     
     //GUI
     gui.draw();

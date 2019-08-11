@@ -73,7 +73,7 @@ void BirdManager::setup(){
     
 	//3D model
 
-	model.loadModel("Bird_Asset.fbx", false);
+	model.loadModel("Bird_Asset.fbx", true);
 	model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
 	model.setPosition(0, 10, -5);
 	model.resetAllAnimations();
@@ -92,7 +92,7 @@ void BirdManager::update(){
     
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
-		it->flock(listOfBird);
+		it->flock(&listOfBird);
 		if (ofGetMousePressed()) {
 			it->updateAttraction(ofPoint(targetMouse));
 		}
@@ -106,14 +106,14 @@ void BirdManager::update(){
 //-------------------------------------------------------------
 void BirdManager::draw(){
     
-     ofPushView();
+    //ofPushView();
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
 		drawModel(it);
 		//it->drawBasic();
         //it->drawDebug(debug);
     }
-    ofPopView();
+    //ofPopView();
     
     //DEBUG from manager
     if(debug > 0 ){
