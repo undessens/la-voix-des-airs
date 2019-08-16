@@ -27,6 +27,7 @@ BirdManager::BirdManager(PolyBackground* poly, ofParameterGroup* _pg){
 void BirdManager::setup(){
     
     listOfBird.clear();
+	listOfBird.reserve(200);
     
     //Add Listener
     noiseDAmplitude.addListener(this, &BirdManager::setNoiseDAmplitude);
@@ -128,8 +129,6 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
-	
-
 
 
 	
@@ -158,12 +157,12 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	
 	ofRotateDeg(angleRotateZ, 0, 0, 1);
 	ofRotateDeg(angleRotateY, 0, 1, 0);
-	
+
 	
 	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-	model.setScale(0.1, 0.1, 0.1);
+	model.setScale(0.09, 0.09, 0.09);
 	model.drawFaces();
 	ofPopMatrix();
 	ofSetColor(ofColor::blue);

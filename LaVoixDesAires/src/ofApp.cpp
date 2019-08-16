@@ -4,7 +4,7 @@
 void ofApp::setup(){
 
     
-    //ofSetFrameRate(2);
+    ofSetFrameRate(60);
     
     // Background Image, ofPolyline ...
     polyBackground = new PolyBackground(&pg_polyBackground);
