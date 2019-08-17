@@ -11,6 +11,11 @@
 
 // ------------   BOUTONS  ------------------
 int digitalinValue[DIGITALIN];
+// --------------- AIMANTS -----------------
+int spacePin = 53;
+int spaceValue = 0;
+int capsPin = 52;
+int capsValue = 0;
 
 
 // --------------- Keyboard To Pin Layout -----------
@@ -30,14 +35,15 @@ int digitalinPin[] =  {
 
 char capsKeyboard[] = {
   'A', '2', 'Z', '3', 'E', '4', 'R', '5', 'T', '6', 'Y', '7', 'U', '8', 'I', '9', 'O', '&', 'P', 
-    'Q', 'W', 'S', 'X', 'D', 'C', 'F', 'V', 'G', 'B', 'H', 'N', 'J', '?', 'K', '.', 'L', ' ', 'M', '\n'
+    'Q', 'W', 'S', 'X', 'D', 'C', 'F', 'V', 'G', 'B', 'H', 'N', 'J', '?', 'K', '.', 'L', '/', 'M', '%'
 };
 
 
 
-//char lowerKeyboard[] = {
-//  
-//};
+char lowerKeyboard[] = {
+  'a', 'é', 'z', '"', 'e', '\'', 'r', '(', 't', '-', 'y', 'è', 'u', '_', 'i', 'ç', 'o', 'à', 'p', 
+    'q', 'w', 's', 'x', 'd', 'c', 'f', 'v', 'g', 'b', 'h', 'n', 'j', ',', 'k', ';', 'l', ':', 'm', '!'
+};
 
 
 void setup() {
@@ -50,6 +56,9 @@ void setup() {
     digitalinValue[i] = !digitalRead(digitalinPin[i]);
   }
 
+  pinMode(spacePin, INPUT);
+  pinMode(capsPin, INPUT);
+
 }
   
 void loop() {
@@ -59,11 +68,30 @@ void loop() {
     int newValueDi = !digitalRead(digitalinPin[i]);
     if (newValueDi != digitalinValue[i]) {
       digitalinValue[i] = newValueDi;
-      if (newValueDi == LOW ) {
-        sendMessage(digitalinPin[i], capsKeyboard[i]);
+      if (newValueDi == HIGH ) {
+        if(capsValue){
+          sendMessage(digitalinPin[i], capsKeyboard[i]);
+        }
+        else{
+          sendMessage(digitalinPin[i], lowerKeyboard[i]);
+        }
+        
       }
     }
   }
+
+  //SPECIAL NON ASCII : SPACE
+  int newValueDi = digitalRead(spacePin);
+    if (newValueDi != spaceValue) {
+      spaceValue = newValueDi;
+      if (newValueDi == HIGH ) {
+        sendMessage(spacePin, ' ');
+      }
+    }
+
+   //SPECIAL NON ASCII : CAPS MAJ
+  capsValue = digitalRead(capsPin);
+
 
   delay(2); // ms 
 }
