@@ -150,7 +150,6 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 		angleRotateZ = -onY * 90;
 	}
 
-
 	
 	ofRotateDeg(angleRotateZ, 0, 0, 1);
 	ofRotateDeg(angleRotateY, 0, 1, 0);
@@ -160,12 +159,11 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
 
-	model.setScale(size/1000, size / 1000, size / 1000);
+	model.setScale(size/1000.0, size / 1000.0, size / 1000.0);
 	model.drawFaces();
 	ofPopMatrix();
 	ofSetColor(ofColor::blue);
 	ofDrawLine(it->pos, it->pos + it->speed * 10);
-
 
 }
 
