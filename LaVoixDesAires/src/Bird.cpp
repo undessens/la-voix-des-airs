@@ -14,7 +14,7 @@ Bird::Bird(){
 
 
 //-------------------------------------------------------------
-Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p ){
+Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p , ofVec2f _target){
     //TODO  : order + total of bird . Like percetange position
     
     // Geometrie cartesian stuff
@@ -23,6 +23,7 @@ Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p ){
 	speed = ofVec2f(ofRandom(-6, 6), ofRandom(-6, 6));
     stiffness = 0.0005;
     damping = 0.5;
+	target = _target;
     
     //Environnement
     polyBg = p;
@@ -51,6 +52,7 @@ Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p ){
 	swt = 0.01; //multiply these force
 	awt = 0.01;
 	cwt = 0.01;
+	twt = 0.0;
 
 	// Max
 	maxSpeed = 5;
@@ -177,47 +179,29 @@ void Bird::applyForce(ofVec2f force) {
 	acc += force;
 }
 
-//-------------------------------------------------------------
-void Bird::updateAttraction(ofPoint target){
-    
-    // First calculate difference from the target
-    force = ( target - pos )* stiffness;
-	force /= 500;
-	applyForce(force);
-    
-    //Force is modified from to 2 kind of noise
 
-    //NOISE SPEED
-    // Noise direction is modifing the left, right direction of the bird
-   // force_amp = force.length();
-   // noiseS = noiseSAmplitude * ofSignedNoise( noiseSFreq * ofGetElapsedTimef());
-    
-   // cout << "\n"+ ofToString(noiseS);
-    // Noise speed, is modifuing the attraction of the bird
-   // ofVec2f force_dir = force;
-   // force_dir = force_dir.normalize();
-   // noiseD = force_dir.getPerpendicular() * noiseDAmplitude * ofSignedNoise(noiseDFreq * ofGetElapsedTimef());
-    
-   // noisedForce = ( force_amp + noiseS )*(force_dir + noiseD);
-    
-
-    
-    
-}
 //-------------------------------------------------------------
 void Bird::flock(vector<Bird>* birds) {
 
 	ofVec2f sep = separate(birds);
 	ofVec2f ali = align(birds);
 	ofVec2f coh = cohesion(birds);
+	ofVec2f att = attraction(ofPoint(ofGetMouseX(), ofGetMouseY()));
+	ofVec2f tar = goToTarget();
 
 	sep *= swt; //multiply these force
 	ali *= awt;
 	coh *= cwt;
+	if (!ofGetMousePressed(2)) {
+		att *= 0;
+	}
+	tar *= twt;
 
 	applyForce(sep);
 	applyForce(ali);
 	applyForce(coh);
+	applyForce(att);
+	applyForce(tar);
 
 }
 //-------------------------------------------------------------
@@ -229,6 +213,8 @@ void Bird::borders() {
 	if (pos.y > ofGetHeight()) pos.y = 0;
 
 }
+// ------------------------------------------------------------ 
+//			FORCE
 //-------------------------------------------------------------
 ofVec2f Bird::separate(vector<Bird>* birds) {
 
@@ -259,7 +245,8 @@ ofVec2f Bird::separate(vector<Bird>* birds) {
 	return steer;
 
 }
-
+// ------------------------------------------------------------ 
+//			FORCE
 //-------------------------------------------------------------
 ofVec2f Bird::align(vector<Bird> *birds) {
 	float neighbordist = 25;
@@ -284,7 +271,8 @@ ofVec2f Bird::align(vector<Bird> *birds) {
 
 	return steer;
 }
-
+// ------------------------------------------------------------ 
+//			FORCE
 //-------------------------------------------------------------
 ofVec2f Bird::cohesion(vector<Bird>* birds) {
 	float neighbordist = 50;
@@ -304,11 +292,13 @@ ofVec2f Bird::cohesion(vector<Bird>* birds) {
 	}
 	return sum;
 }
-
-ofVec2f Bird::seek(ofVec2f target) {
+// ------------------------------------------------------------ 
+//			FORCE
+// ------------------------------------------------------------ 
+ofVec2f Bird::seek(ofVec2f TempTarget) {
 
 	// Pointing from the position to the target
-	ofVec2f desired = target - pos;
+	ofVec2f desired = TempTarget - pos;
 
 	// Normalize desired and scale to maximum speed
 	desired.normalize();
@@ -317,5 +307,29 @@ ofVec2f Bird::seek(ofVec2f target) {
 	steer.limit(maxForce);
 
 	return steer;
+
+}
+// ------------------------------------------------------------ 
+//			FORCE
+//-------------------------------------------------------------
+ofVec2f Bird::attraction(ofPoint tempTarget) {
+
+	// First calculate difference from the target
+	ofVec2f f = (tempTarget - pos)* stiffness;
+	f /= 500;
+
+	return f;
+
+
+}
+// ------------------------------------------------------------ 
+//			FORCE
+// ------------------------------------------------------------ -
+ofVec2f Bird::goToTarget() {
+	
+	ofVec2f f = (target - pos)* stiffness;
+	f /= 500;
+
+	return f;
 
 }

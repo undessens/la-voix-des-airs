@@ -8,6 +8,7 @@
 #include "PolyBackground.hpp"
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
+#include "TextManager.h"
 
 
 class ofApp : public ofBaseApp{
@@ -19,6 +20,7 @@ class ofApp : public ofBaseApp{
     
         BirdManager* birdManager;
         PolyBackground* polyBackground;
+		TextManager* textManager;
     
     
         //GUI
@@ -36,9 +38,6 @@ class ofApp : public ofBaseApp{
 
 		//Lighting
 		ofLight light;
-
-    
-    
 
 		void keyPressed(int key);
 		void keyReleased(int key);
