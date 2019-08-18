@@ -51,10 +51,10 @@ void ofApp::update(){
 
 	//float alpha = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 255);
 
-	fbo.begin();
-	ofSetColor(128, 255, 255, 255);
-	ofDrawRectangle(100, 100, 400, 400);
-	fbo.end();
+	//fbo.begin();
+	//ofSetColor(128, 255, 255, 255);
+	//ofDrawRectangle(100, 100, 400, 400);
+	//fbo.end();
     
 	sender.send(fbo.getTexture());
 
@@ -62,15 +62,12 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(color);
-	ofSetVerticalSync(true);
-    
-    //GUI
-    gui.draw();
-    
-    ofColor(128);
-    ofNoFill();
 
+	fbo.begin();
+
+	ofBackground(color);
+	ofSetVerticalSync(true);
+        
 	// LIGHT MANAGEMENT
 	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 	ofEnableDepthTest();
@@ -78,7 +75,7 @@ void ofApp::draw(){
 	glShadeModel(GL_SMOOTH);
 	#endif // !TARGET_PROGRAMMABLE_GL
 	light.enable();
-	//ofEnableSeparateSpecularLight();
+	ofEnableSeparateSpecularLight();
 	
 	// BIRD MANAGER
     birdManager->draw();
@@ -86,28 +83,26 @@ void ofApp::draw(){
 	ofDisableDepthTest();
 	light.disable();
 	ofDisableLighting();
-	ofDisableSeparateSpecularLight();
-
-
-
-
+	//ofDisableSeparateSpecularLight();
 
 	// Text Manager
 	textManager->draw();
+	
+	fbo.end();
 
-    
     //polyBackground->draw();
     
-    //DEBUG PART
-    if(debug){
-      
-        ofDrawBitmapStringHighlight("FrameRate : "+ofToString(ofGetFrameRate()), ofGetWidth()/2, ofGetHeight());
-        
-    }
+
     
-    
-    
-	//fbo.draw(0, 0);
+	fbo.draw(0, 0);
+	gui.draw();
+
+	//DEBUG PART
+	if (debug) {
+
+		ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
+
+	}
 }
 
 //--------------------------------------------------------------
