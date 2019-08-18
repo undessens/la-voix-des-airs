@@ -49,7 +49,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 10, 2, 300));
+    pg->add(size.set("size", 200, 2, 300));
     
     // Direction Noise , bird change from left to right while reaching the target point
    // pg->add(noiseDAmplitude.set("noiseDAmplitude", 1.0, 0.0, 13.0));
@@ -94,9 +94,6 @@ void BirdManager::update(){
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
 		it->flock(&listOfBird);
-		if (ofGetMousePressed()) {
-			it->updateAttraction(ofPoint(targetMouse));
-		}
 		it->update(targetMouse);
 		it->borders();
 
@@ -162,7 +159,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-	model.setScale(0.09, 0.09, 0.09);
+
+	model.setScale(size/1000, size / 1000, size / 1000);
 	model.drawFaces();
 	ofPopMatrix();
 	ofSetColor(ofColor::blue);
@@ -173,25 +171,16 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 
 //-------------------------------------------------------------
-void BirdManager::addBird(char l, int order){
+void BirdManager::addBird(char l, int order, ofVec2f tar){
     
-    Bird newBird = Bird(l, order, ofGetWidth(), ofGetHeight(), polyBg);
+    Bird newBird = Bird(l, order, ofGetWidth(), ofGetHeight(), polyBg, tar);
     listOfBird.push_back(newBird);
     
     nbBird = listOfBird.size();
-    
+
 }
 
-//-------------------------------------------------------------
-void BirdManager::newSequence(string word){
-    
-    
-    for( int i = 0 ; i< word.size(); i++)
-    {
-        addBird( (char)word[i] ,i );
-    }
-    
-}
+
 
 //-------------------------------------------------------------
 void BirdManager::killAll(){
@@ -267,7 +256,7 @@ void BirdManager::setNbBird(int &nb){
         //Create new bird
         int nbToCreate = nb - listOfBird.size();
         for (int i = 0; i< nbToCreate ; i++){
-            addBird((char)(61+ofRandom(24)), listOfBird.size()-1);
+            addBird((char)(61+ofRandom(24)), listOfBird.size()-1, ofVec2f(ofRandom(500), 300));
         }
         
     }

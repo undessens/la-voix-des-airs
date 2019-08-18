@@ -15,6 +15,8 @@ void ofApp::setup(){
     //BirdManager
     birdManager = new BirdManager( polyBackground, &pg_birdManager);
     //birdManager->newSequence("o");
+
+	textManager = new TextManager();
     
     
     //Adding all OSC parameter to gui
@@ -30,7 +32,8 @@ void ofApp::setup(){
     
     //3D stuff
 	ofDisableArbTex();
-    
+
+
     
 }
 
@@ -62,11 +65,10 @@ void ofApp::draw(){
 	glShadeModel(GL_SMOOTH);
 #endif // !TARGET_PROGRAMMABLE_GL
 	light.enable();
-	ofEnableSeparateSpecularLight();
+	//ofEnableSeparateSpecularLight();
 	
 	// BIRD MANAGER
     birdManager->draw();
-
 
 	ofDisableDepthTest();
 	light.disable();
@@ -74,6 +76,11 @@ void ofApp::draw(){
 	ofDisableSeparateSpecularLight();
 
 
+
+
+
+	// Text Manager
+	textManager->draw();
 
     
     //polyBackground->draw();
@@ -93,6 +100,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
+	textManager->addLetter((char)key);
 }
 
 //--------------------------------------------------------------
