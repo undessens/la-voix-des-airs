@@ -33,8 +33,12 @@ void ofApp::setup(){
     //3D stuff
 	ofDisableArbTex();
 
+	//fbo allocation
+	fbo.allocate(1024, 768, GL_RGBA);
 
-    
+	// sender name for madmapper
+	sender.init("My_Lovely_Birds");
+
 }
 
 //--------------------------------------------------------------
@@ -44,7 +48,16 @@ void ofApp::update(){
     
     // GUI update
     sync.update();
+
+	//float alpha = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 255);
+
+	fbo.begin();
+	ofSetColor(128, 255, 255, 255);
+	ofDrawRectangle(100, 100, 400, 400);
+	fbo.end();
     
+	sender.send(fbo.getTexture());
+
 }
 
 //--------------------------------------------------------------
@@ -55,15 +68,15 @@ void ofApp::draw(){
     //GUI
     gui.draw();
     
-    ofColor(255);
+    ofColor(128);
     ofNoFill();
 
 	// LIGHT MANAGEMENT
 	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 	ofEnableDepthTest();
-#ifndef TARGET_PROGRAMMABLE_GL
+	#ifndef TARGET_PROGRAMMABLE_GL
 	glShadeModel(GL_SMOOTH);
-#endif // !TARGET_PROGRAMMABLE_GL
+	#endif // !TARGET_PROGRAMMABLE_GL
 	light.enable();
 	ofEnableSeparateSpecularLight();
 	
@@ -95,7 +108,7 @@ void ofApp::draw(){
     
     
     
-    
+	//fbo.draw(0, 0);
 }
 
 //--------------------------------------------------------------
