@@ -159,11 +159,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-<<<<<<< HEAD
-	model.setScale(size/1000.0,size/1000.0, size/1000.0);
-=======
+
 	model.setScale(size/1000, size / 1000, size / 1000);
->>>>>>> origin/master
 	model.drawFaces();
 	ofPopMatrix();
 	ofSetColor(ofColor::blue);
