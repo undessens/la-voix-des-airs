@@ -15,6 +15,8 @@ void ofApp::setup(){
     //BirdManager
     birdManager = new BirdManager( polyBackground, &pg_birdManager);
     //birdManager->newSequence("o");
+
+	textManager = new TextManager();
     
     
     //Adding all OSC parameter to gui
@@ -30,7 +32,8 @@ void ofApp::setup(){
     
     //3D stuff
 	ofDisableArbTex();
-    
+
+
     
 }
 
@@ -75,6 +78,11 @@ void ofApp::draw(){
 
 
 
+
+
+	// Text Manager
+	textManager->draw();
+
     
     //polyBackground->draw();
     
@@ -93,6 +101,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
+	textManager->addLetter((char)key);
 }
 
 //--------------------------------------------------------------

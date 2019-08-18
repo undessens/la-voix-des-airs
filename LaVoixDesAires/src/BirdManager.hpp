@@ -32,8 +32,7 @@ public:
     void killAll();
     
     //Manage instances
-    void addBird(char letter, int order);
-    void newSequence( string word  );
+    void addBird(char letter, int order, ofVec2f t);
     void setNbBird( int &i);
     
     

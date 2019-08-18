@@ -18,12 +18,12 @@ class Bird
 public:
     
     Bird();
-    Bird( char letter, int order, int w, int h , PolyBackground* p);
+    Bird( char letter, int order, int w, int h , PolyBackground* p, ofVec2f t);
     
     void update(ofPoint t);
     void drawBasic();
     void drawDebug(int l);
-    void updateAttraction(ofPoint p);
+    
     void getEjected(ofVec2f v);
     void updateEjection(ofPoint p);
 	void applyForce(ofVec2f force);
@@ -31,11 +31,14 @@ public:
 	ofVec2f separate(vector<Bird>* Birds);
 	ofVec2f  align(vector<Bird>* Birds);
 	ofVec2f  cohesion(vector<Bird>* Birds);
-	ofVec2f seek(ofVec2f);
+	ofVec2f  seek(ofVec2f);
+	ofVec2f  goToTarget();
+	ofVec2f attraction(ofPoint p);
 	void borders();
     
     ofPoint pos;
     ofPoint origin;
+	ofVec2f target;
     ofVec2f speed;
 	ofVec2f acc;
     ofVec2f force;
@@ -45,12 +48,11 @@ public:
 	float maxForce;
 	float maxSpeed;
 
-	//Flocking
-	float swt; //multiply these force
-	float awt;
-	float cwt;
-
-
+	//Force multiplier
+	float swt; //go to mouse
+	float awt;  // align
+	float cwt;	//cohesion
+	float twt;	// go to target
 
     
     //Environnement
