@@ -9,6 +9,7 @@
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
 #include "TextManager.h"
+#include "ofxSpout.h"
 
 
 class ofApp : public ofBaseApp{
@@ -38,6 +39,12 @@ class ofApp : public ofBaseApp{
 
 		//Lighting
 		ofLight light;
+
+		//FBO
+		ofFbo fbo;
+
+		// Spout sender
+		ofxSpout::Sender sender;
 
 		void keyPressed(int key);
 		void keyReleased(int key);
