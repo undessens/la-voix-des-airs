@@ -74,27 +74,12 @@ Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p , ofVec2f
 //-------------------------------------------------------------
 void Bird::update(ofPoint target){
     
-    
-    // Check environnement
-    // is result is 0,0 , nothing is inside
-    // is result > 0, get the vector is the direction of avoiding the obstacle
-   // ofVec2f result =  polyBg->isInside(pos + speed);
-    
-   // if(result.length() > 0 ){  // if is inside an obstacle
-        
-        //Getting ejected
-        //getEjected(result );
-   // }
-
-
-
 	speed += acc;
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
 	pos += speed;
 
 	// OK but reset later, maybe after drawing
 	acc = ofVec2f(0, 0);		// RESET ACCELERATION TO EACH CYCLE
-    //updateAttraction(target);
     
     
 }
@@ -108,16 +93,17 @@ void Bird::drawBasic(){
     ofSetLineWidth(speed.length()*3);
     //ofDrawLine(pos.x, pos.y, (pos + force*10 ).x , (pos + force*10).y);
     ofSetLineWidth(1);
-    
-    
+     
 }
 
 void Bird::drawDebug(int level){
     
     //Debut Printing
     switch(level){
-        
-        case 1 :
+        case 1 : ofSetColor(255);
+            ofDrawCircle(target.x,target.y,10);
+            break;
+        case 9 :
             ofDrawBitmapStringHighlight("speedX: "+ofToString(speed.x )+" - Y:"+ofToString(speed.y), pos.x, pos.y+35);
             ofDrawBitmapStringHighlight("forceX: "+ofToString(force.x )+" - forceY:"+ofToString(force.y), pos.x, pos.y);
             ofDrawBitmapStringHighlight("posX: "+ofToString(pos.x )+" - posY:"+ofToString(pos.y), pos.x, pos.y+15);
@@ -127,7 +113,7 @@ void Bird::drawDebug(int level){
                 //ofDrawLine(pos.x, pos.y, (pos + eject_direction*100 ).x , (pos + eject_direction*100).y);
             }
         break;
-        case 2 :
+        case 8 :
             //Draw debug noise
             int scale = debugScale;
             ofSetLineWidth(1);
@@ -142,9 +128,7 @@ void Bird::drawDebug(int level){
             ofDrawLine( noiseSpeed.x , noiseSpeed.y, noiseSpeed.x + (noiseD*scale).x, noiseSpeed.y + (noiseD*scale).y  );
             //ofSetColor(ofColor::pink);
             //ofDrawLine(pos.x, pos.y, pos.x + noisedForce.x, pos.y + noisedForce.y);
-            
-            
-            
+
         break;
         
     }
@@ -316,8 +300,8 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 
 	// First calculate difference from the target
 	ofVec2f f = (tempTarget - pos)* stiffness;
-	f /= 500;
-
+	f /= 500.0;
+    f.limit(maxForce);
 	return f;
 
 
@@ -327,9 +311,24 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 // ------------------------------------------------------------ -
 ofVec2f Bird::goToTarget() {
 	
-	ofVec2f f = (target - pos)* stiffness;
-	f /= 500;
+    ofVec2f dist = (target - pos);
+    if(dist.length() < 150 && twt>0.5){
+        if(maxSpeed>2)maxSpeed *=0.999;
+        if(maxSpeed>1.5)maxSpeed *=0.995;
+        if(maxSpeed>1)maxSpeed *=0.99;
+        
+     
+    }
+    if(dist.length() < 15 && twt>0.5){
+        if(maxSpeed>0.01)maxSpeed *= 0.9;
 
-	return f;
+        
+    }
+    dist *= stiffness;
+    dist /= 500;
+    dist.limit(maxForce);
+    
+	
+	return dist;
 
 }

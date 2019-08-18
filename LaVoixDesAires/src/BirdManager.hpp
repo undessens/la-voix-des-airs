@@ -48,6 +48,9 @@ public:
 	void setSeparation(float &f);
 	void setCohesion(float &f);
 	void setAlignment(float &f);
+    void setTargetAttraction(float &f);
+    void setMaxSpeed(float &f);
+    void setMaxForce(float &f);
 	void setSize(int &f);
     
     vector<Bird> listOfBird;
@@ -68,6 +71,9 @@ public:
 	ofParameter<float> separation;
 	ofParameter<float> alignment;
 	ofParameter<float> cohesion;
+    ofParameter<float> targetAttraction;
+    ofParameter<float> maxSpeed;
+    ofParameter<float> maxForce;
 
 	//3D MODEL
 	ofxAssimpModelLoader model;

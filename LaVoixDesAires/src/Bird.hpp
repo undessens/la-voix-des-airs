@@ -29,10 +29,10 @@ public:
 	void applyForce(ofVec2f force);
 	void flock(vector<Bird>* Birds);
 	ofVec2f separate(vector<Bird>* Birds);
-	ofVec2f  align(vector<Bird>* Birds);
-	ofVec2f  cohesion(vector<Bird>* Birds);
-	ofVec2f  seek(ofVec2f);
-	ofVec2f  goToTarget();
+	ofVec2f align(vector<Bird>* Birds);
+	ofVec2f cohesion(vector<Bird>* Birds);
+	ofVec2f seek(ofVec2f);
+	ofVec2f goToTarget();
 	ofVec2f attraction(ofPoint p);
 	void borders();
     
@@ -86,10 +86,6 @@ public:
     //Debug stuff
     int debugLevel;
     int debugScale;
-    
-    
-    
-    
     
     
 };

@@ -42,14 +42,17 @@ void BirdManager::setup(){
 	separation.addListener(this, &BirdManager::setSeparation);
 	alignment.addListener(this, &BirdManager::setAlignment);
 	cohesion.addListener(this, &BirdManager::setCohesion);
+    targetAttraction.addListener(this, &BirdManager::setTargetAttraction);
 	size.addListener(this, &BirdManager::setSize);
+    maxSpeed.addListener(this, &BirdManager::setMaxSpeed);
+    maxForce.addListener(this, &BirdManager::setMaxForce);
     
     // GUI parameter
     //pg->setName("birdmanager");
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 200, 2, 300));
+    pg->add(size.set("size", 200, 2, 500));
     
     // Direction Noise , bird change from left to right while reaching the target point
    // pg->add(noiseDAmplitude.set("noiseDAmplitude", 1.0, 0.0, 13.0));
@@ -63,6 +66,9 @@ void BirdManager::setup(){
 	pg->add(separation.set("separation",0.1, 0, 1));
 	pg->add(cohesion.set("cohesion",0.1, 0, 1));
 	pg->add(alignment.set("alignment",0.1, 0, 1));
+    pg->add(targetAttraction.set("target att", 0.0,0, 10.0 ));
+    pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
+    pg->add(maxForce.set("max force", 0.25, 0.001, 0.8));
 
     pg->add(stiffness.set("stiffness", 0.05, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
@@ -109,14 +115,13 @@ void BirdManager::draw(){
     {
 		drawModel(it);
 		//it->drawBasic();
-        //it->drawDebug(debug);
+        //it->drawDebug(1);
     }
     //ofPopView();
     
     //DEBUG from manager
     if(debug > 0 ){
-        //Write debug here
-        //Write debug here
+
     }
     
 }
@@ -126,9 +131,6 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
-
-
-	
 	//ROTATE ON Y ( LEFT - RIGHT )
 	
 	float angleRotateY = 0;
@@ -160,7 +162,7 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
 
-	model.setScale(size/1000, size / 1000, size / 1000);
+	model.setScale(size/1000.0, size /1000.0, size /1000.0);
 	model.drawFaces();
 	ofPopMatrix();
 	ofSetColor(ofColor::blue);
@@ -325,6 +327,16 @@ void BirdManager::setAlignment(float &i) {
 }
 
 //-------------------------------------------------------------
+void BirdManager::setTargetAttraction(float &i) {
+    
+    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    {
+        it->twt = i;
+    }
+    
+}
+
+//-------------------------------------------------------------
 void BirdManager::setSize(int &i) {
 
 	for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
@@ -334,6 +346,25 @@ void BirdManager::setSize(int &i) {
 
 }
 
+//-------------------------------------------------------------
+void BirdManager::setMaxSpeed(float &f) {
+    
+    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    {
+        it->maxSpeed= f;
+    }
+    
+}
+
+//-------------------------------------------------------------
+void BirdManager::setMaxForce(float &f) {
+    
+    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    {
+        it->maxForce= f;
+    }
+    
+}
 
 
 

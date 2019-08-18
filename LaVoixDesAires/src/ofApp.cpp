@@ -16,8 +16,7 @@ void ofApp::setup(){
     birdManager = new BirdManager( polyBackground, &pg_birdManager);
     //birdManager->newSequence("o");
 
-	textManager = new TextManager();
-    
+	textManager = new TextManager(birdManager);
     
     //Adding all OSC parameter to gui
     pg.setName("main");
