@@ -49,7 +49,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 10, 2, 300));
+    pg->add(size.set("size", 200, 2, 300));
     
     // Direction Noise , bird change from left to right while reaching the target point
    // pg->add(noiseDAmplitude.set("noiseDAmplitude", 1.0, 0.0, 13.0));
@@ -159,6 +159,7 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
+
 	model.setScale(size/1000, size / 1000, size / 1000);
 	model.drawFaces();
 	ofPopMatrix();

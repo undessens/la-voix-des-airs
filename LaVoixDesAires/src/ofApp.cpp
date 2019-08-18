@@ -78,11 +78,10 @@ void ofApp::draw(){
 	glShadeModel(GL_SMOOTH);
 	#endif // !TARGET_PROGRAMMABLE_GL
 	light.enable();
-	ofEnableSeparateSpecularLight();
+	//ofEnableSeparateSpecularLight();
 	
 	// BIRD MANAGER
     birdManager->draw();
-
 
 	ofDisableDepthTest();
 	light.disable();
