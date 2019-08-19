@@ -5,15 +5,19 @@
 class TextManager
 {
 public:
-	TextManager();
-    TextManager(BirdManager* b);
+
+    TextManager();
+    TextManager(BirdManager* b, ofParameterGroup* pg);
 	void draw();
     void drawPoly();
 	~TextManager();
 	void addLetter(char c);
+    
+    //OfParameter group
+    ofParameterGroup* pg;
 
 	//Font
-	ofTrueTypeFont font;
+	ofTrueTypeFont font ;
 	int size;
     
     //Polyline
@@ -21,6 +25,9 @@ public:
     
     //BirdManager
     BirdManager* birdmanager;
+    
+    //Parameter
+    ofParameter<bool> isDraw;
 
 	ofVec2f startPoint;
 	string text;

@@ -53,6 +53,10 @@ public:
 	float awt;  // align
 	float cwt;	//cohesion
 	float twt;	// go to target
+    
+    //Neighbours
+    Bird* neighbourLeft;
+    Bird* neighbourRight;
 
     
     //Environnement

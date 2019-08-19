@@ -14,36 +14,22 @@ void ofApp::setup() {
 
 	//BirdManager
 	birdManager = new BirdManager(polyBackground, &pg_birdManager);
-	//birdManager->newSequence("o");
 
-
-	textManager = new TextManager(birdManager);
+    // Text Manager
+    textManager = new TextManager(birdManager, &pg_textManager);
     
-    //Adding all OSC parameter to gui
+    //Global parameter
     pg.setName("main");
     pg.add(color.set("color",200,0,255));
     pg.add(frameRate.set("frameRate", 30, 0, 50));
     pg.add(debug.set("debug", false));
     
+    // Adding all parameter to GUI
     gui.setup(pg);
     gui.add(pg_birdManager);
     gui.add(pg_polyBackground);
+    gui.add(pg_textManager);
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
-    
-    //3D stuff
-	textManager = new TextManager();
-
-
-	//Adding all OSC parameter to gui
-	pg.setName("main");
-	pg.add(color.set("color", 200, 0, 255));
-	pg.add(frameRate.set("frameRate", 30, 0, 50));
-	pg.add(debug.set("debug", false));
-
-	gui.setup(pg);
-	gui.add(pg_birdManager);
-	gui.add(pg_polyBackground);
-	sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
 
 	//3D stuff
 	ofDisableArbTex();
@@ -52,8 +38,10 @@ void ofApp::setup() {
 	fbo.allocate(1024, 768, GL_RGBA);
 
 	// sender name for madmapper
+#if defined(_WIN32)
 	sender.init("My_Lovely_Birds");
-
+#endif
+    
 }
 
 //--------------------------------------------------------------
@@ -64,14 +52,11 @@ void ofApp::update() {
 	// GUI update
 	sync.update();
 
-	//float alpha = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 255);
-
-	//fbo.begin();
-	//ofSetColor(128, 255, 255, 255);
-	//ofDrawRectangle(100, 100, 400, 400);
-	//fbo.end();
-
-	sender.send(fbo.getTexture());
+    //SPOUT windows only
+#if defined(_WIN32)
+    sender.send(fbo.getTexture());
+#endif
+	
 
 }
 
@@ -100,18 +85,21 @@ void ofApp::draw() {
 	ofDisableSeparateSpecularLight();
 
 	// Text Manager
-	textManager->draw();
-
+    textManager->drawPoly();
 	fbo.end();
 
 	//DEBUG PART
 	if (debug) {
 		ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
 	}
-
+    
+    //FBO
+    ofSetColor(255);
 	fbo.draw(0, 0);
 	//GUI
-	gui.draw();
+	
+    
+    gui.draw();
 
 }
 

@@ -114,15 +114,21 @@ void BirdManager::draw(){
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
 		drawModel(it);
+        ofVec2f actual = it->pos;
+        it--;
+        ofVec2f prec= it->pos;
+
+
+        if(prec.distance(actual)<100) {
+            ofDrawLine(prec,actual);
+        }
 		//it->drawBasic();
-        //it->drawDebug(1);
+        // Draw some debug view on birds
+        it++;
+        it->drawDebug(debug);
     }
     //ofPopView();
     
-    //DEBUG from manager
-    if(debug > 0 ){
-
-    }
     
 }
 //-------------------------------------------------------------
@@ -165,8 +171,6 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 	model.drawFaces();
 	ofPopMatrix();
-	ofSetColor(ofColor::blue);
-	ofDrawLine(it->pos, it->pos + it->speed * 10);
 
 }
 

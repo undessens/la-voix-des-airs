@@ -9,7 +9,9 @@
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
 #include "TextManager.h"
+#if defined(_WIN32)
 #include "ofxSpout.h"
+#endif
 
 
 class ofApp : public ofBaseApp{
@@ -31,6 +33,7 @@ class ofApp : public ofBaseApp{
         ofParameterGroup pg_birdManager;
         ofParameterGroup pg_polyBackground;
         ofParameterGroup pg_trajectoryPlayer;
+        ofParameterGroup pg_textManager;
     
         //Parameters of main program
         ofParameter<int> color;
@@ -44,8 +47,9 @@ class ofApp : public ofBaseApp{
 		ofFbo fbo;
 
 		// Spout sender
+#if defined(_WIN32)
 		ofxSpout::Sender sender;
-
+#endif
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );

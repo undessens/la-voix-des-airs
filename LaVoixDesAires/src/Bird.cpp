@@ -103,6 +103,10 @@ void Bird::drawDebug(int level){
         case 1 : ofSetColor(255);
             ofDrawCircle(target.x,target.y,10);
             break;
+        case 2 :
+            ofSetColor(ofColor::blue);
+            ofDrawLine(pos, pos + speed * 10);
+            break;
         case 9 :
             ofDrawBitmapStringHighlight("speedX: "+ofToString(speed.x )+" - Y:"+ofToString(speed.y), pos.x, pos.y+35);
             ofDrawBitmapStringHighlight("forceX: "+ofToString(force.x )+" - forceY:"+ofToString(force.y), pos.x, pos.y);
@@ -320,7 +324,12 @@ ofVec2f Bird::goToTarget() {
      
     }
     if(dist.length() < 15 && twt>0.5){
-        if(maxSpeed>0.01)maxSpeed *= 0.9;
+        if(maxSpeed<0.1)maxSpeed *= 0.9;
+        // reduce all group parameter to zero
+        // Keep the body fixe to the final 
+        cwt = 0;
+        awt = 0;
+        swt = 0;
 
         
     }
