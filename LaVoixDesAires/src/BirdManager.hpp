@@ -32,15 +32,13 @@ public:
     void killAll();
     
     //Manage instances
-    void addBird(char letter, int order, ofVec2f t);
+    void addBird(ofPolyline p);
     void setNbBird( int &i);
     
     
     //Setter to all instances
-    void setNoiseDAmplitude( float &f);
-    void setNoiseDFreq( float &f);
-    void setNoiseSAmplitude (float &f);
-    void setNoiseSFreq( float &f);
+
+
     void setDebug(int &i);
     void setDebugScale(int &i);
     void setStiffness(float &f);
@@ -62,10 +60,7 @@ public:
     ofParameter<int> debugScale;
     ofParameter<int> nbBird;
     ofParameter<int> size;
-    ofParameter<float> noiseDAmplitude;   // Direction noise
-    ofParameter<float> noiseDFreq;
-    ofParameter<float> noiseSAmplitude;
-    ofParameter<float> noiseSFreq;        // Speed Noise
+
     ofParameter<float> stiffness;
     ofParameter<float> damping;
 	ofParameter<float> separation;

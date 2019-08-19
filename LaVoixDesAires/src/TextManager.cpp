@@ -54,14 +54,10 @@ void TextManager::addLetter(char c) {
             
                 //Add to List of Poly
                 listOfPoly.push_back(simple);
-            
-                for (int i = 0; i < simple.size(); i++) {
-                    ofSetColor(ofColor::blue);
-                    ofVec3f p = simple[i];
+ 
+                birdmanager->addBird(simple);
                     
-                    birdmanager->addBird(c, i, p);
-                    
-                }
+
             
             }
         

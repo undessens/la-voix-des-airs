@@ -30,11 +30,6 @@ void BirdManager::setup(){
 	listOfBird.reserve(200);
     
     //Add Listener
-    noiseDAmplitude.addListener(this, &BirdManager::setNoiseDAmplitude);
-    noiseDFreq.addListener(this, &BirdManager::setNoiseDFreq);
-    noiseSAmplitude.addListener(this, &BirdManager::setNoiseSAmplitude);
-    noiseSFreq.addListener(this, &BirdManager::setNoiseSFreq);
-    nbBird.addListener(this, &BirdManager::setNbBird);
     debug.addListener(this,&BirdManager::setDebug);
     debugScale.addListener(this,&BirdManager::setDebugScale);
     stiffness.addListener(this, &BirdManager::setStiffness);
@@ -52,7 +47,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 200, 2, 500));
+    pg->add(size.set("size", 50, 2, 500));
     
     // Direction Noise , bird change from left to right while reaching the target point
    // pg->add(noiseDAmplitude.set("noiseDAmplitude", 1.0, 0.0, 13.0));
@@ -114,17 +109,12 @@ void BirdManager::draw(){
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
 		drawModel(it);
-        ofVec2f actual = it->pos;
-        it--;
-        ofVec2f prec= it->pos;
 
-
-        if(prec.distance(actual)<100) {
-            ofDrawLine(prec,actual);
+        //Draw line between letter
+        if(it->pos.distance(it->neighbourLeft->pos) <100) {
+            ofDrawLine(it->pos,it->neighbourLeft->pos);
         }
-		//it->drawBasic();
-        // Draw some debug view on birds
-        it++;
+
         it->drawDebug(debug);
     }
     //ofPopView();
@@ -176,12 +166,31 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 
 //-------------------------------------------------------------
-void BirdManager::addBird(char l, int order, ofVec2f tar){
+void BirdManager::addBird(ofPolyline p){
+    if(p.size()>0){
     
-    Bird newBird = Bird(l, order, ofGetWidth(), ofGetHeight(), polyBg, tar);
-    listOfBird.push_back(newBird);
-    
-    nbBird = listOfBird.size();
+        int count = listOfBird.size();
+        
+        for(int i=0; i<p.size(); i++){
+            
+             Bird newBird = Bird(polyBg,p[i], size);
+             listOfBird.push_back(newBird);
+        }
+        
+        //Create neighbour now
+         for(int i=0; i<p.size(); i++){
+          
+             if(i>0){
+             listOfBird[count + i].neighbourLeft = &(listOfBird[count + i - 1]);
+             }
+             if(i==0){
+                 listOfBird[count].neighbourLeft = &(listOfBird[count + p.size() -1]);
+             }
+             
+         }
+        
+        
+    }
 
 }
 
@@ -191,46 +200,6 @@ void BirdManager::addBird(char l, int order, ofVec2f tar){
 void BirdManager::killAll(){
     
     listOfBird.clear();
-}
-
-//-------------------------------------------------------------
-void BirdManager::setNoiseDAmplitude(float &f){
-    
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->noiseDAmplitude = f;
-    }
-    
-}
-
-//-------------------------------------------------------------
-void BirdManager::setNoiseSAmplitude(float &f){
-    
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->noiseSAmplitude = f;
-    }
-    
-}
-
-//-------------------------------------------------------------
-void BirdManager::setNoiseDFreq(float &f){
-    
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->noiseDFreq = f;
-    }
-    
-}
-
-//-------------------------------------------------------------
-void BirdManager::setNoiseSFreq(float &f){
-    
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->noiseSFreq = f;
-    }
-    
 }
 
 //-------------------------------------------------------------
@@ -253,31 +222,7 @@ void BirdManager::setDamping(float &f){
     
 }
 
-//-------------------------------------------------------------
-void BirdManager::setNbBird(int &nb){
-    
-    if(nb > listOfBird.size()){
-        
-        //Create new bird
-        int nbToCreate = nb - listOfBird.size();
-        for (int i = 0; i< nbToCreate ; i++){
-            addBird((char)(61+ofRandom(24)), listOfBird.size()-1, ofVec2f(ofRandom(500), 300));
-        }
-        
-    }
-    else if(nb < listOfBird.size()){
-        
-        //Delete existing bird
-        int nbToDelete = listOfBird.size() - nb;
-        
-        for(int i = 0; i<nbToDelete; i++){
-            listOfBird.pop_back();
-        }
-        
-    }
-    
-    
-}
+
 
 //-------------------------------------------------------------
 void BirdManager::setDebug(int &i){

@@ -14,40 +14,36 @@ Bird::Bird(){
 
 
 //-------------------------------------------------------------
-Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p , ofVec2f _target){
+Bird::Bird( PolyBackground* p ,
+           ofVec2f _target,
+           int _size
+           
+           
+           ){
     //TODO  : order + total of bird . Like percetange position
     
     // Geometrie cartesian stuff
     pos = ofPoint(ofGetWidth()/2, ofGetHeight()/2);
     acc = ofVec2f(0, 0);
-	speed = ofVec2f(ofRandom(-6, 6), ofRandom(-6, 6));
-    stiffness = 0.0005;
+	speed = ofVec2f(ofRandom(-4+2, 4+2), ofRandom(-1, 1));
+    stiffness = 0.5;
     damping = 0.5;
 	target = _target;
     
+    //Neighbour
+    isNeighbour = false;
+    
     //Environnement
     polyBg = p;
-    w = _w;
-    h = _h;
     eject_force = 10.0f;       //multiplier of the speed when ejected for obstacle.
     is_ejected = false;
     
     // Noise stuff ... not really clear
-    size = 10;
-
-    noiseDAmplitude=0;  // Direction noise
-    noiseDFreq = 0.1;
-    
-    noiseSAmplitude = 0;
-    noiseSFreq = 0.1;
-    
+    size = _size;
+   
     stiffness = 0.05;  //force to join centroid
     damping = 0.5;
     
-    //Letter stuff
-    letter = _letter;
-    order = _order;
-
 	//FLOCK
 	swt = 0.01; //multiply these force
 	awt = 0.01;
@@ -61,14 +57,6 @@ Bird::Bird(char _letter, int _order, int _w, int _h, PolyBackground* p , ofVec2f
     //Debug Level
     debugLevel = 0;
     debugScale = 10;
-
-
-    
-    
-    
-
-    
-
     
 }
 //-------------------------------------------------------------
@@ -80,7 +68,6 @@ void Bird::update(ofPoint target){
 
 	// OK but reset later, maybe after drawing
 	acc = ofVec2f(0, 0);		// RESET ACCELERATION TO EACH CYCLE
-    
     
 }
 //-------------------------------------------------------------
@@ -101,7 +88,8 @@ void Bird::drawDebug(int level){
     //Debut Printing
     switch(level){
         case 1 : ofSetColor(255);
-            ofDrawCircle(target.x,target.y,10);
+            ofSetLineWidth(0.5);
+            ofDrawCircle(target.x,target.y,2);
             break;
         case 2 :
             ofSetColor(ofColor::blue);
@@ -118,20 +106,7 @@ void Bird::drawDebug(int level){
             }
         break;
         case 8 :
-            //Draw debug noise
-            int scale = debugScale;
-            ofSetLineWidth(1);
-            ofSetColor(ofColor::yellow);
-            ofDrawLine(pos.x, pos.y, (pos + force*scale ).x , (pos + force*scale).y);
-            ofSetColor(ofColor::blue);
-            ofVec2f force_normalize = force;
-            force_normalize.normalize();
-            ofVec2f noiseSpeed = pos + (force + force_normalize*noiseS)*scale;
-            ofDrawLine((pos + force*scale ).x, (pos + force*scale).y, noiseSpeed.x , noiseSpeed.y);
-            ofSetColor(ofColor::red);
-            ofDrawLine( noiseSpeed.x , noiseSpeed.y, noiseSpeed.x + (noiseD*scale).x, noiseSpeed.y + (noiseD*scale).y  );
-            //ofSetColor(ofColor::pink);
-            //ofDrawLine(pos.x, pos.y, pos.x + noisedForce.x, pos.y + noisedForce.y);
+
 
         break;
         
@@ -316,20 +291,22 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 ofVec2f Bird::goToTarget() {
 	
     ofVec2f dist = (target - pos);
-    if(dist.length() < 150 && twt>0.5){
-        if(maxSpeed>2)maxSpeed *=0.999;
-        if(maxSpeed>1.5)maxSpeed *=0.995;
-        if(maxSpeed>1)maxSpeed *=0.99;
+    if(dist.length() < 200 && twt>0.5){
+        if(maxSpeed>2)maxSpeed *=0.995;
+        if(maxSpeed>1.5)maxSpeed *=0.99;
+        if(maxSpeed>1)maxSpeed *=0.98;
         
      
     }
     if(dist.length() < 15 && twt>0.5){
-        if(maxSpeed<0.1)maxSpeed *= 0.9;
+        if(maxSpeed>0.2){
+            maxSpeed *= 0.9;
+        }
         // reduce all group parameter to zero
         // Keep the body fixe to the final 
-        cwt = 0;
-        awt = 0;
-        swt = 0;
+        //cwt = 0;
+        //awt = 0;
+        //swt = 0;
 
         
     }

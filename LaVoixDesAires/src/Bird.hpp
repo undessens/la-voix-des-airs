@@ -18,7 +18,9 @@ class Bird
 public:
     
     Bird();
-    Bird( char letter, int order, int w, int h , PolyBackground* p, ofVec2f t);
+    Bird( PolyBackground* p,
+         ofVec2f t,
+         int size);
     
     void update(ofPoint t);
     void drawBasic();
@@ -55,37 +57,20 @@ public:
 	float twt;	// go to target
     
     //Neighbours
+    bool isNeighbour;
     Bird* neighbourLeft;
-    Bird* neighbourRight;
 
-    
     //Environnement
-    int w;
-    int h;
     PolyBackground* polyBg;
     float eject_force ;     //force being ejected for an obstacle
     bool is_ejected;        // situation of ejection during the count
     ofVec2f eject_direction;
     
-    // Noise stuff ... not really clear
+    // Size
     float size;
-    
-    float force_amp;
-    
-    ofVec2f noiseD;
-    float noiseDAmplitude;   // Direction noise
-    float noiseDFreq;
-    
-    float noiseS;
-    float noiseSAmplitude;
-    float noiseSFreq;
     
     float stiffness;  //force to join centroid
     float damping;
-    
-    //Letter stuff
-    char letter;  // Final letter to display
-    int order;
     
     //Debug stuff
     int debugLevel;
