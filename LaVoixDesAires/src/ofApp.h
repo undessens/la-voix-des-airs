@@ -61,5 +61,12 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		// OSC receiver
+		ofxOscReceiver osc_receiver; 
+
+		// ASCII char from osc
+		int32_t letter; 
+
 		
 };

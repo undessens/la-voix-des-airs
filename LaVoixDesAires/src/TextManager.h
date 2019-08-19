@@ -11,7 +11,7 @@ public:
 	void draw();
     void drawPoly();
 	~TextManager();
-	void addLetter(char c);
+	void addLetter(int c);
     
     //OfParameter group
     ofParameterGroup* pg;

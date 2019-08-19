@@ -37,6 +37,11 @@ void ofApp::setup() {
 	//fbo allocation
 	fbo.allocate(1024, 768, GL_RGBA);
 
+	// OSC receiver
+	osc_receiver.setup(12345); 
+
+
+
 	// sender name for madmapper
 #if defined(_WIN32)
 	sender.init("My_Lovely_Birds");
@@ -57,7 +62,15 @@ void ofApp::update() {
     sender.send(fbo.getTexture());
 #endif
 	
-
+	while (osc_receiver.hasWaitingMessages()) {
+		ofxOscMessage m; 
+		osc_receiver.getNextMessage(m);
+		if (m.getAddress() == "/debug") {
+			letter = m.getArgAsInt32(0);
+			ofLog() << "message : " << letter; 
+			textManager->addLetter(letter);
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -106,7 +119,7 @@ void ofApp::draw() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
-	textManager->addLetter((char)key);
+	textManager->addLetter(key);
 }
 
 //--------------------------------------------------------------

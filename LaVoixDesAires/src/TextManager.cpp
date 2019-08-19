@@ -34,8 +34,8 @@ void TextManager::draw() {
 	ofFill();
 }
 
-void TextManager::addLetter(char c) {
-	string newLetter = ofToString(c);
+void TextManager::addLetter(int letter) {
+	string newLetter = ofUTF8ToString(letter);
     text += newLetter;
     
     if(font.isLoaded()){
