@@ -12,122 +12,113 @@ PolyBackground::PolyBackground(){
     
 }
 
-PolyBackground::PolyBackground(ofParameterGroup* _pg){
+PolyBackground::PolyBackground(ofParameterGroup* _pg, int _w, int _h){
     
     //Listener
-    nbObstacle.addListener(this, &PolyBackground::addObstacle);
+    clearButton.addListener(this,&PolyBackground::clear);
+    saveImage.addListener(this, &PolyBackground::saveFboToFile);
     
     //Parameters
     pg = _pg;
     pg->setName("polyBg");
-    pg->add(lineSize.set("lineSize", 1, 1, 5));
+    pg->add(isDraw.set("draw", false));
     pg->add(nbObstacle.set("nbObstacle", 5, 1, 10));
+    pg->add(isAddObstacle.set("add obstacle", false));
+    pg->add(radius.set("radius", 40, 1, 200));
+    pg->add(clearButton.set("clear", false));
+    pg->add(isPencil.set("use Pencil", false));
+    pg->add(saveImage.set("save", false));
     
-    listOfPoly.clear();
+    //List of Point/obstacle
+    listOfPoint.clear();
     
+    //Geomtry
+    w = _w;
+    h = _h;
+    //w = 100;
+    //h = 100;
+  
     
-    //createObstacle();
-
-    
-    
+    //Fbo and image for saving
+    fbo.allocate(w,h, GL_RGBA);
+    fbo.begin();
+    ofClear(255,255,255, 0);
+    ofBackground(255);
+    fbo.end();
 }
 
-void PolyBackground::createObstacle(){
+void PolyBackground::addObstacle(ofVec2f p){
     
-    //Construct fake obstacle
-    
-        ofRectangle r = ofRectangle(ofRandom(ofGetWidth()),ofRandom(ofGetHeight()), ofRandom(50, 120), ofRandom(50, 120));
-        
-        ofPolyline p ;
-        p.addVertex(r.x, r.y);
-        p.addVertex(r.x + r.width, r.y);
-        p.addVertex(r.x + r.width, r.y + r.height);
-        p.addVertex(r.x , r.y + r.height);
-        p.close();
-        p = p.getResampledBySpacing(10);
-        
-        listOfPoly.push_back(p);
-        nbObstacle++;
-    
-}
-
-void PolyBackground::addObstacle(int &nb){
-    
-    if(listOfPoly.size() < nb){
-        // Create no obstacle
-        int nbToCreate = nb-listOfPoly.size();
-        for (int i = 0 ; i<nbToCreate; i++){
-            createObstacle();
-        }
-        
-    }
-    else if(listOfPoly.size()> nb){
-        //delete obstacle
-        int nbToDelete = listOfPoly.size()-nb;
-        for( int i= 0 ; i<nbToDelete; i++){
-            listOfPoly.pop_back();
-            
-        }
-        
-        
-    }
-    
-    nbObstacle = listOfPoly.size();
-    
+    listOfPoint.push_back(p);
     
 }
 
 void PolyBackground::draw(){
     
-    ofSetLineWidth(lineSize);
-    for( vector<ofPolyline>::iterator it = listOfPoly.begin(); it < listOfPoly.end() ; it++){
-    
-        ofSetColor(255);
-        it->draw();
-        
-    }
     ofSetLineWidth(1);
-        
+    if(isDraw)
+    {
+        for( vector<ofVec2f>::iterator it = listOfPoint.begin(); it < listOfPoint.end() ; it++)
+        {
+            ofSetColor(255);
+            ofDrawCircle( *it, radius);
+        }
+    }
+    
 }
 
-ofVec2f PolyBackground::isInside( ofPoint p){
+void PolyBackground::clear(bool & b){
     
-    for( vector<ofPolyline>::iterator it = listOfPoly.begin(); it < listOfPoly.end() ; it++){
+    listOfPoint.clear();
+    clearButton = false;
+
+    
+}
+
+ofVec2f PolyBackground::getClosestPoint(ofVec2f p){
+    
+    ofVec2f ret = ofVec2f(0, 0);
+    
+    for( vector<ofVec2f>::iterator it = listOfPoint.begin(); it < listOfPoint.end() ; it++)
+    {
         
-        if(it->inside(p)){
-            
-            // Get the direction from the centroid
-            ofVec2f return_direction = p - it->getCentroid2D() ;
-            return_direction = return_direction.normalize();
-            
-            // Get the closest point
-            float minLenght = 1000;
-            int finalindex;
-            
-            for(int i=0 ; i<it->size() ; i++){
-                
-                float length = ( p.x - (*it)[i].x)*( p.x - (*it)[i].x) + ( p.y - (*it)[i].y)*( p.y - (*it)[i].y);
-                
-                if(length<minLenght){
-                    
-                    minLenght= length;
-                    finalindex = i;
-                }
-                
-            }
-            
-            ofVec2f normal = it->getNormalAtIndex(finalindex);
-            ofVec2f diff = (return_direction - normal).normalize();
-            ofVec2f finalDirection = (normal - diff).normalize();
-            
-            return finalDirection ;
-            
+        if(p.distance(*it)<radius)
+        {
+            ret = *it;
+            break;
         }
-        
         
     }
     
-    return ofVec2f(0,0);
+    return ret;
+}
+
+void PolyBackground::pencilOnFbo(){
+    
+    if(isPencil && ofGetMousePressed())
+    {
+        fbo.begin();
+        ofSetColor(0, 0, 50);
+        ofDrawCircle(ofGetMouseX() * (w*1.0) /ofGetWidth() , ofGetMouseY() * (h*1.0)/ofGetHeight() , 1);
+        fbo.end();
+    }
+    
+    
     
 }
+
+void PolyBackground::saveFboToFile(bool & b){
+    
+    if(b)
+    {
+        ofPixels pix;
+        fbo.readToPixels(pix);
+        img.setFromPixels(pix);
+        img.save("fbo_pencil.png");
+        //Wait 500ms just for user to see the check sign on save button
+        ofSleepMillis(500);
+        saveImage = false;
+    }
+}
+
 

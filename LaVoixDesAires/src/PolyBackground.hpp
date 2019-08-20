@@ -16,21 +16,34 @@ class PolyBackground{
 public :
     
     PolyBackground();
-    PolyBackground(ofParameterGroup* pg);
+    PolyBackground(ofParameterGroup* pg, int w, int h);
     void draw();
-    void createObstacle();
-    void addObstacle(int & nb);
-    
-    ofVec2f isInside( ofPoint p);
+    void addObstacle(ofVec2f p);
+    void clear(bool & b);
+    ofVec2f getClosestPoint(ofVec2f);
+    void saveFboToFile(bool & b);   //Save fbo to png image
+    void pencilOnFbo();
     
     bool isEditing;
-    vector<ofPolyline> listOfPoly;
-    
+    vector<ofVec2f> listOfPoint;
     
     //Parameters Group
     ofParameterGroup* pg;
-    ofParameter<int> lineSize;
     ofParameter<int> nbObstacle;
+    ofParameter<bool> isDraw;
+    ofParameter<bool> isAddObstacle;
+    ofParameter<bool> clearButton;
+    ofParameter<int> radius;
+    ofParameter<bool> isPencil;
+    ofParameter<bool> saveImage;
+    
+    //FBO image for pencil. Draw on it from mouse and save to file
+    ofFbo fbo;
+    ofImage img;
+    
+    //Geometry
+    int w;
+    int h;
     
     
     

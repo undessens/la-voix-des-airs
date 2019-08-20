@@ -15,6 +15,7 @@ TextManager::TextManager(BirdManager* b,ofParameterGroup* _pg)
     birdmanager = b;
     listOfPoly.clear();
     pg = _pg;
+    pg->setName("Text Manager");
     
     pg->add(isDraw.set("draw",true));
     

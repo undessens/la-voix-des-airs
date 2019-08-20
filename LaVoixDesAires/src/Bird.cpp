@@ -16,7 +16,9 @@ Bird::Bird(){
 //-------------------------------------------------------------
 Bird::Bird( PolyBackground* p ,
            ofVec2f _target,
-           int _size
+           int _size,
+           int _w,                   // Width on fbo surface
+           int _h                    // Height on fbo surface
            
            
            ){
@@ -29,6 +31,20 @@ Bird::Bird( PolyBackground* p ,
     stiffness = 0.5;
     damping = 0.5;
 	target = _target;
+    
+    //Time and distance
+    flyingTime = 0;            // time of fly : use for join to target
+    flyingDistance = 0;        //meter of fly : use for wing motion
+    
+    // Max
+    maxSpeed = 5;
+    maxForce = 0.25;
+    
+    //FLOCK parameter
+    swt = 0.01; //multiply these force
+    awt = 0.01;
+    cwt = 0.01;
+    twt = 0.0;
     
     //Neighbour
     isNeighbour = false;
@@ -43,16 +59,10 @@ Bird::Bird( PolyBackground* p ,
    
     stiffness = 0.05;  //force to join centroid
     damping = 0.5;
-    
-	//FLOCK
-	swt = 0.01; //multiply these force
-	awt = 0.01;
-	cwt = 0.01;
-	twt = 0.0;
-
-	// Max
-	maxSpeed = 5;
-	maxForce = 0.25;
+               
+    // Geometry for borders
+    w = _w;
+    h = _h;
     
     //Debug Level
     debugLevel = 0;
@@ -78,7 +88,6 @@ void Bird::drawBasic(){
     //ofDrawCircle(pos.x, pos.y, 10);
 	ofDrawArrow(pos, pos + speed*size);
     ofSetLineWidth(speed.length()*3);
-    //ofDrawLine(pos.x, pos.y, (pos + force*10 ).x , (pos + force*10).y);
     ofSetLineWidth(1);
      
 }
@@ -86,7 +95,8 @@ void Bird::drawBasic(){
 void Bird::drawDebug(int level){
     
     //Debut Printing
-    switch(level){
+    switch(level)
+    {
         case 1 : ofSetColor(255);
             ofSetLineWidth(0.5);
             ofDrawCircle(target.x,target.y,2);
@@ -97,9 +107,9 @@ void Bird::drawDebug(int level){
             break;
         case 9 :
             ofDrawBitmapStringHighlight("speedX: "+ofToString(speed.x )+" - Y:"+ofToString(speed.y), pos.x, pos.y+35);
-            ofDrawBitmapStringHighlight("forceX: "+ofToString(force.x )+" - forceY:"+ofToString(force.y), pos.x, pos.y);
             ofDrawBitmapStringHighlight("posX: "+ofToString(pos.x )+" - posY:"+ofToString(pos.y), pos.x, pos.y+15);
-            if(is_ejected){
+            if(is_ejected)
+            {
                 ofDrawBitmapStringHighlight("ejected", pos.x, pos.y+45);
                 ofSetColor(ofColor::red);
                 //ofDrawLine(pos.x, pos.y, (pos + eject_direction*100 ).x , (pos + eject_direction*100).y);
@@ -124,22 +134,13 @@ void Bird::getEjected(ofVec2f v ){
     
 }
 
+
 //-------------------------------------------------------------
-void Bird::updateEjection(ofPoint target){
-    
-        //change from eject direction;
-        //force = eject_direction  * eject_force;
-        //speed =  force * speed.length();
-    
-        //pos = pos + speed;
-    
-}
-//-------------------------------------------------------------
-void Bird::applyForce(ofVec2f force) {
+void Bird::applyForce(ofVec2f f) {
 	
 	//Force limit or not ?
 	//force.limit(maxForce);
-	acc += force;
+	acc += f;
 }
 
 
@@ -155,8 +156,9 @@ void Bird::flock(vector<Bird>* birds) {
 	sep *= swt; //multiply these force
 	ali *= awt;
 	coh *= cwt;
-	if (!ofGetMousePressed(2)) {
-		att *= 0;
+	if (!ofGetMousePressed(2))
+    {
+        att *= 0;
 	}
 	tar *= twt;
 
@@ -170,10 +172,10 @@ void Bird::flock(vector<Bird>* birds) {
 //-------------------------------------------------------------
 void Bird::borders() {
 
-	if (pos.x < 0) pos.x = ofGetWidth();
-	if (pos.y < 0) pos.y = ofGetHeight();
-	if (pos.x > ofGetWidth()) pos.x = 0;
-	if (pos.y > ofGetHeight()) pos.y = 0;
+	if (pos.x < 0) pos.x = w;
+	if (pos.y < 0) pos.y = h;
+	if (pos.x > w) pos.x = 0;
+	if (pos.y > h) pos.y = 0;
 
 }
 // ------------------------------------------------------------ 
@@ -187,7 +189,8 @@ ofVec2f Bird::separate(vector<Bird>* birds) {
 	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
-		if ((d > 0) && (d < desiredseparation)) {
+		if ((d > 0) && (d < desiredseparation))
+        {
 			ofVec2f diff = pos - (it->pos);
 			diff.normalize();
 			diff /= d;
@@ -196,7 +199,8 @@ ofVec2f Bird::separate(vector<Bird>* birds) {
 		}
 	}
 
-	if (count > 0) {
+	if (count > 0)
+    {
 
 		steer /= ((float)count);
 		steer.normalize();
@@ -218,12 +222,14 @@ ofVec2f Bird::align(vector<Bird> *birds) {
 	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
-		if (d > 0 && d < neighbordist) {
+		if (d > 0 && d < neighbordist)
+        {
 			steer += it->speed;
 			count++;
 		}
 	}
-	if (count > 0) {
+	if (count > 0)
+    {
 		steer /= (float)count;
 		//IMplement Reynolds : Steering = Desired - Velocity
 		steer.normalize();
@@ -244,12 +250,14 @@ ofVec2f Bird::cohesion(vector<Bird>* birds) {
 	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
 		float d = pos.distance(it->pos);
-		if ((d > 0) &&( d < neighbordist)) {
+		if ((d > 0) &&( d < neighbordist))
+        {
 			sum += it->pos;
 			count++;
 		}
 	}
-	if (count > 0) {
+	if (count > 0)
+    {
 		sum /= (float)count*1.0;
 		return seek(sum);
 	}
@@ -291,15 +299,16 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 ofVec2f Bird::goToTarget() {
 	
     ofVec2f dist = (target - pos);
-    if(dist.length() < 200 && twt>0.5){
+    if(dist.length() < 200 && twt>0.5)
+    {
         if(maxSpeed>2)maxSpeed *=0.995;
         if(maxSpeed>1.5)maxSpeed *=0.99;
         if(maxSpeed>1)maxSpeed *=0.98;
-        
-     
     }
-    if(dist.length() < 15 && twt>0.5){
-        if(maxSpeed>0.2){
+    if(dist.length() < 15 && twt>0.5)
+    {
+        if(maxSpeed>0.2)
+        {
             maxSpeed *= 0.9;
         }
         // reduce all group parameter to zero
@@ -307,8 +316,7 @@ ofVec2f Bird::goToTarget() {
         //cwt = 0;
         //awt = 0;
         //swt = 0;
-
-        
+    
     }
     dist *= stiffness;
     dist /= 500;

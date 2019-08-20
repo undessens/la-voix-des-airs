@@ -21,7 +21,10 @@ class BirdManager
 public:
     
     BirdManager();
-    BirdManager(PolyBackground* poly, ofParameterGroup* pg);
+    BirdManager(PolyBackground* poly,
+                ofParameterGroup* pg,
+                int w,                  // Final width of fbo
+                int h );                // Final height on fbo
     void setup();
     void update();
     void draw();
@@ -34,7 +37,6 @@ public:
     //Manage instances
     void addBird(ofPolyline p);
     void setNbBird( int &i);
-    
     
     //Setter to all instances
 
@@ -72,6 +74,10 @@ public:
 
 	//3D MODEL
 	ofxAssimpModelLoader model;
+    
+    //Geometry
+    int w;
+    int h;
 
     
     

@@ -4,16 +4,22 @@
 void ofApp::setup() {
 
 
-	ofSetFrameRate(60);
+	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
+    final_w = 2048;
+    final_h = 768;
+    //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
+    
+    
+    ofSetFrameRate(60);
 
 	// Background Image, ofPolyline ...
-	polyBackground = new PolyBackground(&pg_polyBackground);
+	polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);
 
 	// OSC, Gui parameters
 	pg_birdManager.setName("birdmanager");
 
 	//BirdManager
-	birdManager = new BirdManager(polyBackground, &pg_birdManager);
+	birdManager = new BirdManager(polyBackground, &pg_birdManager, final_w, final_h);
 
     // Text Manager
     textManager = new TextManager(birdManager, &pg_textManager);
@@ -23,6 +29,7 @@ void ofApp::setup() {
     pg.add(color.set("color",200,0,255));
     pg.add(frameRate.set("frameRate", 30, 0, 50));
     pg.add(debug.set("debug", false));
+    pg.add(fakeCursor.set("Fake cursor", false));
     
     // Adding all parameter to GUI
     gui.setup(pg);
@@ -35,7 +42,7 @@ void ofApp::setup() {
 	ofDisableArbTex();
 
 	//fbo allocation
-	fbo.allocate(1024, 768, GL_RGBA);
+	fbo.allocate(final_w, final_h, GL_RGBA);
 
 	// OSC receiver
 	osc_receiver.setup(12345); 
@@ -99,6 +106,31 @@ void ofApp::draw() {
 
 	// Text Manager
     textManager->drawPoly();
+    
+    // Polybackground - draw center of point as a circle
+    polyBackground->draw();
+    //Polybackground - draw the pencil mode
+    if(polyBackground->isPencil){
+        
+        polyBackground->pencilOnFbo();
+        ofSetColor(255);
+        polyBackground->fbo.draw(0,0);
+        
+    }
+    
+    // Fake cursor
+    if(fakeCursor){
+        
+        ofVec2f cursor = ofVec2f(ofGetMouseX() * (final_w*1.0) /ofGetWidth() , ofGetMouseY() * (final_h*1.0)/ofGetHeight());
+        
+        ofSetColor(255, 0 ,0);
+        ofDrawCircle( cursor, 20);
+        ofDrawLine(cursor.x - 30, cursor.y, cursor.x + 30, cursor.y);
+        ofDrawLine(cursor.x , cursor.y- 30, cursor.x , cursor.y + 30);
+        
+        
+    }
+    
 	fbo.end();
 
 	//DEBUG PART
@@ -106,12 +138,12 @@ void ofApp::draw() {
 		ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
 	}
     
+
     //FBO
     ofSetColor(255);
-	fbo.draw(0, 0);
-	//GUI
-	
+    fbo.draw(0, 0, ofGetWidth(), ofGetHeight());
     
+    //GUI
     gui.draw();
 
 }

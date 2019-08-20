@@ -20,14 +20,16 @@ public:
     Bird();
     Bird( PolyBackground* p,
          ofVec2f t,
-         int size);
+         int size,
+         int w,
+         int h
+         );
     
     void update(ofPoint t);
     void drawBasic();
     void drawDebug(int l);
     
     void getEjected(ofVec2f v);
-    void updateEjection(ofPoint p);
 	void applyForce(ofVec2f force);
 	void flock(vector<Bird>* Birds);
 	ofVec2f separate(vector<Bird>* Birds);
@@ -43,8 +45,10 @@ public:
 	ofVec2f target;
     ofVec2f speed;
 	ofVec2f acc;
-    ofVec2f force;
-    ofVec2f noisedForce;
+    
+    //Time and distance to fly
+    unsigned long flyingTime;
+    unsigned long flyingDistance;
 
 	//max
 	float maxForce;
@@ -69,8 +73,13 @@ public:
     // Size
     float size;
     
+    //Attraction spring force
     float stiffness;  //force to join centroid
     float damping;
+    
+    //Geometry
+    int w;
+    int h;
     
     //Debug stuff
     int debugLevel;

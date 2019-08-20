@@ -14,11 +14,13 @@ BirdManager::BirdManager(){
 }
 
 //-------------------------------------------------------------
-BirdManager::BirdManager(PolyBackground* poly, ofParameterGroup* _pg){
+BirdManager::BirdManager(PolyBackground* poly, ofParameterGroup* _pg, int _w, int _h){
     
     
     polyBg = poly;
     pg = _pg;
+    w = _w;
+    h = _h;
     setup();
     
 }
@@ -173,7 +175,7 @@ void BirdManager::addBird(ofPolyline p){
         
         for(int i=0; i<p.size(); i++){
             
-             Bird newBird = Bird(polyBg,p[i], size);
+             Bird newBird = Bird(polyBg,p[i], size, w, h);
              listOfBird.push_back(newBird);
         }
         

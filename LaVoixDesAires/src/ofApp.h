@@ -39,12 +39,19 @@ class ofApp : public ofBaseApp{
         ofParameter<int> color;
         ofParameter<int> frameRate;
         ofParameter<bool> debug;
+        ofParameter<bool> fakeCursor;
 
 		//Lighting
 		ofLight light;
+    
+        //Final fbo size send to madmapper
+        int final_w;
+        int final_h;
 
 		//FBO
 		ofFbo fbo;
+    
+    
 
 		// Spout sender
 #if defined(_WIN32)
