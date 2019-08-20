@@ -48,7 +48,7 @@ public:
     
     //Time and distance to fly
     unsigned long flyingTime;
-    unsigned long flyingDistance;
+    int flyingDistance;
 
 	//max
 	float maxForce;
