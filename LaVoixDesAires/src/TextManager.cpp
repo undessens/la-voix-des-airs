@@ -16,7 +16,6 @@ TextManager::TextManager(BirdManager* b,ofParameterGroup* _pg)
     listOfPoly.clear();
     pg = _pg;
     pg->setName("Text Manager");
-    
     pg->add(isDraw.set("draw",true));
     
 }
@@ -99,5 +98,13 @@ void TextManager::drawPoly(){
         
     }
     
+    
+}
+
+void TextManager::clear(){
+    
+    text = "";
+    listOfPoly.clear();
+    birdmanager->killAll();
     
 }

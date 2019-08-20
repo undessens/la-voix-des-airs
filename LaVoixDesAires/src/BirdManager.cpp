@@ -196,8 +196,6 @@ void BirdManager::addBird(ofPolyline p){
 
 }
 
-
-
 //-------------------------------------------------------------
 void BirdManager::killAll(){
     

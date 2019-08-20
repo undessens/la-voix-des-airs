@@ -151,7 +151,13 @@ void ofApp::draw() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
-	textManager->addLetter(key);
+    if(key != 8){
+       textManager->addLetter(key);
+    }
+    else{
+        textManager->clear();
+    }
+    
 }
 
 //--------------------------------------------------------------

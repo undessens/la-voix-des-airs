@@ -32,11 +32,10 @@ public:
     
     void changeToLetter();
     
-    void killAll();
-    
     //Manage instances
     void addBird(ofPolyline p);
     void setNbBird( int &i);
+    void killAll();
     
     //Setter to all instances
 

@@ -10,6 +10,7 @@ public:
     TextManager(BirdManager* b, ofParameterGroup* pg);
 	void draw();
     void drawPoly();
+    void clear();
 	~TextManager();
 	void addLetter(int c);
     
