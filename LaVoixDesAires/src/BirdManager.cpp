@@ -14,13 +14,21 @@ BirdManager::BirdManager(){
 }
 
 //-------------------------------------------------------------
-BirdManager::BirdManager(PolyBackground* poly, ofParameterGroup* _pg, int _w, int _h){
+BirdManager::BirdManager(PolyBackground* poly,
+                         ofParameterGroup* _pg,
+                         int _w,
+                         int _h,
+                         int _screenW,
+                         int _screenH
+                         ){
     
     
     polyBg = poly;
     pg = _pg;
     w = _w;
     h = _h;
+    screenW = _screenW;
+    screenH = _screenH;
     setup();
     
 }
@@ -75,7 +83,8 @@ void BirdManager::setup(){
 	}
     
 	//3D model
-    loadModel("Bird_Asset.fbx");
+    loadModel("../../../model/Bird_Asset_lowPoly.fbx");
+    //loadModel("../../../model/Bird_Asset.fbx");
 
 
 }
@@ -85,19 +94,16 @@ void BirdManager::update(){
 
     ofPoint targetMouse = ofPoint(ofGetMouseX(), ofGetMouseY());
     
-
 	//3D MODEL
 	
     
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
-		it->flock(&listOfBird);
+		it->flock(&(*itn));
 		it->update(targetMouse);
 		it->borders();
         
-        if(it->flyingTime > 600){
-            
-        }
 
     }
     
@@ -107,15 +113,16 @@ void BirdManager::update(){
 void BirdManager::draw(){
     
     //ofPushView();
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
 		drawModel(it);
 
         //Draw line between letter
-        if(it->pos.distance(it->neighbourLeft->pos) <100)
-        {
-            ofDrawLine(it->pos,it->neighbourLeft->pos);
-        }
+//        if(it->pos.distance(it->neighbourLeft->pos) <100)
+//        {
+//            ofDrawLine(it->pos,it->neighbourLeft->pos);
+//        }
 
         it->drawDebug(debug);
     }
@@ -128,8 +135,6 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 	//Change wings movement for alls animations
     int index = (it->flyingDistance)/100.0 * nbModelPose;
-    
-    
     ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
@@ -155,8 +160,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	}
 
 	
-	//ofRotateDeg(angleRotateZ, 0, 0, 1);
-	//ofRotateDeg(angleRotateY, 0, 1, 0);
+	ofRotateDeg(angleRotateZ, 0, 0, 1);
+	ofRotateDeg(angleRotateY, 0, 1, 0);
 
 	
 	listOfModel[index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
@@ -188,28 +193,35 @@ void BirdManager::loadModel(string filename){
 
 //-------------------------------------------------------------
 void BirdManager::addBird(ofPolyline p){
+    
     if(p.size()>0)
     {
     
-        int count = listOfBird.size();
+        int nbNiche = listOfBird.size();
+        
+        vector<Bird> newNiche;
         
         for(int i=0; i<p.size(); i++){
             
-             Bird newBird = Bird(polyBg,p[i], size, w, h, stiffness);
-             listOfBird.push_back(newBird);
+             Bird newBird = Bird(polyBg,p[i], size, w, h, screenW, screenH, stiffness, nbNiche);
+             newNiche.push_back(newBird);
         }
+        
+        listOfBird.push_back(newNiche);
         
         //Create neighbour now
          for(int i=0; i<p.size(); i++){
           
              if(i>0){
-             listOfBird[count + i].neighbourLeft = &(listOfBird[count + i - 1]);
+             (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[i-1]);
              }
              if(i==0){
-                 listOfBird[count].neighbourLeft = &(listOfBird[count + p.size() -1]);
+                (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[p.size() -1]);
              }
              
          }
+        
+        
         
         
     }
@@ -225,20 +237,22 @@ void BirdManager::killAll(){
 //-------------------------------------------------------------
 void BirdManager::setStiffness(float &f){
     
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->stiffness = f;
-    }
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->stiffness = f;
+        }
     
 }
 
 //-------------------------------------------------------------
 void BirdManager::setDamping(float &f){
     
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->damping = f;
-    }
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->damping = f;
+        }
     
 }
 
@@ -247,57 +261,63 @@ void BirdManager::setDamping(float &f){
 //-------------------------------------------------------------
 void BirdManager::setDebug(int &i){
     
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->debugLevel = i;
-    }
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->debugLevel = i;
+        }
     
 }
 
 //-------------------------------------------------------------
 void BirdManager::setDebugScale(int &i){
     
-    for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
-    {
-        it->debugScale = i;
-    }
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->debugScale = i;
+        }
     
 }
 
 //-------------------------------------------------------------
 void BirdManager::setSeparation(float &i) {
 
-	for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
-	{
-		it->swt= i;
-	}
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->swt= i;
+        }
 
 }
 
 //-------------------------------------------------------------
 void BirdManager::setCohesion(float &i) {
 
-	for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
-	{
-		it->cwt = i;
-	}
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->cwt = i;
+        }
 
 }
 
 //-------------------------------------------------------------
 void BirdManager::setAlignment(float &i) {
 
-	for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
-	{
-		it->awt = i;
-	}
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->awt = i;
+        }
 
 }
 
 //-------------------------------------------------------------
 void BirdManager::setTargetAttraction(float &i) {
     
-    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
         it->twt = i;
     }
@@ -307,7 +327,8 @@ void BirdManager::setTargetAttraction(float &i) {
 //-------------------------------------------------------------
 void BirdManager::setSize(int &i) {
 
-	for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+	for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
 	{
 		it->size= i;
 	}
@@ -317,7 +338,8 @@ void BirdManager::setSize(int &i) {
 //-------------------------------------------------------------
 void BirdManager::setMaxSpeed(float &f) {
     
-    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
         it->maxSpeed= f;
     }
@@ -327,7 +349,8 @@ void BirdManager::setMaxSpeed(float &f) {
 //-------------------------------------------------------------
 void BirdManager::setMaxForce(float &f) {
     
-    for (vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end(); it++)
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
         it->maxForce= f;
     }

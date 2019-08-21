@@ -23,7 +23,10 @@ public:
          int size,
          int w,
          int h,
-         float stiffness
+         int screenW,
+         int screenH,
+         float stiffness,
+         int order
          );
     
     void update(ofPoint t);
@@ -50,6 +53,9 @@ public:
     //Time and distance to fly
     unsigned long flyingTime;
     int flyingDistance;
+    
+    //Nichée
+    int order;
 
 	//max
 	float maxForce;
@@ -81,6 +87,8 @@ public:
     //Geometry
     int w;
     int h;
+    int screenW;
+    int screenH;
     
     //Debug stuff
     int debugLevel;

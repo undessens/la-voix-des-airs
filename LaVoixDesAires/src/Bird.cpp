@@ -19,13 +19,15 @@ Bird::Bird( PolyBackground* p ,
            int _size,
            int _w,                   // Width on fbo surface
            int _h,                    // Height on fbo surface
-           float _stiff
-           
+           int _screenW,
+           int _screenH,
+           float _stiff,
+           int _order
            ){
     //TODO  : order + total of bird . Like percetange position
     
     // Geometrie cartesian stuff
-    pos = ofPoint(ofGetWidth()/2, ofGetHeight()/2);
+    pos = ofPoint(w/2, h/2);
     acc = ofVec2f(0, 0);
 	speed = ofVec2f(ofRandom(-4+2, 4+2), ofRandom(-1, 1));
     stiffness = 0.5;
@@ -35,6 +37,9 @@ Bird::Bird( PolyBackground* p ,
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
     flyingDistance = 0;        //meter of fly : use for wing motion
+    
+    //Order ( nichée
+    order = _order;
     
     // Max
     maxSpeed = 5;
@@ -63,6 +68,8 @@ Bird::Bird( PolyBackground* p ,
     // Geometry for borders
     w = _w;
     h = _h;
+    screenW = _screenW;
+    screenH = _screenH;
     
     //Debug Level
     debugLevel = 0;
@@ -167,7 +174,7 @@ void Bird::flock(vector<Bird>* birds) {
 	ofVec2f sep = separate(birds);
 	ofVec2f ali = align(birds);
 	ofVec2f coh = cohesion(birds);
-	ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/ofGetScreenWidth(), ofGetMouseY()*h/ofGetScreenHeight()));
+	ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/screenW, ofGetMouseY()*h/screenH));
 	ofVec2f tar = goToTarget();
 
 	sep *= swt; //multiply these force

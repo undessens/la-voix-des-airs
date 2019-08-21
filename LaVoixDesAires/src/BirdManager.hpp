@@ -24,7 +24,10 @@ public:
     BirdManager(PolyBackground* poly,
                 ofParameterGroup* pg,
                 int w,                  // Final width of fbo
-                int h );                // Final height on fbo
+                int h,                   // Final height on fbo
+                int screenW,
+                int screenH
+                );
     void setup();
     void update();
     void draw();
@@ -52,7 +55,7 @@ public:
     void setMaxForce(float &f);
 	void setSize(int &f);
     
-    vector<Bird> listOfBird;
+    vector<vector<Bird>> listOfBird;
     PolyBackground* polyBg;
     
     //GUI
@@ -78,6 +81,8 @@ public:
     //Geometry
     int w;
     int h;
+    int screenW;
+    int screenH;
 
     
 };
