@@ -80,9 +80,7 @@ void BirdManager::setup(){
 	model.loadModel("Bird_Asset.fbx", true);
 	model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
 	model.setPosition(0, 10, -5);
-	model.resetAllAnimations();
-	model.playAllAnimations();
-
+    model.setPausedForAllAnimations(true);
 
 }
 
@@ -90,9 +88,10 @@ void BirdManager::setup(){
 void BirdManager::update(){
 
     ofPoint targetMouse = ofPoint(ofGetMouseX(), ofGetMouseY());
+    
 
 	//3D MODEL
-	model.update();
+	
     
     for( vector<Bird>::iterator it = listOfBird.begin(); it < listOfBird.end() ; it++)
     {
@@ -126,7 +125,13 @@ void BirdManager::draw(){
 //-------------------------------------------------------------
 void BirdManager::drawModel(vector<Bird>::iterator it) {
 
-	ofPushMatrix();
+	//Change wings movement for alls animations
+    float percentage = it->flyingDistance/100.0;
+    model.setPositionForAllAnimations(percentage);
+    model.update();
+    
+    
+    ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
 	//ROTATE ON Y ( LEFT - RIGHT )

@@ -74,6 +74,8 @@ void Bird::update(ofPoint target){
     
 	speed += acc;
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
+    flyingDistance += min( acc.length() * 1000.0 , 10.0 );
+    flyingDistance = flyingDistance % 100;
 	pos += speed;
 
 	// OK but reset later, maybe after drawing
