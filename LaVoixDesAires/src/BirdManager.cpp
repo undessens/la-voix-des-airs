@@ -29,7 +29,7 @@ BirdManager::BirdManager(PolyBackground* poly, ofParameterGroup* _pg, int _w, in
 void BirdManager::setup(){
     
     listOfBird.clear();
-	listOfBird.reserve(200);
+	listOfBird.reserve(2000);
     
     //Add Listener
     debug.addListener(this,&BirdManager::setDebug);
@@ -66,8 +66,7 @@ void BirdManager::setup(){
     pg->add(targetAttraction.set("target att", 0.0,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
     pg->add(maxForce.set("max force", 0.25, 0.001, 0.8));
-
-    pg->add(stiffness.set("stiffness", 0.05, 0.001, 2.0));
+    pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
 
 	for (int i = 0; i < nbBird; i++)
@@ -76,11 +75,8 @@ void BirdManager::setup(){
 	}
     
 	//3D model
+    loadModel("Bird_Asset.fbx");
 
-	model.loadModel("Bird_Asset.fbx", true);
-	model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-	model.setPosition(0, 10, -5);
-    model.setPausedForAllAnimations(true);
 
 }
 
@@ -98,6 +94,10 @@ void BirdManager::update(){
 		it->flock(&listOfBird);
 		it->update(targetMouse);
 		it->borders();
+        
+        if(it->flyingTime > 600){
+            
+        }
 
     }
     
@@ -112,7 +112,8 @@ void BirdManager::draw(){
 		drawModel(it);
 
         //Draw line between letter
-        if(it->pos.distance(it->neighbourLeft->pos) <100) {
+        if(it->pos.distance(it->neighbourLeft->pos) <100)
+        {
             ofDrawLine(it->pos,it->neighbourLeft->pos);
         }
 
@@ -122,13 +123,11 @@ void BirdManager::draw(){
     
     
 }
-//-------------------------------------------------------------
+//-------------------------------------------------------------------------
 void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 	//Change wings movement for alls animations
-    float percentage = it->flyingDistance/100.0;
-    model.setPositionForAllAnimations(percentage);
-    model.update();
+    int index = (it->flyingDistance)/100.0 * nbModelPose;
     
     
     ofPushMatrix();
@@ -156,31 +155,47 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	}
 
 	
-	ofRotateDeg(angleRotateZ, 0, 0, 1);
-	ofRotateDeg(angleRotateY, 0, 1, 0);
+	//ofRotateDeg(angleRotateZ, 0, 0, 1);
+	//ofRotateDeg(angleRotateY, 0, 1, 0);
 
 	
-	model.setRotation(1, 0, 0, angleRotateZ, angleRotateY);
+	listOfModel[index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
 	//FINAL TRANSLATE
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-
-	model.setScale(size/1000.0, size /1000.0, size /1000.0);
-
-	model.drawFaces();
+	listOfModel[index].setScale(size/1000.0, size /1000.0, size /1000.0);
+	listOfModel[index].drawFaces();
+    //model.drawVertices();
+    //model.drawWireframe();
 	ofPopMatrix();
 
 }
 
+//-------------------------------------------------------------
+void BirdManager::loadModel(string filename){
+    
+    for(int i=0; i< nbModelPose; i++){
+        
+        listOfModel[i] = ofxAssimpModelLoader();
+        listOfModel[i].loadModel(filename);
+        listOfModel[i].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+        listOfModel[i].setPosition(0, 10, -5);
+        listOfModel[i].setPausedForAllAnimations(true);
+        listOfModel[i].setPositionForAllAnimations((float)i/nbModelPose);
+        listOfModel[i].update();
+    }
+    
+}
 
 //-------------------------------------------------------------
 void BirdManager::addBird(ofPolyline p){
-    if(p.size()>0){
+    if(p.size()>0)
+    {
     
         int count = listOfBird.size();
         
         for(int i=0; i<p.size(); i++){
             
-             Bird newBird = Bird(polyBg,p[i], size, w, h);
+             Bird newBird = Bird(polyBg,p[i], size, w, h, stiffness);
              listOfBird.push_back(newBird);
         }
         

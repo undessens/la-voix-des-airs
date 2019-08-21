@@ -22,7 +22,8 @@ public:
          ofVec2f t,
          int size,
          int w,
-         int h
+         int h,
+         float stiffness
          );
     
     void update(ofPoint t);

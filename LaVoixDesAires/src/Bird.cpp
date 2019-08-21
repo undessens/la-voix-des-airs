@@ -18,8 +18,8 @@ Bird::Bird( PolyBackground* p ,
            ofVec2f _target,
            int _size,
            int _w,                   // Width on fbo surface
-           int _h                    // Height on fbo surface
-           
+           int _h,                    // Height on fbo surface
+           float _stiff
            
            ){
     //TODO  : order + total of bird . Like percetange position
@@ -57,7 +57,7 @@ Bird::Bird( PolyBackground* p ,
     // Noise stuff ... not really clear
     size = _size;
    
-    stiffness = 0.05;  //force to join centroid
+    stiffness = _stiff;  //force to join centroid
     damping = 0.5;
                
     // Geometry for borders
@@ -72,10 +72,25 @@ Bird::Bird( PolyBackground* p ,
 //-------------------------------------------------------------
 void Bird::update(ofPoint target){
     
+    //Update speed
 	speed += acc;
+    
+    //Limit Speed
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
-    flyingDistance += min( acc.length() * 1000.0 , 10.0 );
+    
+    // Update flying distance : 1) acceleration 2) fight gravity 3) fight air
+    flyingDistance += min( acc.length() * 500.0 , 5.0 ) ;
+    if(speed.y < -0.1)
+    {
+        flyingDistance += abs(speed.y)  * 1;
+    }
+    flyingDistance += 1;    //increase anyway
     flyingDistance = flyingDistance % 100;
+    
+    //Update time
+    flyingTime += 1;
+    
+    //update pos
 	pos += speed;
 
 	// OK but reset later, maybe after drawing
@@ -152,7 +167,7 @@ void Bird::flock(vector<Bird>* birds) {
 	ofVec2f sep = separate(birds);
 	ofVec2f ali = align(birds);
 	ofVec2f coh = cohesion(birds);
-	ofVec2f att = attraction(ofPoint(ofGetMouseX(), ofGetMouseY()));
+	ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/ofGetScreenWidth(), ofGetMouseY()*h/ofGetScreenHeight()));
 	ofVec2f tar = goToTarget();
 
 	sep *= swt; //multiply these force
