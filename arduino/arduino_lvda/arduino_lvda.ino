@@ -33,16 +33,16 @@ int digitalinPin[] =  {
     9, 8, 7, 6, 5, 49, 3, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
 };
 
-char capsKeyboard[] = {
-  'A', '2', 'Z', '3', 'E', '4', 'R', '5', 'T', '6', 'Y', '7', 'U', '8', 'I', '9', 'O', '&', 'P', 
-    'Q', 'W', 'S', 'X', 'D', 'C', 'F', 'V', 'G', 'B', 'H', 'N', 'J', '?', 'K', '.', 'L', '/', 'M', '%'
+String capsKeyboard[] = {
+  "A", "2", "Z", "3", "E", "4", "R", "5", "T", "6", "Y", "7", "U", "8", "I", "9", "O", "&", "P", 
+    "Q", "W", "S", "X", "D", "C", "F", "V", "G", "B", "H", "N", "J", "?", "K", ".", "L", "/", "M", "%"
 };
 
 
 
-char lowerKeyboard[] = {
-  'a', 'é', 'z', '"', 'e', '\'', 'r', '(', 't', '-', 'y', 'è', 'u', '_', 'i', 'ç', 'o', 'à', 'p', 
-    'q', 'w', 's', 'x', 'd', 'c', 'f', 'v', 'g', 'b', 'h', 'n', 'j', ',', 'k', ';', 'l', ':', 'm', '!'
+String lowerKeyboard[] = {
+  "a", "é", "z", "\"", "e", "'", "r", "(", "t", "-", "y", "è", "u", "_", "i", "ç", "o", "à", "p", 
+    "q", "w", "s", "x", "d", "c", "f", "v", "g", "b", "h", "n", "j", ",", "k", ";", "l", ":", "m", "!"
 };
 
 
@@ -82,12 +82,12 @@ void loop() {
 
   //SPECIAL NON ASCII : SPACE
   int newValueDi = digitalRead(spacePin);
-    if (newValueDi != spaceValue) {
-      spaceValue = newValueDi;
-      if (newValueDi == HIGH ) {
-        sendMessage(spacePin, ' ');
-      }
-    }
+  if (newValueDi != spaceValue) {
+    spaceValue = newValueDi;
+    if (newValueDi == HIGH ) {
+      sendMessage(spacePin, " ");
+     }
+  }
 
    //SPECIAL NON ASCII : CAPS MAJ
   capsValue = digitalRead(capsPin);
@@ -96,12 +96,12 @@ void loop() {
   delay(2); // ms 
 }
 
-void sendMessage(int pin, char key) {
+void sendMessage(int pin, String key) {
   String msg ;
   if(DEBUG){
-    msg = "Pin:"+ String(pin) + " - Key:" + String(key) +  "\n";    
+    msg = "Pin:"+ String(pin) + " - Key:" + key +  "\n";    
   } else {
-    msg = String(key);
+    msg = key;
   }
   
   Serial.print(msg);
