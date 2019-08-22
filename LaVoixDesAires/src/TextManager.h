@@ -17,7 +17,10 @@ public:
 	void addLetter(int c);
     void changeFontSize(int &newSize);
     void changeFontSpacing(int &newSpacing);
-
+    ofPolyline simplifyPolyline(int letter, ofVec2f letterPosition);
+//    bool comparePointX(ofPoint &a, ofPoint &b);
+//    bool comparePointY(ofPoint &a, ofPoint &b);
+        
 	//Font & Text
     int fontSize;
     int fontSpacing;

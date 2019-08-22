@@ -9,11 +9,12 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     msg = "";
     msgPosition = ofVec2f(300, 300);
     
-    fontSpacing = 55;
+    fontSpacing = 70;
     fontSize= 70;
+    
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
-    msgFont.load("immono.otf", fontSize, true, true, true);
-    birdFont.load("ralewayDots.ttf", 55, true, true, true);
+//    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
+//    birdFont.load("ralewayDots.ttf", fontSize, true, true, true);
     birdmanager = b;
     msgPolys.clear();
     
@@ -27,7 +28,6 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     pg->add(drawMsgContour.set("Draw Contour", true));
     pg->add(gFontSize.set("Font Size", fontSize, 10, 200));
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
-    addLetter(233);
 }
 
 
@@ -38,7 +38,11 @@ TextManager::~TextManager()
 
 void TextManager::changeFontSize(int &newSize){
     fontSize = newSize;
-    msgFont.load("immono.otf", newSize, true, true, true);
+//    string fontMsg = "verdana.ttf";
+    string fontMsg = "ralewayDots.ttf";
+//    string fontBird
+    msgFont.load(fontMsg, fontSize, true, true, true);
+    birdFont.load(fontMsg, fontSize, true, true, true);
 }
 
 void TextManager::changeFontSpacing(int &newSpacing){
@@ -53,13 +57,76 @@ void TextManager::draw() {
 	ofFill();
 }
 
+bool comparePointX(ofPoint &a, ofPoint &b){
+    return a.x < b.x;
+}
+
+bool comparePointY(ofPoint &a, ofPoint &b){
+    return a.y < b.y;
+}
+
+ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
+    float minSamplingDistance = 5.0;
+    
+    ofPolyline simplePoly;
+    
+    if(birdFont.isLoaded()){
+        ofPath dottedPath = birdFont.getCharacterAsPoints(letter);
+        
+        
+        //Set stroke to create polyline
+        dottedPath.setStrokeWidth(2);
+        std::vector<ofPath> prevDottedPaths = birdFont.getStringAsPoints(msg);
+//        dottedPath.translate(prevDottedPaths[prevDottedPaths.size()-1].);
+//        dottedPath.translate(msgPosition);
+        
+        std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
+        
+        if(dottedOutline.size() ){
+            std::vector<ofPoint> points ;
+            for (int i=0; i < dottedOutline.size(); i++) {
+                if( dottedOutline[i].size()){
+                    points.push_back(dottedOutline[i][0]);
+                }
+            }
+            
+            if(points.size()){
+                std::sort(points.begin(), points.end(), &comparePointY);
+                std::sort(points.begin(), points.end(), &comparePointX);
+                
+                int letterPoints = 0;
+                ofPoint prevPoint = points[0];
+                simplePoly.addVertex(prevPoint);
+                float distance;
+                
+                ofLog() << "Original point size : " << points.size();
+                for (int i=1; i < points.size(); i++) {
+                    distance = prevPoint.distance( points[i]);
+                    //            ofLog() << "Distance is " << distance;
+                    if(distance >= minSamplingDistance){
+//                    if(i%2){
+                        simplePoly.addVertex(points[i]);
+                        prevPoint = points[i];
+                    }
+                }
+                ofLog() << "New Letter points size : " << simplePoly.size();
+            }
+
+        }
+        
+    } else {
+        ofLog(OF_LOG_ERROR) << "No dotted font found on the system!";
+    }
+    
+    return simplePoly;
+}
+
 void TextManager::addLetter(int letter) {
     
 	int prevMsgLength = ofUTF8Length(msg);
     string newLetter = ofUTF8ToString(letter);
     
-    ofVec2f newLetterPosition = ofVec2f(msgPosition.x + prevMsgLength*fontSpacing, msgPosition.y);
-    msg += newLetter;
+    ofVec2f newLetterPosition = ofVec2f(msgPosition.x + (float)prevMsgLength*fontSpacing, msgPosition.y);
     
     ofLog() << "New letter received: " << newLetter;
     ofLog() << "New message size:" << prevMsgLength + 1;
@@ -71,29 +138,13 @@ void TextManager::addLetter(int letter) {
     } else {
         ofLog(OF_LOG_ERROR) << "No message font on the system!";
     }
+    
+    ofPolyline simplifiedPoly = simplifyPolyline(letter, newLetterPosition);
+    msgPolys.push_back(simplifiedPoly);
+    
+    msg += newLetter;
 
-    
-    if(birdFont.isLoaded()){
-        ofPath dottedPath = birdFont.getCharacterAsPoints(letter);
-        //Set stroke to create polyline
-        dottedPath.setStrokeWidth(2);
-        dottedPath.translate(newLetterPosition);
-        std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
-        int letterPoints = 0;
-    
-        for (vector<ofPolyline>::iterator ito = dottedOutline.begin(); ito < dottedOutline.end(); ito++) {
-            ofPolyline aPoly = *ito;
-            aPoly.simplify(0.5);
-            aPoly.getResampledBySpacing(10);
-            letterPoints +=  aPoly.size();
-            //Add to List of Poly
-            msgPolys.push_back(aPoly);
-            //            birdmanager->addBird(simple);
-        }
-        ofLog() << "Letter '"  << newLetter << "' points size : " << letterPoints;
-    } else {
-        ofLog(OF_LOG_ERROR) << "No dotted font found on the system!";
-    }
+//    birdmanager->addBird(simplifiedPoly);f
     
 }
 
@@ -108,27 +159,27 @@ void TextManager::drawPoly(){
     }
     
     if(drawMsgContour){
-        ofSetColor(ofColor::blue);
+//        ofSetColor(ofColor::blue);
+        int k = 0;
         for (vector<ofPolyline>::iterator ito = msgPolys.begin(); ito < msgPolys.end(); ito++){
             ofNoFill();
-            
-            ofPoint center = ito->getCentroid2D();
-            ito -> draw();
-//            for (int i = 0; i < ito->size(); i++) {
-//                ofVec3f p = (*ito)[i];
-//
-//                //Draw Cercle
-//                ofFill();
-//                ofSetLineWidth(1);
-                ofDrawCircle(center, 10);
-//
-//                //Draw Line
+//            ofVec2f center = (*ito)[0];
+//            ofDrawCircle(center, 10);
+            k+=1;
+            for (int i = 0; i < ito->size(); i++) {
+                ofVec3f p = (*ito)[i];
+                
+                //Draw Cercle
+                ofSetLineWidth(1);
+                ofSetColor(i*8,k*10, 255);
+                ofDrawCircle(p, 4);
+                //Draw Line
 //                if (i > 0) {
 //                    ofDrawLine((*ito)[i], (*ito)[i - 1]);
 //                } else {
 //                    ofDrawLine((*ito)[i], (*ito)[ito->size() - 1]);
 //                }
-//            }
+            }
 
         }
     }
