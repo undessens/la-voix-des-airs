@@ -85,8 +85,8 @@ void BirdManager::setup(){
 	}
     
 	//3D model
-    loadModel("../../../model/Bird_Asset_lowPoly.fbx");
-    
+     loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
+    //loadModel("../../../model/Bird_Asset_lowPoly.fbx");
     //loadModel("../../../model/Bird_Asset.fbx");
 
 
@@ -97,7 +97,6 @@ void BirdManager::update(){
 
 	//3D MODEL
 	
-    
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
@@ -183,8 +182,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
 	listOfModel[index].setScale(size/1000.0, size /1000.0, size /1000.0);
 	listOfModel[index].drawFaces();
-    //model.drawVertices();
-    //model.drawWireframe();
+    //listOfModel[index].drawVertices();
+    //listOfModel[index].drawWireframe();
 	ofPopMatrix();
 
 }
@@ -239,6 +238,8 @@ void BirdManager::addBird(ofPolyline p){
         
         
     }
+    
+    nbBird += p.size();
 
 }
 
