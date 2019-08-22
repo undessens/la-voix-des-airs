@@ -8,33 +8,40 @@ public:
 
     TextManager();
     TextManager(BirdManager* b, ofParameterGroup* pg);
+    ~TextManager();
+    
 	void draw();
     void drawPoly();
     void clear();
-	~TextManager();
+	
 	void addLetter(int c);
-    
-    //OfParameter group
-    ofParameterGroup* pg;
+    void changeFontSize(int &newSize);
+    void changeFontSpacing(int &newSpacing);
 
-	//Font
-	ofTrueTypeFont font ;
-	int size;
+	//Font & Text
+    int fontSize;
+    int fontSpacing;
+    ofTrueTypeFont msgFont;
+    ofTrueTypeFont birdFont;
     
+    string msg;
+    ofVec2f msgPosition;
+	
     //Polyline
-    std::vector<ofPolyline> listOfPoly;
+    std::vector<ofPolyline> msgPolys;
+    std::vector<ofPath> msgPaths;
     
     //BirdManager
     BirdManager* birdmanager;
     
     //Parameter
-    ofParameter<bool> isDraw;
-
-	ofVec2f startPoint;
-	string text;
-
-
-
+    ofParameter<bool> drawMsgFill;
+    ofParameter<bool> drawMsgContour;
+    ofParameter<int> gFontSize;
+    ofParameter<int> gFontSpacing;
+	
+    //OfParameter group
+    ofParameterGroup* pg;
 	
 };
 

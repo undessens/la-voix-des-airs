@@ -150,14 +150,15 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-
-    if(key != 8){
+    ofLog() << "Key code from keyboard : " << key;
+    
+    if(key == 8){
+        // Clear when backspace  received
+        textManager->clear();
+    } else if( key < 255){
+        // Only draw ASCII extended code
        textManager->addLetter(key);
     }
-    else{
-        textManager->clear();
-    }
-    
 }
 
 //--------------------------------------------------------------
