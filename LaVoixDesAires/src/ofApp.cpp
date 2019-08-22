@@ -19,7 +19,7 @@ void ofApp::setup() {
 	pg_birdManager.setName("birdmanager");
 
 	//BirdManager
-	birdManager = new BirdManager(polyBackground, &pg_birdManager, final_w, final_h);
+	birdManager = new BirdManager(polyBackground, &pg_birdManager, final_w, final_h, ofGetWidth(), ofGetHeight());
 
     // Text Manager
     textManager = new TextManager(birdManager, &pg_textManager);
@@ -131,12 +131,14 @@ void ofApp::draw() {
         
     }
     
+    //DEBUG PART
+    if (debug) {
+        ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
+    }
+    
 	fbo.end();
 
-	//DEBUG PART
-	if (debug) {
-		ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
-	}
+
     
 
     //FBO
