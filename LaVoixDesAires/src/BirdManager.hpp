@@ -12,8 +12,8 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
-
 #include <stdio.h>
+
 
 class BirdManager
 {
@@ -24,11 +24,16 @@ public:
     BirdManager(PolyBackground* poly,
                 ofParameterGroup* pg,
                 int w,                  // Final width of fbo
-                int h );                // Final height on fbo
+                int h,                   // Final height on fbo
+                int screenW,
+                int screenH
+                );
     void setup();
     void update();
     void draw();
 	void drawModel(vector<Bird>::iterator i);
+    ofxAssimpModelLoader getModel(int distance);
+    void loadModel(string filename);
     
     void changeToLetter();
     
@@ -38,8 +43,6 @@ public:
     void killAll();
     
     //Setter to all instances
-
-
     void setDebug(int &i);
     void setDebugScale(int &i);
     void setStiffness(float &f);
@@ -51,8 +54,9 @@ public:
     void setMaxSpeed(float &f);
     void setMaxForce(float &f);
 	void setSize(int &f);
+    void setFlyDuration(int &i);
     
-    vector<Bird> listOfBird;
+    vector<vector<Bird>> listOfBird;
     PolyBackground* polyBg;
     
     //GUI
@@ -70,19 +74,18 @@ public:
     ofParameter<float> targetAttraction;
     ofParameter<float> maxSpeed;
     ofParameter<float> maxForce;
+    ofParameter<int> flyDuration;
 
 	//3D MODEL
-	ofxAssimpModelLoader model;
+    static const int nbModelPose = 50;
+	ofxAssimpModelLoader listOfModel[nbModelPose];
     
     //Geometry
     int w;
     int h;
+    int screenW;
+    int screenH;
 
-    
-    
-    
-    
-    
     
 };
 
