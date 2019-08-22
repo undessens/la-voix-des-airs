@@ -140,7 +140,7 @@ void BirdManager::draw(){
 void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 	//Change wings movement for alls animations
-    int index = (it->flyingDistance)/100.0 * nbModelPose;
+    int index = (it->flyingDistance)/100.0 * (nbModelPose - 1);
     ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
