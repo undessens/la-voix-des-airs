@@ -54,6 +54,7 @@ public:
     void setMaxSpeed(float &f);
     void setMaxForce(float &f);
 	void setSize(int &f);
+    void setFlyDuration(int &i);
     
     vector<vector<Bird>> listOfBird;
     PolyBackground* polyBg;
@@ -73,6 +74,7 @@ public:
     ofParameter<float> targetAttraction;
     ofParameter<float> maxSpeed;
     ofParameter<float> maxForce;
+    ofParameter<int> flyDuration;
 
 	//3D MODEL
     static const int nbModelPose = 50;

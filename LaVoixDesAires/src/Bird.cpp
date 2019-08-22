@@ -22,7 +22,8 @@ Bird::Bird( PolyBackground* p ,
            int _screenW,
            int _screenH,
            float _stiff,
-           int _order
+           int _order,
+           int _flyDuration
            ){
     //TODO  : order + total of bird . Like percetange position
     
@@ -34,8 +35,13 @@ Bird::Bird( PolyBackground* p ,
     damping = 0.5;
 	target = _target;
     
+    //State of life
+    state = BIRD_FREE;
+    isTargetJoined = false;
+    
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
+    flyingDuration = _flyDuration;      // Flying time in FREE_BIRD state , before going in BIRD_GOTARGET state
     flyingDistance = 0;        //meter of fly : use for wing motion
     
     //Order ( nichée
@@ -49,7 +55,7 @@ Bird::Bird( PolyBackground* p ,
     swt = 0.01; //multiply these force
     awt = 0.01;
     cwt = 0.01;
-    twt = 0.0;
+    twt = 5.1;
     
     //Neighbour
     isNeighbour = false;
@@ -77,7 +83,7 @@ Bird::Bird( PolyBackground* p ,
     
 }
 //-------------------------------------------------------------
-void Bird::update(ofPoint target){
+void Bird::update(){
     
     //Update speed
 	speed += acc;
@@ -91,15 +97,33 @@ void Bird::update(ofPoint target){
     {
         flyingDistance += abs(speed.y)  * 1;
     }
-    flyingDistance += 1;    //increase anyway
-    flyingDistance = flyingDistance % 100;
+    if(!isTargetJoined)
+    {
+        flyingDistance += 1;    //increase anyway
+    }
+    else{
+        flyingDistance += 0.3;
+    }
     
-    //Update time
+    if(flyingDistance > 100){
+            flyingDistance = (int)(flyingDistance) % 100;
+    }
+    
+    
+    //UPDATE TIME
     flyingTime += 1;
+    if(flyingTime > flyingDuration){
+        state = BIRD_GOTOTARGET;
+    }
     
     //update pos
 	pos += speed;
-
+    
+    // RESET SPEED
+    if(isTargetJoined){
+        speed = ofVec2f(0,0);
+    }
+    
 	// OK but reset later, maybe after drawing
 	acc = ofVec2f(0, 0);		// RESET ACCELERATION TO EACH CYCLE
     
@@ -171,26 +195,42 @@ void Bird::applyForce(ofVec2f f) {
 //-------------------------------------------------------------
 void Bird::flock(vector<Bird>* birds) {
 
-	ofVec2f sep = separate(birds);
-	ofVec2f ali = align(birds);
-	ofVec2f coh = cohesion(birds);
-	ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/screenW, ofGetMouseY()*h/screenH));
-	ofVec2f tar = goToTarget();
-
-	sep *= swt; //multiply these force
-	ali *= awt;
-	coh *= cwt;
-	if (!ofGetMousePressed(2))
-    {
-        att *= 0;
-	}
-	tar *= twt;
-
-	applyForce(sep);
-	applyForce(ali);
-	applyForce(coh);
-	applyForce(att);
-	applyForce(tar);
+    switch (state) {
+        case BIRD_FREE:
+        {
+            // CALCULATE INTERACTION FORCES
+            ofVec2f sep = separate(birds);
+            ofVec2f ali = align(birds);
+            ofVec2f coh = cohesion(birds);
+            //COEF
+            sep *= swt; //multiply these force
+            ali *= awt;
+            coh *= cwt;
+            // APPLY
+            applyForce(sep);
+            applyForce(ali);
+            applyForce(coh);
+            // INTERACTION WITH MOUSE
+            if (ofGetMousePressed(2))
+            {
+                ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/screenW, ofGetMouseY()*h/screenH));
+                applyForce(att);
+            }
+            break;
+        }
+        case BIRD_GOTOTARGET:
+        {
+            ofVec2f tar = goToTarget();
+            tar *= twt;
+            tar.limit(maxForce);
+            applyForce(tar);
+            break;
+        }
+        default:
+            break;
+    }
+    
+	
 
 }
 //-------------------------------------------------------------
@@ -329,24 +369,12 @@ ofVec2f Bird::goToTarget() {
         if(maxSpeed>1.5)maxSpeed *=0.99;
         if(maxSpeed>1)maxSpeed *=0.98;
     }
-    if(dist.length() < 15 && twt>0.5)
+    if(dist.length() < 15)
     {
-        if(maxSpeed>0.2)
-        {
-            maxSpeed *= 0.9;
-        }
-        // reduce all group parameter to zero
-        // Keep the body fixe to the final 
-        //cwt = 0;
-        //awt = 0;
-        //swt = 0;
-    
+        isTargetJoined = true;
     }
     dist *= stiffness;
     dist /= 500;
-    dist.limit(maxForce);
-    
-	
 	return dist;
 
 }

@@ -12,6 +12,10 @@
 #include "ofxAssimpModelLoader.h"
 #include <stdio.h>
 
+#define BIRD_FREE 0
+#define BIRD_GOTOTARGET 1
+#define BIRD_DIEONBORDER 2
+
 class Bird
 {
     
@@ -26,10 +30,11 @@ public:
          int screenW,
          int screenH,
          float stiffness,
-         int order
+         int order,
+         int flyDuration
          );
     
-    void update(ofPoint t);
+    void update();
     void drawBasic();
     void drawDebug(int l);
     
@@ -50,9 +55,19 @@ public:
     ofVec2f speed;
 	ofVec2f acc;
     
+    //State of life, 3 MODE
+    // 0 BIRD_FREE = interact with other
+    // 1 BIRD_GoToTarget = no interaction, gently join the target point
+    // 2 BIRD_DieOnBorder = Free but die when the border is crossed
+    int state;
+    
+    //Target
+    bool isTargetJoined;
+    
     //Time and distance to fly
     unsigned long flyingTime;
-    int flyingDistance;
+    unsigned long flyingDuration;
+    float flyingDistance;
     
     //Nichée
     int order;

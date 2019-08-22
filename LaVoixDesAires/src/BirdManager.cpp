@@ -51,6 +51,7 @@ void BirdManager::setup(){
 	size.addListener(this, &BirdManager::setSize);
     maxSpeed.addListener(this, &BirdManager::setMaxSpeed);
     maxForce.addListener(this, &BirdManager::setMaxForce);
+    flyDuration.addListener(this, &BirdManager::setFlyDuration);
     
     // GUI parameter
     //pg->setName("birdmanager");
@@ -71,11 +72,12 @@ void BirdManager::setup(){
 	pg->add(separation.set("separation",0.1, 0, 1));
 	pg->add(cohesion.set("cohesion",0.1, 0, 1));
 	pg->add(alignment.set("alignment",0.1, 0, 1));
-    pg->add(targetAttraction.set("target att", 0.0,0, 10.0 ));
+    pg->add(targetAttraction.set("target att", 5.1,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
     pg->add(maxForce.set("max force", 0.25, 0.001, 0.8));
     pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
+    pg->add(flyDuration.set("fly duration", 600, 0, 6000));
 
 	for (int i = 0; i < nbBird; i++)
 	{
@@ -84,6 +86,7 @@ void BirdManager::setup(){
     
 	//3D model
     loadModel("../../../model/Bird_Asset_lowPoly.fbx");
+    
     //loadModel("../../../model/Bird_Asset.fbx");
 
 
@@ -92,16 +95,17 @@ void BirdManager::setup(){
 //-------------------------------------------------------------
 void BirdManager::update(){
 
-    ofPoint targetMouse = ofPoint(ofGetMouseX(), ofGetMouseY());
-    
 	//3D MODEL
 	
     
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
-		it->flock(&(*itn));
-		it->update(targetMouse);
+        // FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
+        it->flock(&(*itn));
+		// UPDATE there forces to calculate pos, speed, flying time, flying distance
+        it->update();
+        // BORDERS : teleportation from left to right, up to bottom
 		it->borders();
         
 
@@ -119,10 +123,12 @@ void BirdManager::draw(){
 		drawModel(it);
 
         //Draw line between letter
-//        if(it->pos.distance(it->neighbourLeft->pos) <100)
-//        {
-//            ofDrawLine(it->pos,it->neighbourLeft->pos);
-//        }
+        if(it->pos.distance(it->neighbourLeft->pos) <200)
+        {
+            ofSetColor(240);
+            ofSetLineWidth(1);
+            ofDrawLine(it->pos,it->neighbourLeft->pos);
+        }
 
         it->drawDebug(debug);
     }
@@ -138,26 +144,34 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     ofPushMatrix();
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
-	//ROTATE ON Y ( LEFT - RIGHT )
-	
-	float angleRotateY = 0;
-	if (abs(it->speed.x) > 1) {
-		angleRotateY = abs(it->speed.x) / it->speed.x * 90;
-	}
-	else {
-		angleRotateY = it->speed.x / 1 * 90.0f;
-	}
+    float angleRotateY = 0;
+    float angleRotateZ = 0;
 
-	// ROTATE ON Z ( before Y but need Y )
-	float angleRotateZ = 0;
-	float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
-	if (angleRotateY > 0) {
-		angleRotateZ = onY * 90;
-	}
-	else
-	{
-		angleRotateZ = -onY * 90;
-	}
+    //Rotate bird if still moving
+    if(!(it->isTargetJoined))
+    {
+        //ROTATE ON Y ( LEFT - RIGHT )
+        
+        if (abs(it->speed.x) > 1) {
+            angleRotateY = abs(it->speed.x) / it->speed.x * 90;
+        }
+        else {
+            angleRotateY = it->speed.x / 1 * 90.0f;
+        }
+
+        // ROTATE ON Z ( before Y but need Y )
+        
+        float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
+        if (angleRotateY > 0)
+        {
+            angleRotateZ = onY * 90;
+        }
+        else
+        {
+            angleRotateZ = -onY * 90;
+        }
+        
+    }
 
 	
 	ofRotateDeg(angleRotateZ, 0, 0, 1);
@@ -203,7 +217,7 @@ void BirdManager::addBird(ofPolyline p){
         
         for(int i=0; i<p.size(); i++){
             
-             Bird newBird = Bird(polyBg,p[i], size, w, h, screenW, screenH, stiffness, nbNiche);
+             Bird newBird = Bird(polyBg,p[i], size, w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
              newNiche.push_back(newBird);
         }
         
@@ -357,6 +371,16 @@ void BirdManager::setMaxForce(float &f) {
     
 }
 
+//-------------------------------------------------------------
+void BirdManager::setFlyDuration(int &i){
+    
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            it->flyingDuration = i;
+        }
+    
+}
 
 
 //-------------------------------------------------------------
