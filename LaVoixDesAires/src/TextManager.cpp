@@ -112,15 +112,15 @@ void TextManager::drawPoly(){
         for (vector<ofPolyline>::iterator ito = msgPolys.begin(); ito < msgPolys.end(); ito++){
             ofNoFill();
             
-            ito->getCentroid2D();
-//            ito -> draw();
+            ofPoint center = ito->getCentroid2D();
+            ito -> draw();
 //            for (int i = 0; i < ito->size(); i++) {
 //                ofVec3f p = (*ito)[i];
 //
 //                //Draw Cercle
 //                ofFill();
 //                ofSetLineWidth(1);
-//                ofDrawCircle(ofVec2f(p.x, p.y), 10);
+                ofDrawCircle(center, 10);
 //
 //                //Draw Line
 //                if (i > 0) {
