@@ -369,7 +369,7 @@ ofVec2f Bird::goToTarget() {
         if(maxSpeed>1.5)maxSpeed *=0.99;
         if(maxSpeed>1)maxSpeed *=0.98;
     }
-    if(dist.length() < 15)
+    if(dist.length() < 2)
     {
         isTargetJoined = true;
     }

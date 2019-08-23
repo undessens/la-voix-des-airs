@@ -80,6 +80,10 @@ public:
     static const int nbModelPose = 50;
 	ofxAssimpModelLoader listOfModel[nbModelPose];
     
+    //Texture of bird ( save CPU )
+    ofImage birdImage;
+    ofTexture birdTexture;
+    
     //Geometry
     int w;
     int h;

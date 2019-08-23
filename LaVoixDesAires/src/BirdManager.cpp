@@ -60,13 +60,6 @@ void BirdManager::setup(){
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 50, 2, 500));
     
-    // Direction Noise , bird change from left to right while reaching the target point
-   // pg->add(noiseDAmplitude.set("noiseDAmplitude", 1.0, 0.0, 13.0));
-    //pg->add(noiseDFreq.set("noiseDFreq", 0.01, 0.01, 10.0));
-    
-    // Speed Noise . Bird change its speed, while reaching the target point
-    //pg->add(noiseSAmplitude.set("noiseSAmplitude", 0.0, 0.0, 13.0));
-    //pg->add(noiseSFreq.set("noiseSFreq", 0.01, 0.01, 1.0));
     
     // Parameter to cartesian spring equation
 	pg->add(separation.set("separation",0.1, 0, 1));
@@ -84,11 +77,15 @@ void BirdManager::setup(){
 		//addBird((char)60 + i, i+1);
 	}
     
-	//3D model
+	//3D MODEL
      loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
     //loadModel("../../../model/Bird_Asset_lowPoly.fbx");
     //loadModel("../../../model/Bird_Asset.fbx");
-
+    
+    //TEXTURE ( CPU SAVE WHEN TARGET IN JOINED )
+    birdImage.load("png_oiseau.png");
+    birdTexture = birdImage.getTexture();
+    
 
 }
 
@@ -141,49 +138,64 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 	//Change wings movement for alls animations
     int index = (it->flyingDistance)/100.0 * (nbModelPose - 1);
     ofPushMatrix();
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    ofSetColor(255);
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
     float angleRotateY = 0;
     float angleRotateZ = 0;
 
     //Rotate bird if still moving
-    if(!(it->isTargetJoined))
-    {
-        //ROTATE ON Y ( LEFT - RIGHT )
-        
-        if (abs(it->speed.x) > 1) {
-            angleRotateY = abs(it->speed.x) / it->speed.x * 90;
-        }
-        else {
-            angleRotateY = it->speed.x / 1 * 90.0f;
-        }
+    
+    
+    //ROTATE ON Y ( LEFT - RIGHT )
 
-        // ROTATE ON Z ( before Y but need Y )
-        
-        float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
-        if (angleRotateY > 0)
-        {
-            angleRotateZ = onY * 90;
-        }
-        else
-        {
-            angleRotateZ = -onY * 90;
-        }
-        
+    if (abs(it->speed.x) > 1) {
+        angleRotateY = abs(it->speed.x) / it->speed.x * 90;
+    }
+    else {
+        angleRotateY = it->speed.x / 1 * 90.0f;
     }
 
-	
-	ofRotateDeg(angleRotateZ, 0, 0, 1);
-	ofRotateDeg(angleRotateY, 0, 1, 0);
+    // ROTATE ON Z ( before Y but need Y )
 
-	
-	listOfModel[index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
-	//FINAL TRANSLATE
-	//ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-	listOfModel[index].setScale(size/1000.0, size /1000.0, size /1000.0);
-	listOfModel[index].drawFaces();
+    float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
+    if (angleRotateY > 0)
+    {
+        angleRotateZ = onY * 90;
+    }
+    else
+    {
+        angleRotateZ = -onY * 90;
+    }
+
+
+
+
+    ofRotateDeg(angleRotateZ, 0, 0, 1);
+    ofRotateDeg(angleRotateY, 0, 1, 0);
+
+
+    listOfModel[index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
+    //FINAL TRANSLATE
+    //ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
+    listOfModel[index].setScale(size/1000.0, size /1000.0, size /1000.0);
+    
+    //REDUCE ALPHA when targeted
+    if((it->isTargetJoined)){
+        float alpha = 255*max((1.0 - (it->flyingTime - it->flyingDuration) / 6000.0), 0.0);
+        
+        ofSetColor(255, 255,255, alpha);
+    }
+    
+    listOfModel[index].drawFaces();
     //listOfModel[index].drawVertices();
     //listOfModel[index].drawWireframe();
+    
+
+    
+    
+    ofDisableBlendMode();
 	ofPopMatrix();
 
 }
