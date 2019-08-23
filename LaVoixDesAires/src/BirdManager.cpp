@@ -77,8 +77,15 @@ void BirdManager::setup(){
 		//addBird((char)60 + i, i+1);
 	}
     
+    std::vector<string> modelsFilePaths = {
+        "../../../model/Bird_Asset_lowPoly_300.fbx",
+        "../../../model/green_bird.fbx",
+        "../../../model/blue_bird.fbx",
+        "../../../model/tropical_bird.fbx",
+    };
 	//3D MODEL
-     loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
+     loadModels(modelsFilePaths);
+    
     //loadModel("../../../model/Bird_Asset_lowPoly.fbx");
     //loadModel("../../../model/Bird_Asset.fbx");
     
@@ -122,8 +129,8 @@ void BirdManager::draw(){
         if(it->pos.distance(it->neighbourLeft->pos) <200)
         {
             ofSetColor(240);
-            ofSetLineWidth(1);
-            ofDrawLine(it->pos,it->neighbourLeft->pos);
+//            ofSetLineWidth(1);
+//            ofDrawLine(it->pos,it->neighbourLeft->pos);
         }
 
         it->drawDebug(debug);
@@ -152,8 +159,7 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
     if (abs(it->speed.x) > 1) {
         angleRotateY = abs(it->speed.x) / it->speed.x * 90;
-    }
-    else {
+    } else {
         angleRotateY = it->speed.x / 1 * 90.0f;
     }
 
@@ -163,23 +169,20 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     if (angleRotateY > 0)
     {
         angleRotateZ = onY * 90;
-    }
-    else
-    {
+    } else {
         angleRotateZ = -onY * 90;
     }
-
-
 
 
     ofRotateDeg(angleRotateZ, 0, 0, 1);
     ofRotateDeg(angleRotateY, 0, 1, 0);
 
+    int modelId = it -> order % nbModels;
 
-    listOfModel[index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
+    listOfModel[modelId][index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
     //FINAL TRANSLATE
     //ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-    listOfModel[index].setScale(size/1000.0, size /1000.0, size /1000.0);
+    listOfModel[modelId][index].setScale(size/1000.0, size /1000.0, size /1000.0);
     
     //REDUCE ALPHA when targeted
     if((it->isTargetJoined)){
@@ -188,52 +191,48 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
         ofSetColor(255, 255,255, alpha);
     }
     
-    listOfModel[index].drawFaces();
+    listOfModel[modelId][index].drawFaces();
     //listOfModel[index].drawVertices();
     //listOfModel[index].drawWireframe();
-    
-
-    
     
     ofDisableBlendMode();
 	ofPopMatrix();
 
 }
 
+void BirdManager::loadModels(std::vector<string> filenames){
+    for(int i=0; i < filenames.size(); i++){
+        loadModel(i, filenames[i]);
+    }
+}
 //-------------------------------------------------------------
-void BirdManager::loadModel(string filename){
-    
+void BirdManager::loadModel(int atIndex, string filename){
+    ofLog() << "Loading model: " << filename ;
     for(int i=0; i< nbModelPose; i++){
-        
-        listOfModel[i] = ofxAssimpModelLoader();
-        listOfModel[i].loadModel(filename);
-        listOfModel[i].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-        listOfModel[i].setPosition(0, 10, -5);
-        listOfModel[i].setPausedForAllAnimations(true);
-        listOfModel[i].setPositionForAllAnimations((float)i/nbModelPose);
-        listOfModel[i].update();
+        listOfModel[atIndex][i] = ofxAssimpModelLoader();
+        listOfModel[atIndex][i].loadModel(filename);
+        listOfModel[atIndex][i].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+        listOfModel[atIndex][i].setPosition(0, 10, -5);
+        listOfModel[atIndex][i].setPausedForAllAnimations(true);
+        listOfModel[atIndex][i].setPositionForAllAnimations((float)i/nbModelPose);
+        listOfModel[atIndex][i].update();
     }
     
 }
 
 //-------------------------------------------------------------
 void BirdManager::addBird(ofPolyline p){
-    
     if(p.size()>0)
     {
-    
         int nbNiche = listOfBird.size();
-        
         vector<Bird> newNiche;
         
         for(int i=0; i<p.size(); i++){
-            
-             Bird newBird = Bird(polyBg,p[i], size, w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
+             Bird newBird = Bird(polyBg, p[i], size, w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
              newNiche.push_back(newBird);
         }
         
         listOfBird.push_back(newNiche);
-        
         //Create neighbour now
          for(int i=0; i<p.size(); i++){
           
@@ -243,16 +242,9 @@ void BirdManager::addBird(ofPolyline p){
              if(i==0){
                 (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[p.size() -1]);
              }
-             
          }
-        
-        
-        
-        
     }
-    
     nbBird += p.size();
-
 }
 
 //-------------------------------------------------------------
