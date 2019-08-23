@@ -125,8 +125,8 @@ void BirdManager::draw(){
         if(it->pos.distance(it->neighbourLeft->pos) <200)
         {
             ofSetColor(240);
-            ofSetLineWidth(1);
-            ofDrawLine(it->pos,it->neighbourLeft->pos);
+//            ofSetLineWidth(1);
+//            ofDrawLine(it->pos,it->neighbourLeft->pos);
         }
 
         it->drawDebug(debug);

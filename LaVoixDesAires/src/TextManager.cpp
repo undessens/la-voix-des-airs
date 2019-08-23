@@ -110,6 +110,21 @@ ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
     return simplePoly;
 }
 
+void TextManager::addPathWithCustomSpacing(int letter, ofVec2f position){
+    ofPath letterPath = msgFont.getCharacterAsPoints(letter);
+    letterPath.translate(position);
+    msgPaths.push_back(letterPath);
+}
+
+void TextManager::addPathSimple(){
+    std::vector<ofPath> lettersPaths = msgFont.getStringAsPoints(msg);
+    if( lettersPaths.size()){
+        ofPath letterPaths = lettersPaths.back();
+        letterPaths.translate(msgPosition);
+        msgPaths.push_back(letterPaths);
+    }
+}
+
 void TextManager::addLetter(int letter) {
     
 	int prevMsgLength = ofUTF8Length(msg);
@@ -122,9 +137,8 @@ void TextManager::addLetter(int letter) {
     ofLog() << "New message size:" << prevMsgLength + 1;
     
     if(msgFont.isLoaded()){
-        ofPath letterPath = msgFont.getCharacterAsPoints(letter);
-        letterPath.translate(newLetterPosition);
-        msgPaths.push_back(letterPath);
+        addPathSimple();
+//        addPathWithCustomSpacing(letter, newLetterPosition);
     } else {
         ofLog(OF_LOG_ERROR) << "No message font on the system!";
     }
@@ -134,7 +148,7 @@ void TextManager::addLetter(int letter) {
     
     
 
-//    birdmanager->addBird(simplifiedPoly);f
+    birdmanager->addBird(simplifiedPoly);
     
 }
 

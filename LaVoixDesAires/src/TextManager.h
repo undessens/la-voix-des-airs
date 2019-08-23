@@ -18,6 +18,8 @@ public:
     void changeFontSize(int &newSize);
     void changeFontSpacing(int &newSpacing);
     ofPolyline simplifyPolyline(int letter, ofVec2f letterPosition);
+    void addPathWithCustomSpacing(int letter, ofVec2f position);
+    void addPathSimple();
 //    bool comparePointX(ofPoint &a, ofPoint &b);
 //    bool comparePointY(ofPoint &a, ofPoint &b);
         
@@ -26,8 +28,9 @@ public:
     int fontSpacing;
     ofTrueTypeFont msgFont ;
     ofTrueTypeFont birdFont;
-    string msgFontName = "immono.otf";
+//    string msgFontName = "immono.otf";
     string birdFontName =  "ralewayDots.ttf";
+    string msgFontName =  "verdana.ttf";
     
     string msg;
     ofVec2f msgPosition;
