@@ -7,14 +7,14 @@ TextManager::TextManager()
 TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
 {
     msg = "";
-    msgPosition = ofVec2f(300, 300);
+    msgPosition = ofPoint(300, 300);
 
-//    Verdana 60pt bbox
+//    Verdana 60pt bbox on 1440px
 //    top-left x:219, y:282
-//    down-right x:1207, y:349
-
+//    down-right x:1207, y:349 ==> ~900
     fontSpacing = 70;
-    fontSize= 60;
+    fontSize= 38;
+    fontDistSampling = 3.10;
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
@@ -25,18 +25,36 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     
     gFontSize.addListener(this, &TextManager::changeFontSize);
     gFontSpacing.addListener(this, &TextManager::changeFontSpacing);
+    gMsgPositionX.addListener(this, &TextManager::changeMsgPositionX);
+    gMsgPositionY.addListener(this, &TextManager::changeMsgPositionY);
+    gfontDistSampling.addListener(this, &TextManager::changeFontSampling);
     
     pg = _pg;
     pg->setName("Text Manager");
     pg->add(drawMsgFill.set("Draw Fill", true));
     pg->add(drawMsgContour.set("Draw Contour", true));
-    pg->add(gFontSize.set("Font Size", fontSize, 10, 200));
+    pg->add(gFontSize.set("Font Size", fontSize, 38, 150));
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
+    pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 600));
+    pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
+    pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 0.0, 7.0));
 }
 
 
 TextManager::~TextManager()
 {
+}
+
+void TextManager::changeFontSampling(float &s){
+    fontDistSampling = s;
+}
+
+void TextManager::changeMsgPositionX(int &x){
+    msgPosition.x = x;
+}
+
+void TextManager::changeMsgPositionY(int &y){
+    msgPosition.y = y;
 }
 
 
@@ -66,10 +84,34 @@ bool comparePointY(ofPoint &a, ofPoint &b){
     return a.y < b.y;
 }
 
-ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
-    float minSamplingDistance = 5.0;
-    ofPolyline simplePoly;
+std::vector<ofPoint> reducePointsBy(std::vector<ofPoint> points, string sense, float minSpaceDistance){
+    std::vector<ofPoint> result;
+    if (sense== "x") {
+        std::sort(points.begin(), points.end(), &comparePointX);
+    } else {
+        std::sort(points.begin(), points.end(), &comparePointY);
+    }
     
+    if (points.size() > 0){
+        ofPoint prevPoint = points[0];
+        float currentDistance;
+        for (int i=1; i < points.size(); i++) {
+            currentDistance = prevPoint.distance( points[i]);
+            //        of90Log() << "Distance is " << currentDistance;
+            if(currentDistance >= minSpaceDistance ){
+                result.push_back(points[i]);
+                prevPoint = points[i];
+            }
+        }
+    }
+
+    
+    return result;
+}
+
+ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
+    ofPolyline simplePoly;
+
     if(birdFont.isLoaded()){
         //Set stroke to create polyline
         std::vector<ofPath> dottedPaths = birdFont.getStringAsPoints(msg);
@@ -79,38 +121,30 @@ ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
             std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
             std::vector<ofPoint> points ;
             for (int i=0; i < dottedOutline.size(); i++) {
-                if( dottedOutline[i].size()){
-                    dottedOutline[i].translate(msgPosition);
+                dottedOutline[i].translate(msgPosition);
+
+                if(fontSize >= 36 && dottedOutline[i].size()){
                     points.push_back(dottedOutline[i][0]);
-                }
-            }
-            
-            if(points.size()){
-                std::sort(points.begin(), points.end(), &comparePointY);
-                std::sort(points.begin(), points.end(), &comparePointX);
-                
-                int letterPoints = 0;
-                ofPoint prevPoint = points[0];
-                simplePoly.addVertex(prevPoint);
-                float distance;
-                
-                ofLog() << "Original point size : " << points.size();
-                for (int i=1; i < points.size(); i++) {
-                    distance = prevPoint.distance( points[i]);
-                    //            ofLog() << "Distance is " << distance;
-                    if(distance >= minSamplingDistance){
-                        //                    if(i%2){
-                        simplePoly.addVertex(points[i]);
-                        prevPoint = points[i];
+                } else {
+                    for(int k=0; k < dottedOutline[i].size(); k++){
+                        points.push_back(dottedOutline[i][k]);
                     }
                 }
-                ofLog() << "New Letter points size : " << simplePoly.size();
+            }
+
+            if(points.size()){
+                ofLog() << "Original point size : " << points.size();
+                points = reducePointsBy(points, "x", fontDistSampling);
+                points = reducePointsBy(points, "y", fontDistSampling);
+                ofLog() << "New Letter points size : " << points.size();
+                for (auto& pPoint : points) {
+                    simplePoly.addVertex(pPoint);
+                }
             }
         }
     } else {
         ofLog(OF_LOG_ERROR) << "No dotted font found on the system!";
     }
-    
     return simplePoly;
 }
 
@@ -179,8 +213,8 @@ void TextManager::drawPoly(){
                 
                 //Draw Cercle
                 ofSetLineWidth(1);
-                ofSetColor(i*8,k*10, 255);
-                ofDrawCircle(p, 4);
+                ofSetColor(255,152, 0);
+                ofDrawCircle(p, 3);
                 //Draw Line
 //                if (i > 0) {
 //                    ofDrawLine((*ito)[i], (*ito)[i - 1]);

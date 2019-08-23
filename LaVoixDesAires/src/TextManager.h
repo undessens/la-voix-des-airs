@@ -5,7 +5,6 @@
 class TextManager
 {
 public:
-
     TextManager();
     TextManager(BirdManager* b, ofParameterGroup* pg);
     ~TextManager();
@@ -15,25 +14,29 @@ public:
     void clear();
 	
 	void addLetter(int c);
-    void changeFontSize(int &newSize);
-    void changeFontSpacing(int &newSpacing);
     ofPolyline simplifyPolyline(int letter, ofVec2f letterPosition);
     void addPathWithCustomSpacing(int letter, ofVec2f position);
     void addPathSimple();
-//    bool comparePointX(ofPoint &a, ofPoint &b);
-//    bool comparePointY(ofPoint &a, ofPoint &b);
-        
+
+    void changeFontSize(int &newSize);
+    void changeFontSpacing(int &newSpacing);
+    void changeMsgPositionX(int &x);
+    void changeMsgPositionY(int &y);
+    void changeFontSampling(float &s);
+    
 	//Font & Text
     int fontSize;
     int fontSpacing;
+    float fontDistSampling;
     ofTrueTypeFont msgFont ;
     ofTrueTypeFont birdFont;
-//    string msgFontName = "immono.otf";
-    string birdFontName =  "ralewayDots.ttf";
-    string msgFontName =  "verdana.ttf";
+    string msgFontName = "Raleway-Medium.ttf";
+//    string msgFontName =  "verdana.ttf";
+    string birdFontName = "Raleway-Dots.ttf";
+    
     
     string msg;
-    ofVec2f msgPosition;
+    ofPoint msgPosition;
 	
     //Polyline
     std::vector<ofPolyline> msgPolys;
@@ -41,15 +44,17 @@ public:
     
     //BirdManager
     BirdManager* birdmanager;
+
+    //OfParameter group
+    ofParameterGroup* pg;
     
     //Parameter
     ofParameter<bool> drawMsgFill;
     ofParameter<bool> drawMsgContour;
     ofParameter<int> gFontSize;
     ofParameter<int> gFontSpacing;
-	
-    //OfParameter group
-    ofParameterGroup* pg;
-	
+    ofParameter<int> gMsgPositionX;
+    ofParameter<int> gMsgPositionY;
+    ofParameter<float> gfontDistSampling;
 };
 

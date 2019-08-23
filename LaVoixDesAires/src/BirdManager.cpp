@@ -58,7 +58,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 50, 2, 500));
+    pg->add(size.set("size", 50, 2, 100));
     
     
     // Parameter to cartesian spring equation
@@ -180,7 +180,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     ofRotateDeg(angleRotateZ, 0, 0, 1);
     ofRotateDeg(angleRotateY, 0, 1, 0);
 
-    int modelId = it -> order % nbModels;
+//    int modelId = it -> order % nbModels;
+    int modelId = 0;
 
     listOfModel[modelId][index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
     //FINAL TRANSLATE
@@ -254,6 +255,7 @@ void BirdManager::addBird(ofPolyline p){
 void BirdManager::killAll(){
     
     listOfBird.clear();
+    nbBird = 0;
 }
 
 //-------------------------------------------------------------
