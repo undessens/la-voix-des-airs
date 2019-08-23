@@ -10,7 +10,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     msgPosition = ofVec2f(300, 300);
     
     fontSpacing = 70;
-    fontSize= 70;
+    fontSize= 60;
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
@@ -69,39 +69,40 @@ ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
     if(birdFont.isLoaded()){
         //Set stroke to create polyline
         std::vector<ofPath> dottedPaths = birdFont.getStringAsPoints(msg);
-        ofPath dottedPath = dottedPaths[dottedPaths.size()-1];
-        dottedPath.setStrokeWidth(2);
-        std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
-        std::vector<ofPoint> points ;
-        for (int i=0; i < dottedOutline.size(); i++) {
-            if( dottedOutline[i].size()){
-                dottedOutline[i].translate(msgPosition);
-                points.push_back(dottedOutline[i][0]);
-            }
-        }
-        
-        if(points.size()){
-            std::sort(points.begin(), points.end(), &comparePointY);
-            std::sort(points.begin(), points.end(), &comparePointX);
-            
-            int letterPoints = 0;
-            ofPoint prevPoint = points[0];
-            simplePoly.addVertex(prevPoint);
-            float distance;
-            
-            ofLog() << "Original point size : " << points.size();
-            for (int i=1; i < points.size(); i++) {
-                distance = prevPoint.distance( points[i]);
-                //            ofLog() << "Distance is " << distance;
-                if(distance >= minSamplingDistance){
-                    //                    if(i%2){
-                    simplePoly.addVertex(points[i]);
-                    prevPoint = points[i];
+        if (dottedPaths.size()){
+            ofPath dottedPath = dottedPaths[dottedPaths.size()-1];
+            dottedPath.setStrokeWidth(2);
+            std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
+            std::vector<ofPoint> points ;
+            for (int i=0; i < dottedOutline.size(); i++) {
+                if( dottedOutline[i].size()){
+                    dottedOutline[i].translate(msgPosition);
+                    points.push_back(dottedOutline[i][0]);
                 }
             }
-            ofLog() << "New Letter points size : " << simplePoly.size();
+            
+            if(points.size()){
+                std::sort(points.begin(), points.end(), &comparePointY);
+                std::sort(points.begin(), points.end(), &comparePointX);
+                
+                int letterPoints = 0;
+                ofPoint prevPoint = points[0];
+                simplePoly.addVertex(prevPoint);
+                float distance;
+                
+                ofLog() << "Original point size : " << points.size();
+                for (int i=1; i < points.size(); i++) {
+                    distance = prevPoint.distance( points[i]);
+                    //            ofLog() << "Distance is " << distance;
+                    if(distance >= minSamplingDistance){
+                        //                    if(i%2){
+                        simplePoly.addVertex(points[i]);
+                        prevPoint = points[i];
+                    }
+                }
+                ofLog() << "New Letter points size : " << simplePoly.size();
+            }
         }
-        
     } else {
         ofLog(OF_LOG_ERROR) << "No dotted font found on the system!";
     }
