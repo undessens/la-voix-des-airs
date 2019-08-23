@@ -40,9 +40,15 @@ class ofApp : public ofBaseApp{
         ofParameter<int> frameRate;
         ofParameter<bool> debug;
         ofParameter<bool> fakeCursor;
-
+        ofParameter<int> lightTopPosX;
+        ofParameter<int> lightTopPosY;
+        ofParameter<ofColor> lightBottomColor;
+        ofParameter<bool> lightBottomDirectionnal;
+        ofParameter<ofColor> lightTopColor;
+    
 		//Lighting
-		ofLight light;
+		ofLight lightTop;
+        ofLight lightBottom;
     
         //Final fbo size send to madmapper
         int final_w;

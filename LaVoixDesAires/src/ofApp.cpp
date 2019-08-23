@@ -30,6 +30,11 @@ void ofApp::setup() {
     pg.add(frameRate.set("frameRate", 30, 0, 50));
     pg.add(debug.set("debug", false));
     pg.add(fakeCursor.set("Fake cursor", false));
+    pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
+    pg.add(lightTopPosY.set("light Y", 0, 0, final_h));
+    pg.add(lightTopColor.set("Light Top Color", ofColor::whiteSmoke));
+    pg.add(lightBottomColor.set("Light Bottom Color", ofColor::darkorange));
+    
     
     // Adding all parameter to GUI
     gui.setup(pg);
@@ -45,7 +50,11 @@ void ofApp::setup() {
 	fbo.allocate(final_w, final_h, GL_RGBA);
 
 	// OSC receiver
-	osc_receiver.setup(12345); 
+	osc_receiver.setup(12345);
+    
+    //Lighting
+    ofSetSmoothLighting(true);
+    
 
 
 
@@ -90,19 +99,39 @@ void ofApp::draw() {
 
 	// LIGHT MANAGEMENT
 	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	ofEnableDepthTest();
+	
+    // DRAW ACCORDING TO Z DEPTH and not code order
+    ofEnableDepthTest();
+    
+    
 #ifndef TARGET_PROGRAMMABLE_GL
 	glShadeModel(GL_SMOOTH);
 #endif // !TARGET_PROGRAMMABLE_GL
-	light.enable();
+	
+    //LIGHTING
+    ofEnableLighting();
+    lightTop.setPosition(lightTopPosX, lightTopPosY, 0);
+    lightTop.setDiffuseColor((ofColor)lightTopColor);
+    lightTop.setSpecularColor((ofColor)lightTopColor);
+    lightTop.enable();
+    
+
+    lightBottom.setDiffuseColor((ofColor)lightBottomColor);
+    lightBottom.setSpecularColor((ofColor)lightBottomColor);
+    lightBottom.setPosition(lightTopPosX, final_h, 0);
+    if(lightBottomDirectionnal){
+        lightBottom.setDirectional();
+    }
+    lightBottom.enable();
 
 	// BIRD MANAGER
 	birdManager->draw();
 
 	ofDisableDepthTest();
-	light.disable();
+	
 	ofDisableLighting();
-	ofDisableSeparateSpecularLight();
+	
+    ofDisableSeparateSpecularLight();
 
 	// Text Manager
     textManager->drawPoly();
