@@ -33,7 +33,8 @@ public:
     void draw();
 	void drawModel(vector<Bird>::iterator i);
     ofxAssimpModelLoader getModel(int distance);
-    void loadModel(string filename);
+    void loadModel(int atIndex, string filename);
+    void loadModels(std::vector<string> filenames);
     
     void changeToLetter();
     
@@ -78,7 +79,12 @@ public:
 
 	//3D MODEL
     static const int nbModelPose = 50;
-	ofxAssimpModelLoader listOfModel[nbModelPose];
+    static const int nbModels = 4;
+	ofxAssimpModelLoader listOfModel[nbModels][nbModelPose];
+    
+    //Texture of bird ( save CPU )
+    ofImage birdImage;
+    ofTexture birdTexture;
     
     //Geometry
     int w;

@@ -16,6 +16,8 @@ int spacePin = 53;
 int spaceValue = 0;
 int capsPin = 52;
 int capsValue = 0;
+int slashEndPin = 50;
+int slashEndValue = 0;
 
 
 // --------------- Keyboard To Pin Layout -----------
@@ -30,7 +32,7 @@ int capsValue = 0;
 
 int digitalinPin[] =  {
   28, 29, 30, 31, 32, 41, 42, 43, 44, 45, 33, 34, 35, 36, 37, 38, 39, 40, 46,
-    9, 8, 7, 6, 5, 49, 3, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+    9, 8, 7, 6, 5, 49, 3, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
 };
 
 String capsKeyboard[] = {
@@ -58,6 +60,8 @@ void setup() {
 
   pinMode(spacePin, INPUT);
   pinMode(capsPin, INPUT);
+  pinMode(slashEndPin, INPUT);
+  digitalWrite(slashEndPin, HIGH);
 
 }
   
@@ -91,6 +95,16 @@ void loop() {
 
    //SPECIAL NON ASCII : CAPS MAJ
   capsValue = digitalRead(capsPin);
+
+  //SPECIAL NON ASCII Slash End
+  int newSlashEndValue = !digitalRead(slashEndPin);
+  if( newSlashEndValue != slashEndValue){
+    slashEndValue = newSlashEndValue;
+    if (slashEndValue == HIGH ) {
+      sendMessage(slashEndPin, "\n");
+     }
+    
+  }
 
 
   delay(2); // ms 
