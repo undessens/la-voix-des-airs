@@ -24,8 +24,10 @@ public:
 	//Font & Text
     int fontSize;
     int fontSpacing;
-    ofTrueTypeFont msgFont;
+    ofTrueTypeFont msgFont ;
     ofTrueTypeFont birdFont;
+    string msgFontName = "immono.otf"
+    string birdFontName = = "ralewayDots.ttf"
     
     string msg;
     ofVec2f msgPosition;

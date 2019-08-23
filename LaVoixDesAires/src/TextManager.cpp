@@ -14,7 +14,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
-//    birdFont.load("ralewayDots.ttf", fontSize, true, true, true);
+//    birdFont.load(, fontSize, true, true, true);
     birdmanager = b;
     msgPolys.clear();
     
@@ -38,11 +38,8 @@ TextManager::~TextManager()
 
 void TextManager::changeFontSize(int &newSize){
     fontSize = newSize;
-//    string fontMsg = "verdana.ttf";
-    string fontMsg = "ralewayDots.ttf";
-//    string fontBird
-    msgFont.load(fontMsg, fontSize, true, true, true);
-    birdFont.load(fontMsg, fontSize, true, true, true);
+    msgFont.load(msgFontName, fontSize, true, true, true);
+    birdFont.load(birdFontName, fontSize, true, true, true);
 }
 
 void TextManager::changeFontSpacing(int &newSpacing){
@@ -67,51 +64,42 @@ bool comparePointY(ofPoint &a, ofPoint &b){
 
 ofPolyline TextManager::simplifyPolyline(int letter, ofVec2f letterPosition) {
     float minSamplingDistance = 5.0;
-    
     ofPolyline simplePoly;
     
     if(birdFont.isLoaded()){
-        ofPath dottedPath = birdFont.getCharacterAsPoints(letter);
-        
-        
         //Set stroke to create polyline
+        std::vector<ofPath> dottedPaths = birdFont.getStringAsPoints(msg);
+        ofPath dottedPath = dottedPaths[dottedPaths.size()-1];
         dottedPath.setStrokeWidth(2);
-        std::vector<ofPath> prevDottedPaths = birdFont.getStringAsPoints(msg);
-//        dottedPath.translate(prevDottedPaths[prevDottedPaths.size()-1].);
-//        dottedPath.translate(msgPosition);
-        
         std::vector<ofPolyline> dottedOutline = dottedPath.getOutline();
+        std::vector<ofPoint> points ;
+        for (int i=0; i < dottedOutline.size(); i++) {
+            if( dottedOutline[i].size()){
+                dottedOutline[i].translate(msgPosition);
+                points.push_back(dottedOutline[i][0]);
+            }
+        }
         
-        if(dottedOutline.size() ){
-            std::vector<ofPoint> points ;
-            for (int i=0; i < dottedOutline.size(); i++) {
-                if( dottedOutline[i].size()){
-                    points.push_back(dottedOutline[i][0]);
-                }
-            }
+        if(points.size()){
+            std::sort(points.begin(), points.end(), &comparePointY);
+            std::sort(points.begin(), points.end(), &comparePointX);
             
-            if(points.size()){
-                std::sort(points.begin(), points.end(), &comparePointY);
-                std::sort(points.begin(), points.end(), &comparePointX);
-                
-                int letterPoints = 0;
-                ofPoint prevPoint = points[0];
-                simplePoly.addVertex(prevPoint);
-                float distance;
-                
-                ofLog() << "Original point size : " << points.size();
-                for (int i=1; i < points.size(); i++) {
-                    distance = prevPoint.distance( points[i]);
-                    //            ofLog() << "Distance is " << distance;
-                    if(distance >= minSamplingDistance){
-//                    if(i%2){
-                        simplePoly.addVertex(points[i]);
-                        prevPoint = points[i];
-                    }
+            int letterPoints = 0;
+            ofPoint prevPoint = points[0];
+            simplePoly.addVertex(prevPoint);
+            float distance;
+            
+            ofLog() << "Original point size : " << points.size();
+            for (int i=1; i < points.size(); i++) {
+                distance = prevPoint.distance( points[i]);
+                //            ofLog() << "Distance is " << distance;
+                if(distance >= minSamplingDistance){
+                    //                    if(i%2){
+                    simplePoly.addVertex(points[i]);
+                    prevPoint = points[i];
                 }
-                ofLog() << "New Letter points size : " << simplePoly.size();
             }
-
+            ofLog() << "New Letter points size : " << simplePoly.size();
         }
         
     } else {
@@ -125,6 +113,7 @@ void TextManager::addLetter(int letter) {
     
 	int prevMsgLength = ofUTF8Length(msg);
     string newLetter = ofUTF8ToString(letter);
+    msg += newLetter;
     
     ofVec2f newLetterPosition = ofVec2f(msgPosition.x + (float)prevMsgLength*fontSpacing, msgPosition.y);
     
@@ -142,7 +131,7 @@ void TextManager::addLetter(int letter) {
     ofPolyline simplifiedPoly = simplifyPolyline(letter, newLetterPosition);
     msgPolys.push_back(simplifiedPoly);
     
-    msg += newLetter;
+    
 
 //    birdmanager->addBird(simplifiedPoly);f
     
