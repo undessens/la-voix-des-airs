@@ -82,6 +82,7 @@ void BirdManager::setup(){
         "../../../model/green_bird.fbx",
         "../../../model/blue_bird.fbx",
         "../../../model/tropical_bird.fbx",
+//        "../../../model/source_phoenix/fly.fbx"
     };
 	//3D MODEL
      loadModels(modelsFilePaths);
@@ -154,24 +155,26 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
     //Rotate bird if still moving
     
+    if(! it -> isTargetJoined){
+        //ROTATE ON Y ( LEFT - RIGHT )
+        if (abs(it->speed.x) > 1) {
+            angleRotateY = abs(it->speed.x) / it->speed.x * 90;
+        } else {
+            angleRotateY = it->speed.x / 1 * 90.0f;
+        }
     
-    //ROTATE ON Y ( LEFT - RIGHT )
-
-    if (abs(it->speed.x) > 1) {
-        angleRotateY = abs(it->speed.x) / it->speed.x * 90;
-    } else {
-        angleRotateY = it->speed.x / 1 * 90.0f;
+        // ROTATE ON Z ( before Y but need Y )
+        
+        float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
+        if (angleRotateY > 0)
+        {
+            angleRotateZ = onY * 90;
+        } else {
+            angleRotateZ = -onY * 90;
+        }
+        
     }
 
-    // ROTATE ON Z ( before Y but need Y )
-
-    float onY = it->speed.dot(ofVec2f(0, 1)) / it->speed.length();
-    if (angleRotateY > 0)
-    {
-        angleRotateZ = onY * 90;
-    } else {
-        angleRotateZ = -onY * 90;
-    }
 
 
     ofRotateDeg(angleRotateZ, 0, 0, 1);
@@ -185,12 +188,12 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     listOfModel[modelId][index].setScale(size/1000.0, size /1000.0, size /1000.0);
     
     //REDUCE ALPHA when targeted
-    if((it->isTargetJoined)){
-        float alpha = 255*max((1.0 - (it->flyingTime - it->flyingDuration) / 6000.0), 0.0);
-        
-        ofSetColor(255, 255,255, alpha);
-    }
-    
+//    if((it->isTargetJoined)){
+//        float alpha = 255*max((1.0 - (it->flyingTime - it->flyingDuration) / 6000.0), 0.0);
+//
+//        ofSetColor(255, 255,255, alpha);
+//    }
+//
     listOfModel[modelId][index].drawFaces();
     //listOfModel[index].drawVertices();
     //listOfModel[index].drawWireframe();
