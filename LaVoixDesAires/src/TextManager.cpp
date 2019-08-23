@@ -8,7 +8,11 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
 {
     msg = "";
     msgPosition = ofVec2f(300, 300);
-    
+
+//    Verdana 60pt bbox
+//    top-left x:219, y:282
+//    down-right x:1207, y:349
+
     fontSpacing = 70;
     fontSize= 60;
     
