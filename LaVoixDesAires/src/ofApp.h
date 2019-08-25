@@ -55,7 +55,8 @@ class ofApp : public ofBaseApp{
         int final_h;
 
 		//FBO
-		ofFbo fbo;
+		ofFbo fbo;          //Clear on every frame
+    ofFbo fboStatic;    // NOT USED ; Draw of bird "joined Target"
     
     
 

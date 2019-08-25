@@ -41,6 +41,7 @@ public:
     void getEjected(ofVec2f v);
 	void applyForce(ofVec2f force);
 	void flock(vector<Bird>* Birds);
+    void changeState(int msgSize);
 	ofVec2f separate(vector<Bird>* Birds);
 	ofVec2f align(vector<Bird>* Birds);
 	ofVec2f cohesion(vector<Bird>* Birds);

@@ -112,10 +112,7 @@ void Bird::update(){
     
     //UPDATE TIME
     flyingTime += 1;
-    if(flyingTime > flyingDuration){
-        state = BIRD_GOTOTARGET;
-    }
-    
+
     //update pos
 	pos += speed;
     
@@ -233,6 +230,25 @@ void Bird::flock(vector<Bird>* birds) {
 	
 
 }
+//-------------------------------------------------------------
+void Bird::changeState(int msgSize){
+    
+    if(state == BIRD_FREE)
+    {
+      
+        if(msgSize > (order+3)){
+            state = BIRD_GOTOTARGET;
+        }else if(flyingTime > flyingDuration)
+        {
+            state = BIRD_GOTOTARGET;
+        }
+        
+    }
+
+    
+    
+}
+
 //-------------------------------------------------------------
 void Bird::borders() {
 

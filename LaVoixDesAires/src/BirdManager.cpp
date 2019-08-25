@@ -98,13 +98,17 @@ void BirdManager::setup(){
 }
 
 //-------------------------------------------------------------
-void BirdManager::update(){
+void BirdManager::update(string msg){
 
-	//3D MODEL
+	//Calculte msg size
+    int sizeMsg = ofUTF8Length(msg);
+    
 	
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
+        //CHANGE STATE : go to target if necessary
+        it->changeState(sizeMsg);
         // FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
         it->flock(&(*itn));
 		// UPDATE there forces to calculate pos, speed, flying time, flying distance

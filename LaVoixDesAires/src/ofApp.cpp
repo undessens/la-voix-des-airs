@@ -48,6 +48,7 @@ void ofApp::setup() {
 
 	//fbo allocation
 	fbo.allocate(final_w, final_h, GL_RGBA);
+    
 
 	// OSC receiver
 	osc_receiver.setup(12345);
@@ -68,7 +69,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	birdManager->update();
+	birdManager->update( textManager->msg);
 
 	// GUI update
 	sync.update();
@@ -92,30 +93,35 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	fbo.begin();
+	//DRAW ON FBO
+    fbo.begin();
 
 	ofBackground(color);
 	ofSetVerticalSync(true);
 
-	// LIGHT MANAGEMENT
-	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    //DRAW STATIC BIRD
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    fboStatic.draw(0,0);
+    ofDisableBlendMode();
 	
     // DRAW ACCORDING TO Z DEPTH and not code order
     ofEnableDepthTest();
+    
+
     
     
 #ifndef TARGET_PROGRAMMABLE_GL
 	glShadeModel(GL_SMOOTH);
 #endif // !TARGET_PROGRAMMABLE_GL
 	
-    //LIGHTING
+    //LIGHTING ON TOP
     ofEnableLighting();
     lightTop.setPosition(lightTopPosX, lightTopPosY, 0);
     lightTop.setDiffuseColor((ofColor)lightTopColor);
     lightTop.setSpecularColor((ofColor)lightTopColor);
     lightTop.enable();
     
-
+    //LIGHTING ON BOTTOM
     lightBottom.setDiffuseColor((ofColor)lightBottomColor);
     lightBottom.setSpecularColor((ofColor)lightBottomColor);
     lightBottom.setPosition(lightTopPosX, final_h, 0);
@@ -123,15 +129,16 @@ void ofApp::draw() {
         lightBottom.setDirectional();
     }
     lightBottom.enable();
+    
+    
 
 	// BIRD MANAGER
 	birdManager->draw();
 
-	ofDisableDepthTest();
-	
+	// DISABLE LIGHT
+    ofDisableDepthTest();
 	ofDisableLighting();
 	
-    ofDisableSeparateSpecularLight();
 
 	// Text Manager
     textManager->drawPoly();
@@ -139,12 +146,11 @@ void ofApp::draw() {
     // Polybackground - draw center of point as a circle
     polyBackground->draw();
     //Polybackground - draw the pencil mode
-    if(polyBackground->isPencil){
-        
+    if(polyBackground->isPencil)
+    {
         polyBackground->pencilOnFbo();
         ofSetColor(255);
         polyBackground->fbo.draw(0,0);
-        
     }
     
     // Fake cursor
@@ -167,10 +173,7 @@ void ofApp::draw() {
     
 	fbo.end();
 
-
-    
-
-    //FBO
+    //DRAW FBO ON SCREEN
     ofSetColor(255);
     fbo.draw(0, 0, ofGetWidth(), ofGetHeight());
     

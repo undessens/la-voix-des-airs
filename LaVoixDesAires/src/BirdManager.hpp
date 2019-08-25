@@ -29,7 +29,7 @@ public:
                 int screenH
                 );
     void setup();
-    void update();
+    void update(string msg);
     void draw();
 	void drawModel(vector<Bird>::iterator i);
     ofxAssimpModelLoader getModel(int distance);
