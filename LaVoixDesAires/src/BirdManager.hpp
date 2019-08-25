@@ -31,6 +31,7 @@ public:
     void setup();
     void update(string msg);
     void draw();
+    void drawDebug();
 	void drawModel(vector<Bird>::iterator i);
     ofxAssimpModelLoader getModel(int distance);
     void loadModel(int atIndex, string filename);

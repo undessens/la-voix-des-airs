@@ -6,6 +6,7 @@
 //
 
 #include "Bird.hpp"
+#include "ofApp.h"
 
 Bird::Bird(){
     
@@ -30,29 +31,27 @@ Bird::Bird( PolyBackground* p ,
     // Geometrie cartesian stuff
     pos = ofPoint(w/2, h/2);
     acc = ofVec2f(0, 0);
-	speed = ofVec2f(ofRandom(-4+2, 4+2), ofRandom(-1, 1));
-    stiffness = 0.5;
-    damping = 0.5;
+	speed = ofVec2f(ofRandom(-8, 8) , ofRandom(-3, 3));
 	target = _target;
     
     //State of life
     state = BIRD_FREE;
-    isTargetJoined = false;
     
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
     flyingDuration = _flyDuration;      // Flying time in FREE_BIRD state , before going in BIRD_GOTARGET state
     flyingDistance = 0;        //meter of fly : use for wing motion
+    lastUpdateTime = ofGetElapsedTimef();
     
     //Order ( nichée
     order = _order;
-    
+
     // Max
-    maxSpeed = 5;
+    maxSpeed = 15;
     maxForce = 0.25;
     
     //FLOCK parameter
-    swt = 0.01; //multiply these force
+    swt = 0.05; //multiply these force
     awt = 0.01;
     cwt = 0.01;
     twt = 5.1;
@@ -67,9 +66,10 @@ Bird::Bird( PolyBackground* p ,
     
     // Noise stuff ... not really clear
     size = _size;
+    finalSize = 23;
    
     stiffness = _stiff;  //force to join centroid
-    damping = 0.5;
+
                
     // Geometry for borders
     w = _w;
@@ -85,8 +85,12 @@ Bird::Bird( PolyBackground* p ,
 //-------------------------------------------------------------
 void Bird::update(){
     
+    //Get Delta Time from last update
+    float deltaTime = ofGetElapsedTimef() - lastUpdateTime;
+    lastUpdateTime = ofGetElapsedTimef();
+    
     //Update speed
-	speed += acc;
+    speed += acc  /(deltaTime * (ofApp::FPS*1.0) );
     
     //Limit Speed
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
@@ -97,12 +101,13 @@ void Bird::update(){
     {
         flyingDistance += abs(speed.y)  * 1;
     }
-    if(!isTargetJoined)
+    
+    if(state != BIRD_TARGETJOINED)
     {
-        flyingDistance += 1;    //increase anyway
+        flyingDistance += 1;    //inscrease normal
     }
     else{
-        flyingDistance += 0.3;
+        flyingDistance += 0.3; //increase just a bit
     }
     
     if(flyingDistance > 100){
@@ -114,10 +119,10 @@ void Bird::update(){
     flyingTime += 1;
 
     //update pos
-	pos += speed;
+    pos += speed /(deltaTime * (ofApp::FPS*1.0));
     
     // RESET SPEED
-    if(isTargetJoined){
+    if(state == BIRD_TARGETJOINED){
         speed = ofVec2f(0,0);
     }
     
@@ -137,18 +142,21 @@ void Bird::drawBasic(){
      
 }
 
-void Bird::drawDebug(int level){
+void Bird::drawDebug(){
     
     //Debut Printing
-    switch(level)
+    switch(debugLevel)
     {
-        case 1 : ofSetColor(255);
+        case 1 :
             ofSetLineWidth(0.5);
             ofDrawCircle(target.x,target.y,2);
             break;
         case 2 :
-            ofSetColor(ofColor::blue);
             ofDrawLine(pos, pos + speed * 10);
+            break;
+        case 3 :
+            ofSetLineWidth(0.5);
+            ofDrawCircle(pos, 1);
             break;
         case 9 :
             ofDrawBitmapStringHighlight("speedX: "+ofToString(speed.x )+" - Y:"+ofToString(speed.y), pos.x, pos.y+35);
@@ -221,7 +229,24 @@ void Bird::flock(vector<Bird>* birds) {
             tar *= twt;
             tar.limit(maxForce);
             applyForce(tar);
+            if(size>finalSize){
+                size -=0.08;
+            }
+            if(maxSpeed > 0.01){
+                maxSpeed -= 0.005;
+            }
             break;
+        }
+        case BIRD_TARGETJOINED:
+        {
+            debugLevel = 3;
+            ofVec2f tar = goToTarget();
+            tar *= twt;
+            tar.limit(maxForce);
+            applyForce(tar);
+            if(size>finalSize){
+                size -=0.05;
+            }
         }
         default:
             break;
@@ -236,11 +261,12 @@ void Bird::changeState(int msgSize){
     if(state == BIRD_FREE)
     {
       
-        if(msgSize > (order+3)){
+        if(msgSize > (order+LETTERS_ADDED_ON_FLY)){
             state = BIRD_GOTOTARGET;
         }else if(flyingTime > flyingDuration)
         {
             state = BIRD_GOTOTARGET;
+
         }
         
     }
@@ -387,7 +413,7 @@ ofVec2f Bird::goToTarget() {
     }
     if(dist.length() < 2)
     {
-        isTargetJoined = true;
+        state = BIRD_TARGETJOINED;
     }
     dist *= stiffness;
     dist /= 500;

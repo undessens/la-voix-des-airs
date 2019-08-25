@@ -10,7 +10,7 @@ void ofApp::setup() {
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
-    ofSetFrameRate(60);
+    ofSetFrameRate(FPS);
 
 	// Background Image, ofPolyline ...
 	polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);
@@ -26,8 +26,8 @@ void ofApp::setup() {
     
     //Global parameter
     pg.setName("main");
-    pg.add(color.set("color",200,0,255));
-    pg.add(frameRate.set("frameRate", 30, 0, 50));
+    pg.add(color.set("color",5,0,255));
+    pg.add(frameRate.set("frameRate", 35, 0, 50));
     pg.add(debug.set("debug", false));
     pg.add(fakeCursor.set("Fake cursor", false));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
@@ -88,6 +88,8 @@ void ofApp::update() {
 			textManager->addLetter(letter);
 		}
 	}
+    
+    frameRate = ofGetFrameRate();
 }
 
 //--------------------------------------------------------------
@@ -100,9 +102,9 @@ void ofApp::draw() {
 	ofSetVerticalSync(true);
 
     //DRAW STATIC BIRD
-    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    fboStatic.draw(0,0);
-    ofDisableBlendMode();
+//    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+//    fboStatic.draw(0,0);
+//    ofDisableBlendMode();
 	
     // DRAW ACCORDING TO Z DEPTH and not code order
     ofEnableDepthTest();
@@ -138,8 +140,11 @@ void ofApp::draw() {
 	// DISABLE LIGHT
     ofDisableDepthTest();
 	ofDisableLighting();
+    
+    // BIRD MANAGER DEBUG
+    ofSetColor(230);
+    birdManager->drawDebug();
 	
-
 	// Text Manager
     textManager->drawPoly();
     

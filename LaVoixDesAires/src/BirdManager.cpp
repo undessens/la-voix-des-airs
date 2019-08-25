@@ -58,7 +58,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 50, 2, 100));
+    pg->add(size.set("size", 55, 2, 100));
     
     
     // Parameter to cartesian spring equation
@@ -70,7 +70,7 @@ void BirdManager::setup(){
     pg->add(maxForce.set("max force", 0.25, 0.001, 0.8));
     pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
-    pg->add(flyDuration.set("fly duration", 600, 0, 6000));
+    pg->add(flyDuration.set("fly duration", 300, 0, 6000));
 
 	for (int i = 0; i < nbBird; i++)
 	{
@@ -79,9 +79,9 @@ void BirdManager::setup(){
     
     std::vector<string> modelsFilePaths = {
         "../../../model/Bird_Asset_lowPoly_300.fbx",
-        "../../../model/green_bird.fbx",
-        "../../../model/blue_bird.fbx",
-        "../../../model/tropical_bird.fbx",
+        //"../../../model/green_bird.fbx",
+        //"../../../model/blue_bird.fbx",
+        //"../../../model/tropical_bird.fbx",
 //        "../../../model/source_phoenix/fly.fbx"
     };
 	//3D MODEL
@@ -101,8 +101,15 @@ void BirdManager::setup(){
 void BirdManager::update(string msg){
 
 	//Calculte msg size
-    int sizeMsg = ofUTF8Length(msg);
+    int sizeMsg = 0;
+    std::vector<string> listOfWords = ofSplitString(msg, " ");
     
+    for(vector<string>::iterator its = listOfWords.begin(); its< listOfWords.end(); its++)
+    {
+        sizeMsg += ofUTF8Length(*its);
+    }
+    
+    ofLog(OF_LOG_NOTICE, "SizeMsg : "+ofToString(sizeMsg));
 	
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
@@ -131,26 +138,36 @@ void BirdManager::draw(){
 		drawModel(it);
 
         //Draw line between letter
-        if(it->pos.distance(it->neighbourLeft->pos) <200)
-        {
-            ofSetColor(240);
-//            ofSetLineWidth(1);
-//            ofDrawLine(it->pos,it->neighbourLeft->pos);
-        }
+        //   if(it->pos.distance(it->neighbourLeft->pos) <200)
+        //   {
+        //      ofSetColor(240);
+        //      ofSetLineWidth(1);
+        //      ofDrawLine(it->pos,it->neighbourLeft->pos);
+        // }
 
-        it->drawDebug(debug);
+        
     }
     //ofPopView();
     
     
 }
 //-------------------------------------------------------------------------
+void BirdManager::drawDebug(){
+    
+    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+        {
+            ofNoFill();
+            it->drawDebug();
+        }
+}
+
+//-------------------------------------------------------------------------
 void BirdManager::drawModel(vector<Bird>::iterator it) {
 
 	//Change wings movement for alls animations
     int index = (it->flyingDistance)/100.0 * (nbModelPose - 1);
     ofPushMatrix();
-    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetColor(255);
 	ofTranslate(it->pos.x, it->pos.y, 0);
 
@@ -159,7 +176,7 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
 
     //Rotate bird if still moving
     
-    if(! it -> isTargetJoined){
+    if(it->state != BIRD_TARGETJOINED){
         //ROTATE ON Y ( LEFT - RIGHT )
         if (abs(it->speed.x) > 1) {
             angleRotateY = abs(it->speed.x) / it->speed.x * 90;
@@ -188,22 +205,15 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     int modelId = 0;
 
     listOfModel[modelId][index].setRotation(1, 0, 0, angleRotateZ, angleRotateY);
-    //FINAL TRANSLATE
-    //ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-    listOfModel[modelId][index].setScale(size/1000.0, size /1000.0, size /1000.0);
     
-    //REDUCE ALPHA when targeted
-//    if((it->isTargetJoined)){
-//        float alpha = 255*max((1.0 - (it->flyingTime - it->flyingDuration) / 6000.0), 0.0);
-//
-//        ofSetColor(255, 255,255, alpha);
-//    }
-//
+    //FINAL TRANSLATE
+    
+    //ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
+    listOfModel[modelId][index].setScale((it->size)/1000.0, (it->size) /1000.0, (it->size) /1000.0);
+    
     listOfModel[modelId][index].drawFaces();
     //listOfModel[index].drawVertices();
     //listOfModel[index].drawWireframe();
-    
-    ofDisableBlendMode();
 	ofPopMatrix();
 
 }
@@ -220,7 +230,8 @@ void BirdManager::loadModel(int atIndex, string filename){
         listOfModel[atIndex][i] = ofxAssimpModelLoader();
         listOfModel[atIndex][i].loadModel(filename);
         listOfModel[atIndex][i].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-        listOfModel[atIndex][i].setPosition(0, 10, -5);
+        //listOfModel[atIndex][i].setPosition(0, 10, -5);
+        listOfModel[atIndex][i].setPosition(-5, 2, 0 );
         listOfModel[atIndex][i].setPausedForAllAnimations(true);
         listOfModel[atIndex][i].setPositionForAllAnimations((float)i/nbModelPose);
         listOfModel[atIndex][i].update();
@@ -236,8 +247,12 @@ void BirdManager::addBird(ofPolyline p){
         vector<Bird> newNiche;
         
         for(int i=0; i<p.size(); i++){
-             Bird newBird = Bird(polyBg, p[i], size, w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
-             newNiche.push_back(newBird);
+            
+            if(p[i].x < w && p[i].y < h){
+                int randomSize = size + ofRandom(-15, 15);
+                Bird newBird = Bird(polyBg, p[i], randomSize , w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
+                newNiche.push_back(newBird);
+            }
         }
         
         listOfBird.push_back(newNiche);

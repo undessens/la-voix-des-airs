@@ -14,7 +14,9 @@
 
 #define BIRD_FREE 0
 #define BIRD_GOTOTARGET 1
-#define BIRD_DIEONBORDER 2
+#define BIRD_TARGETJOINED 2
+#define BIRD_DIEONBORDER 3
+#define LETTERS_ADDED_ON_FLY 5
 
 class Bird
 {
@@ -36,7 +38,7 @@ public:
     
     void update();
     void drawBasic();
-    void drawDebug(int l);
+    void drawDebug();
     
     void getEjected(ofVec2f v);
 	void applyForce(ofVec2f force);
@@ -62,13 +64,11 @@ public:
     // 2 BIRD_DieOnBorder = Free but die when the border is crossed
     int state;
     
-    //Target
-    bool isTargetJoined;
-    
     //Time and distance to fly
     unsigned long flyingTime;
     unsigned long flyingDuration;
     float flyingDistance;
+    float lastUpdateTime;
     
     //Nichée
     int order;
@@ -93,8 +93,9 @@ public:
     bool is_ejected;        // situation of ejection during the count
     ofVec2f eject_direction;
     
-    // Size
-    float size;
+    // Size : decrease when going to target
+    float size;     //Initial
+    float finalSize;
     
     //Attraction spring force
     float stiffness;  //force to join centroid

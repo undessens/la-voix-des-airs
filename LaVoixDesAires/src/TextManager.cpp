@@ -14,7 +14,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
 //    down-right x:1207, y:349 ==> ~900
     fontSpacing = 70;
     fontSize= 38;
-    fontDistSampling = 3.10;
+    fontDistSampling = 2.6;
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);

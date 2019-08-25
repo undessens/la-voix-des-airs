@@ -56,7 +56,7 @@ class ofApp : public ofBaseApp{
 
 		//FBO
 		ofFbo fbo;          //Clear on every frame
-    ofFbo fboStatic;    // NOT USED ; Draw of bird "joined Target"
+        ofFbo fboStatic;    // NOT USED ; Draw of bird "joined Target"
     
     
 
@@ -80,7 +80,12 @@ class ofApp : public ofBaseApp{
 		ofxOscReceiver osc_receiver; 
 
 		// ASCII char from osc
-		int32_t letter; 
+		int32_t letter;
+    
+        //FPS
+        static const int FPS;
 
 		
 };
+
+int const ofApp::FPS = 40;
