@@ -34,6 +34,7 @@ class ofApp : public ofBaseApp{
         ofParameterGroup pg_polyBackground;
         ofParameterGroup pg_trajectoryPlayer;
         ofParameterGroup pg_textManager;
+		bool isGuiVisible;
     
         //Parameters of main program
         ofParameter<int> color;
@@ -83,9 +84,9 @@ class ofApp : public ofBaseApp{
 		int32_t letter;
     
         //FPS
-        static const int FPS;
+        static const int fps;
 
 		
 };
 
-int const ofApp::FPS = 40;
+

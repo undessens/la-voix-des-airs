@@ -24,18 +24,20 @@ Bird::Bird( PolyBackground* p ,
            int _screenH,
            float _stiff,
            int _order,
-           int _flyDuration
+           int _flyDuration,
+		   bool _isInvicible
            ){
     //TODO  : order + total of bird . Like percetange position
     
     // Geometrie cartesian stuff
     pos = ofPoint(w/2, h/2);
     acc = ofVec2f(0, 0);
-	speed = ofVec2f(ofRandom(-8, 8) , ofRandom(-3, 3));
+	randomSpeed( 3);
 	target = _target;
     
     //State of life
     state = BIRD_FREE;
+	isInvicible = _isInvicible;
     
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
@@ -47,7 +49,7 @@ Bird::Bird( PolyBackground* p ,
     order = _order;
 
     // Max
-    maxSpeed = 15;
+    maxSpeed = 15; //15 before 
     maxForce = 0.25;
     
     //FLOCK parameter
@@ -56,8 +58,8 @@ Bird::Bird( PolyBackground* p ,
     cwt = 0.01;
     twt = 5.1;
     
-    //Neighbour
-    isNeighbour = false;
+    //Neighbour- not used anymore
+    //isNeighbour = false;
     
     //Environnement
     polyBg = p;
@@ -66,6 +68,7 @@ Bird::Bird( PolyBackground* p ,
     
     // Noise stuff ... not really clear
     size = _size;
+	initalSize = size;
     finalSize = 23;
    
     stiffness = _stiff;  //force to join centroid
@@ -86,11 +89,13 @@ Bird::Bird( PolyBackground* p ,
 void Bird::update(){
     
     //Get Delta Time from last update
-    float deltaTime = ofGetElapsedTimef() - lastUpdateTime;
+    float deltaTime = 1/(ofGetElapsedTimef() - lastUpdateTime);
+	float theoricPeriod = 1.0 / ofApp::fps;
     lastUpdateTime = ofGetElapsedTimef();
     
     //Update speed
-    speed += acc  /(deltaTime * (ofApp::FPS*1.0) );
+   // speed += acc  /(deltaTime * (ofApp::fps*1.0) );
+	speed += acc / (deltaTime * (theoricPeriod));
     
     //Limit Speed
 	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
@@ -119,7 +124,7 @@ void Bird::update(){
     flyingTime += 1;
 
     //update pos
-    pos += speed /(deltaTime * (ofApp::FPS*1.0));
+    pos += speed /(deltaTime * (theoricPeriod));
     
     // RESET SPEED
     if(state == BIRD_TARGETJOINED){
@@ -205,15 +210,15 @@ void Bird::flock(vector<Bird>* birds) {
         {
             // CALCULATE INTERACTION FORCES
             ofVec2f sep = separate(birds);
-            ofVec2f ali = align(birds);
+            //ofVec2f ali = align(birds);
             ofVec2f coh = cohesion(birds);
             //COEF
             sep *= swt; //multiply these force
-            ali *= awt;
+            // ali *= awt;
             coh *= cwt;
             // APPLY
             applyForce(sep);
-            applyForce(ali);
+            //applyForce(ali);
             applyForce(coh);
             // INTERACTION WITH MOUSE
             if (ofGetMousePressed(2))
@@ -233,7 +238,7 @@ void Bird::flock(vector<Bird>* birds) {
                 size -=0.08;
             }
             if(maxSpeed > 0.01){
-                maxSpeed -= 0.005;
+                maxSpeed -= 0.0001;
             }
             break;
         }
@@ -248,6 +253,16 @@ void Bird::flock(vector<Bird>* birds) {
                 size -=0.05;
             }
         }
+		case BIRD_DIEONBORDER:
+		{
+			//FORCE
+			ofVec2f sep = separate(birds);
+			//COEF
+			sep *= swt; //multiply these force
+			// APPLY
+			applyForce(sep);
+
+		}
         default:
             break;
     }
@@ -263,9 +278,11 @@ void Bird::changeState(int msgSize){
       
         if(msgSize > (order+LETTERS_ADDED_ON_FLY)){
             state = BIRD_GOTOTARGET;
-        }else if(flyingTime > flyingDuration)
+
+        }else if(flyingTime > flyingDuration && !isInvicible)
         {
             state = BIRD_GOTOTARGET;
+
 
         }
         
@@ -278,11 +295,28 @@ void Bird::changeState(int msgSize){
 //-------------------------------------------------------------
 void Bird::borders() {
 
-	if (pos.x < 0) pos.x = w;
-	if (pos.y < 0) pos.y = h;
-	if (pos.x > w) pos.x = 0;
-	if (pos.y > h) pos.y = 0;
+	int isOut = 0;
 
+	if (pos.x < 0 && state != BIRD_DIE) {
+		pos.x = w;
+		isOut++;
+	}
+	if (pos.y < 0 && state != BIRD_DIE) {
+			pos.y = h;
+			isOut++;
+		}
+	if (pos.x > w && state != BIRD_DIE) {
+		pos.x = 0;
+		isOut++;
+	}
+	if (pos.y > h && state != BIRD_DIE) {
+		pos.y = 0;
+		isOut++;
+	}
+
+	if (state == BIRD_DIEONBORDER && isOut > 0) {
+		state = BIRD_DIE;
+	}
 }
 // ------------------------------------------------------------ 
 //			FORCE
@@ -405,18 +439,56 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 ofVec2f Bird::goToTarget() {
 	
     ofVec2f dist = (target - pos);
-    if(dist.length() < 200 && twt>0.5)
+    if(dist.length() < 200 )
     {
-        if(maxSpeed>2)maxSpeed *=0.995;
-        if(maxSpeed>1.5)maxSpeed *=0.99;
-        if(maxSpeed>1)maxSpeed *=0.98;
+       // if(maxSpeed>2)maxSpeed *=0.995;
+       // if(maxSpeed>1.5)maxSpeed *=0.99;
+       // if(maxSpeed>1)maxSpeed *=0.98;
+		if (maxSpeed > 2)maxSpeed *= 0.995;
+		if (maxSpeed > 1.5)maxSpeed *= 0.98;
+		if (maxSpeed > 1)maxSpeed *= 0.95;
+
+
     }
     if(dist.length() < 2)
     {
         state = BIRD_TARGETJOINED;
     }
-    dist *= stiffness;
+    //Stiffness does matter with goToTarget
+	dist *= stiffness;
     dist /= 500;
 	return dist;
 
+}
+
+// ------------------------------------------------------------ 
+//			Change of state : after target pos, fly until cross a border
+// ------------------------------------------------------------ -
+void Bird::goDieOnBorder() {
+
+	if (!isInvicible) {	//Invicible never die
+		state = BIRD_DIEONBORDER;
+
+		randomSpeed( 20);
+		size = initalSize;
+		debugLevel = 0;
+
+		// Max
+		maxSpeed = 45;
+		maxForce = 5;
+
+	}
+}
+
+void Bird::randomSpeed(int s) {
+
+
+	float angle = ofRandom(0.8, 0.8*PI) + PI/2;
+	if (ofRandom(1) > 0.5) angle += PI;
+
+	float r = ofRandom(s, s+10);
+	ofVec2f direction = ofVec2f(cos(angle), sin(angle));
+
+
+	speed = direction * r;
 }

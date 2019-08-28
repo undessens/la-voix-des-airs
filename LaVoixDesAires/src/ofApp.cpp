@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+
+int const ofApp::fps = 35;
 //--------------------------------------------------------------
 void ofApp::setup() {
 
@@ -10,7 +12,7 @@ void ofApp::setup() {
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
-    ofSetFrameRate(FPS);
+    ofSetFrameRate(ofApp::fps);
 
 	// Background Image, ofPolyline ...
 	polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);
@@ -20,6 +22,7 @@ void ofApp::setup() {
 
 	//BirdManager
 	birdManager = new BirdManager(polyBackground, &pg_birdManager, final_w, final_h, ofGetWidth(), ofGetHeight());
+	birdManager->createInvicibleArmy();
 
     // Text Manager
     textManager = new TextManager(birdManager, &pg_textManager);
@@ -42,6 +45,7 @@ void ofApp::setup() {
     gui.add(pg_polyBackground);
     gui.add(pg_textManager);
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
+	isGuiVisible = true;
 
 	//3D stuff
 	ofDisableArbTex();
@@ -72,7 +76,10 @@ void ofApp::update() {
 	birdManager->update( textManager->msg);
 
 	// GUI update
-	sync.update();
+	if (isGuiVisible) {
+		sync.update();
+	}
+	
 
     //SPOUT windows only
 #if defined(_WIN32)
@@ -85,7 +92,13 @@ void ofApp::update() {
 		if (m.getAddress() == "/debug") {
 			letter = m.getArgAsInt32(0);
 			ofLog() << "message : " << letter; 
-			textManager->addLetter(letter);
+			if (letter == '\n') {
+				textManager->clear();
+			}
+			else {
+				textManager->addLetter(letter);
+			}
+			
 		}
 	}
     
@@ -146,7 +159,8 @@ void ofApp::draw() {
     birdManager->drawDebug();
 	
 	// Text Manager
-    textManager->drawPoly();
+	textManager->draw();
+    textManager->drawPoly(); //debug function
     
     // Polybackground - draw center of point as a circle
     polyBackground->draw();
@@ -183,7 +197,10 @@ void ofApp::draw() {
     fbo.draw(0, 0, ofGetWidth(), ofGetHeight());
     
     //GUI
-    gui.draw();
+	if (isGuiVisible) {
+		gui.draw();
+	}
+    
 
 }
 
@@ -191,13 +208,28 @@ void ofApp::draw() {
 void ofApp::keyPressed(int key) {
     ofLog() << "Key code from keyboard : " << key;
     
-    if(key == 8){
+	cout << ofToString(key);
+	if(key == 8){
         // Clear when backspace  received
         textManager->clear();
-    } else if( key < 255){
+    } else if( key>31 && key < 128){
         // Only draw ASCII extended code
        textManager->addLetter(key);
-    }
+	}else if(key == 3680 || key== 1 ||key == 3681) {
+		//Maj DO NOTHING
+	}
+	else  if (key == 3682) {
+		//CTRL - undraw GUI
+		isGuiVisible = !isGuiVisible;
+
+	}else	{  
+		
+		//ù 249
+		textManager->addLetter(key);
+		// à 224
+		// ° à 176
+
+	}
 }
 
 //--------------------------------------------------------------

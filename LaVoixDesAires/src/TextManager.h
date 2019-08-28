@@ -1,6 +1,7 @@
 #pragma once
 #include "ofMain.h"
 #include "BirdManager.hpp"
+#define MAX_LETTER 50
 
 class TextManager
 {
@@ -14,7 +15,8 @@ public:
     void clear();
 	
 	void addLetter(int c);
-    ofPolyline simplifyPolyline(int letter, ofVec2f letterPosition);
+	ofPolyline createPolyline(int letter, ofVec2f letterPosition);
+    ofPolyline simplifyPolyline(ofPolyline p);
     void addPathWithCustomSpacing(int letter, ofVec2f position);
     void addPathSimple();
 
@@ -37,6 +39,7 @@ public:
     
     string msg;
     ofPoint msgPosition;
+	float timeOfLastLetter[MAX_LETTER];
 	
     //Polyline
     std::vector<ofPolyline> msgPolys;

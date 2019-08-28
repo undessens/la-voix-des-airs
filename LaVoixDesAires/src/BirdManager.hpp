@@ -43,6 +43,8 @@ public:
     void addBird(ofPolyline p);
     void setNbBird( int &i);
     void killAll();
+	void lastFlyAll();
+	void createInvicibleArmy();
     
     //Setter to all instances
     void setDebug(int &i);

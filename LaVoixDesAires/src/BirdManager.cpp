@@ -109,22 +109,41 @@ void BirdManager::update(string msg){
         sizeMsg += ofUTF8Length(*its);
     }
     
-    ofLog(OF_LOG_NOTICE, "SizeMsg : "+ofToString(sizeMsg));
+   // ofLog(OF_LOG_NOTICE, "SizeMsg : "+ofToString(sizeMsg));
 	
-    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
-    for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
-    {
-        //CHANGE STATE : go to target if necessary
-        it->changeState(sizeMsg);
-        // FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
-        it->flock(&(*itn));
-		// UPDATE there forces to calculate pos, speed, flying time, flying distance
-        it->update();
-        // BORDERS : teleportation from left to right, up to bottom
-		it->borders();
-        
+	//For ----------------------------------------------------------------------------DO NOT INCREMENT in Case we delete
+	for (vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end(); ) {
 
-    }
+		int nbOfBirdLiving = 0;
+
+		for (vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end(); it++)
+		{
+			//CHANGE STATE : go to target if necessary
+			it->changeState(sizeMsg);
+			// FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
+			it->flock(&(*itn));
+			// UPDATE there forces to calculate pos, speed, flying time, flying distance
+			it->update();
+			// BORDERS : teleportation from left to right, up to bottom
+			it->borders();
+			//Check is bird is alive
+			if (it->state != BIRD_DIE) {
+				nbOfBirdLiving++;
+			}
+
+
+		}
+
+		if (nbOfBirdLiving == 0) {
+			// Kill the niché
+			itn = listOfBird.erase(itn);
+		}
+		else {
+			//Weird but true
+			++itn;
+		}
+
+	}
     
 }
 
@@ -135,9 +154,13 @@ void BirdManager::draw(){
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
-		drawModel(it);
+		// IF bird is die : don't draw it
+		if (it->state != BIRD_DIE) {
+			drawModel(it);
+		}
+		
 
-        //Draw line between letter
+        //Draw line between Neighbour - letter - not used anymore
         //   if(it->pos.distance(it->neighbourLeft->pos) <200)
         //   {
         //      ofSetColor(240);
@@ -157,8 +180,11 @@ void BirdManager::drawDebug(){
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
         {
-            ofNoFill();
-            it->drawDebug();
+			if (it->state != BIRD_DIE) {
+				ofNoFill();
+				it->drawDebug();
+			}
+
         }
 }
 
@@ -211,9 +237,12 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     //ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
     listOfModel[modelId][index].setScale((it->size)/1000.0, (it->size) /1000.0, (it->size) /1000.0);
     
-    listOfModel[modelId][index].drawFaces();
+    // Draw the kind of rendering you want
+	listOfModel[modelId][index].drawFaces();
     //listOfModel[index].drawVertices();
     //listOfModel[index].drawWireframe();
+	
+	
 	ofPopMatrix();
 
 }
@@ -250,14 +279,14 @@ void BirdManager::addBird(ofPolyline p){
             
             if(p[i].x < w && p[i].y < h){
                 int randomSize = size + ofRandom(-15, 15);
-                Bird newBird = Bird(polyBg, p[i], randomSize , w, h, screenW, screenH, stiffness, nbNiche, flyDuration);
+                Bird newBird = Bird(polyBg, p[i], randomSize , w, h, screenW, screenH, stiffness, nbNiche, flyDuration,false);
                 newNiche.push_back(newBird);
             }
         }
         
         listOfBird.push_back(newNiche);
-        //Create neighbour now
-         for(int i=0; i<p.size(); i++){
+        //Create neighbour now -- NOT USED ANYMORE
+         /*for(int i=0; i<p.size(); i++){
           
              if(i>0){
              (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[i-1]);
@@ -265,7 +294,7 @@ void BirdManager::addBird(ofPolyline p){
              if(i==0){
                 (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[p.size() -1]);
              }
-         }
+         }*/
     }
     nbBird += p.size();
 }
@@ -275,6 +304,37 @@ void BirdManager::killAll(){
     
     listOfBird.clear();
     nbBird = 0;
+}
+
+//-------------------------------------------------------------
+void BirdManager::createInvicibleArmy() {
+
+		vector<Bird> newNiche;
+		int armySize = 10;
+
+		for (int i = 0; i < armySize; i++) {
+						
+			int randomSize = size + ofRandom(-15, 15);
+			Bird newBird = Bird(polyBg, ofVec2f(0,0), randomSize, w, h, screenW, screenH, stiffness, 100000, flyDuration, true);
+			newNiche.push_back(newBird);
+			
+		}
+
+		listOfBird.push_back(newNiche);
+
+		nbBird++;
+}
+
+//-------------------------------------------------------------
+void BirdManager::lastFlyAll() {
+
+	//Instead of clear all, push all birds into a DIE ON BORDER Mode
+	for (vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end(); itn++)
+		for (vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end(); it++)
+		{
+			it->goDieOnBorder();
+		}
+	
 }
 
 //-------------------------------------------------------------
