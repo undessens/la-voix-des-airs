@@ -44,7 +44,7 @@ public:
     
     void getEjected(ofVec2f v);
 	void applyForce(ofVec2f force);
-	void flock(vector<Bird>* Birds);
+	void flock(vector<Bird>* Birds, ofVec2f, bool isAtt);
     void changeState(int msgSize);
 	ofVec2f separate(vector<Bird>* Birds);
 	ofVec2f align(vector<Bird>* Birds);
@@ -61,6 +61,7 @@ public:
 	ofVec2f target;
     ofVec2f speed;
 	ofVec2f acc;
+
     
     //State of life, 3 MODE
     // 0 BIRD_FREE = interact with other

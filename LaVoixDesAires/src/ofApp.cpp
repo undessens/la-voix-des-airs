@@ -37,6 +37,7 @@ void ofApp::setup() {
     pg.add(lightTopPosY.set("light Y", 0, 0, final_h));
     pg.add(lightTopColor.set("Light Top Color", ofColor::whiteSmoke));
     pg.add(lightBottomColor.set("Light Bottom Color", ofColor::darkorange));
+	pg.add(lightBottomDirectionnal.set("Light Bottom Directionnal", true));
     
     
     // Adding all parameter to GUI
@@ -108,89 +109,91 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	//DRAW ON FBO
-    fbo.begin();
+		//DRAW ON FBO
+		fbo.begin();
 
-	ofBackground(color);
-	ofSetVerticalSync(true);
+		ofBackground(color);
+		ofSetVerticalSync(true);
 
-    //DRAW STATIC BIRD
-//    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-//    fboStatic.draw(0,0);
-//    ofDisableBlendMode();
-	
-    // DRAW ACCORDING TO Z DEPTH and not code order
-    ofEnableDepthTest();
-    
+		//DRAW STATIC BIRD
+	//    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+	//    fboStatic.draw(0,0);
+	//    ofDisableBlendMode();
 
-    
-    
+		// DRAW ACCORDING TO Z DEPTH and not code order
+		ofEnableDepthTest();
+
+
 #ifndef TARGET_PROGRAMMABLE_GL
-	glShadeModel(GL_SMOOTH);
+		glShadeModel(GL_SMOOTH);
 #endif // !TARGET_PROGRAMMABLE_GL
-	
-    //LIGHTING ON TOP
-    ofEnableLighting();
-    lightTop.setPosition(lightTopPosX, lightTopPosY, 0);
-    lightTop.setDiffuseColor((ofColor)lightTopColor);
-    lightTop.setSpecularColor((ofColor)lightTopColor);
-    lightTop.enable();
-    
-    //LIGHTING ON BOTTOM
-    lightBottom.setDiffuseColor((ofColor)lightBottomColor);
-    lightBottom.setSpecularColor((ofColor)lightBottomColor);
-    lightBottom.setPosition(lightTopPosX, final_h, 0);
-    if(lightBottomDirectionnal){
-        lightBottom.setDirectional();
-    }
-    lightBottom.enable();
-    
-    
 
-	// BIRD MANAGER
-	birdManager->draw();
+		//LIGHTING ON TOP
+		ofEnableLighting();
+		//ofEnableSeparateSpecularLight();
+		lightTop.setPosition(lightTopPosX, lightTopPosY, 0);
+		lightTop.setDiffuseColor((ofColor)lightTopColor);
+		lightTop.setSpecularColor((ofColor)lightTopColor);
+		lightTop.enable();
 
-	// DISABLE LIGHT
-    ofDisableDepthTest();
-	ofDisableLighting();
-    
-    // BIRD MANAGER DEBUG
-    ofSetColor(230);
-    birdManager->drawDebug();
-	
-	// Text Manager
-	textManager->draw();
-    textManager->drawPoly(); //debug function
-    
-    // Polybackground - draw center of point as a circle
-    polyBackground->draw();
-    //Polybackground - draw the pencil mode
-    if(polyBackground->isPencil)
-    {
-        polyBackground->pencilOnFbo();
-        ofSetColor(255);
-        polyBackground->fbo.draw(0,0);
-    }
-    
-    // Fake cursor
-    if(fakeCursor){
-        
-        ofVec2f cursor = ofVec2f(ofGetMouseX() * (final_w*1.0) /ofGetWidth() , ofGetMouseY() * (final_h*1.0)/ofGetHeight());
-        
-        ofSetColor(255, 0 ,0);
-        ofDrawCircle( cursor, 20);
-        ofDrawLine(cursor.x - 30, cursor.y, cursor.x + 30, cursor.y);
-        ofDrawLine(cursor.x , cursor.y- 30, cursor.x , cursor.y + 30);
-        
-        
-    }
-    
-    //DEBUG PART
-    if (debug) {
-        ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
-    }
-    
-	fbo.end();
+		//LIGHTING ON BOTTOM
+		lightBottom.setPosition(lightTopPosX, final_h / 2, 0);
+		lightBottom.setDiffuseColor((ofColor)lightBottomColor);
+		lightBottom.setSpecularColor((ofColor)lightBottomColor);
+		if (lightBottomDirectionnal) {
+			lightBottom.setDirectional();
+		}
+		lightBottom.enable();
+
+
+
+		// BIRD MANAGER
+		birdManager->draw();
+
+		// DISABLE LIGHT
+		ofDisableDepthTest();
+		ofDisableLighting();
+
+		// BIRD MANAGER DEBUG
+		ofSetColor(230);
+		birdManager->drawDebug();
+
+		
+
+		// Text Manager
+		textManager->draw();
+		textManager->drawPoly(); //debug function
+
+		// Polybackground - draw center of point as a circle
+		polyBackground->draw();
+		//Polybackground - draw the pencil mode
+		if (polyBackground->isPencil)
+		{
+			polyBackground->pencilOnFbo();
+			ofSetColor(255);
+			polyBackground->fbo.draw(0, 0);
+		}
+
+		// Fake cursor
+		if (fakeCursor) {
+
+			ofVec2f cursor = ofVec2f(ofGetMouseX() * (final_w*1.0) / ofGetWidth(), ofGetMouseY() * (final_h*1.0) / ofGetHeight());
+
+			ofSetColor(255, 0, 0);
+			ofDrawCircle(cursor, 20);
+			ofDrawLine(cursor.x - 30, cursor.y, cursor.x + 30, cursor.y);
+			ofDrawLine(cursor.x, cursor.y - 30, cursor.x, cursor.y + 30);
+
+
+		}
+
+		//DEBUG PART
+		if (debug) {
+			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
+		}
+
+		fbo.end();
+
 
     //DRAW FBO ON SCREEN
     ofSetColor(255);
