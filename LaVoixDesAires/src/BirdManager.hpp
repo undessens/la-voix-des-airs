@@ -79,6 +79,13 @@ public:
     ofParameter<float> maxSpeed;
     ofParameter<float> maxForce;
     ofParameter<int> flyDuration;
+	ofParameter<bool> attractionActive;
+	ofParameter<float> attractionFrequence;
+	ofParameter<int> attractionRadius;
+	ofParameter<int> attractionHeight;
+
+	//Attaction
+	ofVec2f att;	//attractor point
 
 	//3D MODEL
     static const int nbModelPose = 50;

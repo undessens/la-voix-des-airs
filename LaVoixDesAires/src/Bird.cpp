@@ -50,12 +50,12 @@ Bird::Bird( PolyBackground* p ,
 
     // Max
     maxSpeed = 15; //15 before 
-    maxForce = 0.25;
+    maxForce = 1.2; // 0.25before
     
     //FLOCK parameter
-    swt = 0.05; //multiply these force
-    awt = 0.01;
-    cwt = 0.01;
+    swt = 0.7; //multiply these force
+    awt = 0.1;
+    cwt = 0.1;
     twt = 5.1;
     
     //Neighbour- not used anymore
@@ -203,7 +203,7 @@ void Bird::applyForce(ofVec2f f) {
 
 
 //-------------------------------------------------------------
-void Bird::flock(vector<Bird>* birds) {
+void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 
     switch (state) {
         case BIRD_FREE:
@@ -221,9 +221,9 @@ void Bird::flock(vector<Bird>* birds) {
             //applyForce(ali);
             applyForce(coh);
             // INTERACTION WITH MOUSE
-            if (ofGetMousePressed(2))
+            if (isAtt)
             {
-                ofVec2f att = attraction(ofPoint(ofGetMouseX()*w/screenW, ofGetMouseY()*h/screenH));
+                ofVec2f att = attraction(attPoint);
                 applyForce(att);
             }
             break;
@@ -252,6 +252,7 @@ void Bird::flock(vector<Bird>* birds) {
             if(size>finalSize){
                 size -=0.05;
             }
+			break;
         }
 		case BIRD_DIEONBORDER:
 		{
@@ -438,15 +439,21 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 // ------------------------------------------------------------ -
 ofVec2f Bird::goToTarget() {
 	
+	//if (maxForce > 0.25)maxForce *= 0.99;
+	
+
     ofVec2f dist = (target - pos);
-    if(dist.length() < 200 )
+    if(dist.length() < 150 )
     {
        // if(maxSpeed>2)maxSpeed *=0.995;
        // if(maxSpeed>1.5)maxSpeed *=0.99;
        // if(maxSpeed>1)maxSpeed *=0.98;
 		if (maxSpeed > 2)maxSpeed *= 0.995;
-		if (maxSpeed > 1.5)maxSpeed *= 0.98;
-		if (maxSpeed > 1)maxSpeed *= 0.95;
+		if (maxSpeed > 1.5)maxSpeed *= 0.99;
+		if (maxSpeed > 0.9)maxSpeed *= 0.98;
+		maxForce = 0.25;
+
+		
 
 
     }

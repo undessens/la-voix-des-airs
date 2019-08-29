@@ -67,20 +67,20 @@ void BirdManager::setup(){
 	pg->add(alignment.set("alignment",0.1, 0, 1));
     pg->add(targetAttraction.set("target att", 5.1,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
-    pg->add(maxForce.set("max force", 0.25, 0.001, 0.8));
+    pg->add(maxForce.set("max force", 2, 0.001, 2));
     pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
     pg->add(flyDuration.set("fly duration", 300, 0, 6000));
+	pg->add(attractionActive.set("attraction", true));
+	pg->add(attractionFrequence.set("att freq", 1.2, 0.01, 10.));
+	pg->add(attractionRadius.set("att radius", 400, 50, h ));
+	pg->add(attractionHeight.set("att Y", 168, 0, h));
 
-	for (int i = 0; i < nbBird; i++)
-	{
-		//addBird((char)60 + i, i+1);
-	}
     
     std::vector<string> modelsFilePaths = {
         "../../../model/Bird_Asset_lowPoly_300.fbx",
         //"../../../model/green_bird.fbx",
-        //"../../../model/blue_bird.fbx",
+        "../../../model/blue_bird.fbx",
         //"../../../model/tropical_bird.fbx",
 //        "../../../model/source_phoenix/fly.fbx"
     };
@@ -110,7 +110,19 @@ void BirdManager::update(string msg){
     }
     
    // ofLog(OF_LOG_NOTICE, "SizeMsg : "+ofToString(sizeMsg));
-	
+
+
+	//Update attraction point
+	float angle = ofGetElapsedTimef() * attractionFrequence;
+	att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
+	if (ofRandom(1) > 0.99 && attractionActive) {
+		attractionActive = false;
+	}
+	if (ofRandom(1) > 0.996 && !attractionActive) {
+		attractionActive = true;
+	}
+
+	//Update bird One by one
 	//For ----------------------------------------------------------------------------DO NOT INCREMENT in Case we delete
 	for (vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end(); ) {
 
@@ -121,7 +133,7 @@ void BirdManager::update(string msg){
 			//CHANGE STATE : go to target if necessary
 			it->changeState(sizeMsg);
 			// FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
-			it->flock(&(*itn));
+			it->flock(&(*itn), att, attractionActive);
 			// UPDATE there forces to calculate pos, speed, flying time, flying distance
 			it->update();
 			// BORDERS : teleportation from left to right, up to bottom
@@ -177,7 +189,15 @@ void BirdManager::draw(){
 //-------------------------------------------------------------------------
 void BirdManager::drawDebug(){
     
-    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+	if (debug > 0) {
+		if (attractionActive) {
+			ofFill();
+			ofDrawCircle(att, 10);
+		}
+	}
+	
+	
+	for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
         {
 			if (it->state != BIRD_DIE) {
@@ -310,7 +330,7 @@ void BirdManager::killAll(){
 void BirdManager::createInvicibleArmy() {
 
 		vector<Bird> newNiche;
-		int armySize = 10;
+		int armySize = 20;
 
 		for (int i = 0; i < armySize; i++) {
 						
