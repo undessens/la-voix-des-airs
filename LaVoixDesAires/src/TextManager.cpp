@@ -35,7 +35,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     pg->add(drawMsgContour.set("Draw Contour", false));
     pg->add(gFontSize.set("Font Size", fontSize, 38, 150));
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
-	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 600));
+	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 0.0, 7.0));
 
