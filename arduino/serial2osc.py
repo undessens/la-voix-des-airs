@@ -61,6 +61,8 @@ def main(ser_port, ser_brate, osc_dest, osc_port, encoding="utf-8", enc_err="rep
             print("quitting...")
             break
 
+        time.sleep(0.1)
+
 
 if __name__ == "__main__":
     import argparse

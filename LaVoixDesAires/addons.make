@@ -1,4 +1,3 @@
 ofxAssimpModelLoader
 ofxGui
 ofxOsc
-ofxSpout
