@@ -118,7 +118,7 @@ void BirdManager::update(string msg){
 	if (ofRandom(1) > 0.99 && attractionActive) {
 		attractionActive = false;
 	}
-	if (ofRandom(1) > 0.996 && !attractionActive) {
+	if (ofRandom(1) > 0.990 && !attractionActive) {
 		attractionActive = true;
 	}
 
@@ -167,18 +167,19 @@ void BirdManager::draw(){
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
 		// IF bird is die : don't draw it
-		if (it->state != BIRD_DIE) {
+		if (it->state != BIRD_DIE && it->size>6) {
 			drawModel(it);
 		}
 		
 
         //Draw line between Neighbour - letter - not used anymore
-        //   if(it->pos.distance(it->neighbourLeft->pos) <200)
-        //   {
-        //      ofSetColor(240);
-        //      ofSetLineWidth(1);
-        //      ofDrawLine(it->pos,it->neighbourLeft->pos);
-        // }
+           if(it->pos.distance(it->neighbourLeft->pos) <300  && !it->isInvicible)
+           {
+              ofSetColor(255);
+            
+              ofSetLineWidth(1);
+              ofDrawLine(it->pos,it->neighbourLeft->pos);
+         }
 
         
     }
@@ -194,7 +195,7 @@ void BirdManager::drawDebug(){
 			ofFill();
 			ofDrawCircle(att, 10);
 		}
-	}
+	
 	
 	
 	for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
@@ -206,6 +207,8 @@ void BirdManager::drawDebug(){
 			}
 
         }
+        
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -259,8 +262,8 @@ void BirdManager::drawModel(vector<Bird>::iterator it) {
     
     // Draw the kind of rendering you want
 	listOfModel[modelId][index].drawFaces();
-    //listOfModel[index].drawVertices();
-    //listOfModel[index].drawWireframe();
+    //listOfModel[modelId][index].drawVertices();
+    //listOfModel[modelId][index].drawWireframe();
 	
 	
 	ofPopMatrix();
@@ -289,35 +292,41 @@ void BirdManager::loadModel(int atIndex, string filename){
 }
 
 //-------------------------------------------------------------
-void BirdManager::addBird(ofPolyline p){
-    if(p.size()>0)
+int BirdManager::addBirdFromPolyline(ofPolyline target, ofPolyline initialPos){
+    if(target.size()>0 && target.size()==initialPos.size() )
     {
         int nbNiche = listOfBird.size();
         vector<Bird> newNiche;
         
-        for(int i=0; i<p.size(); i++){
+        for(int i=0; i<target.size(); i++){
             
-            if(p[i].x < w && p[i].y < h){
+
                 int randomSize = size + ofRandom(-15, 15);
-                Bird newBird = Bird(polyBg, p[i], randomSize , w, h, screenW, screenH, stiffness, nbNiche, flyDuration,false);
+                Bird newBird = Bird(polyBg, target[i], initialPos[i], randomSize , w, h, screenW, screenH, stiffness, nbNiche, flyDuration,false);
                 newNiche.push_back(newBird);
-            }
+
         }
         
         listOfBird.push_back(newNiche);
-        //Create neighbour now -- NOT USED ANYMORE
-         /*for(int i=0; i<p.size(); i++){
+        int lastNiche = listOfBird.size() - 1;
+         for(int i=0; i<target.size(); i++){
           
              if(i>0){
-             (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[i-1]);
+             (listOfBird[lastNiche])[i].neighbourLeft = &((listOfBird[lastNiche])[i-1]);
              }
-             if(i==0){
-                (listOfBird[nbNiche])[i].neighbourLeft = &((listOfBird[nbNiche])[p.size() -1]);
+             if(i==0 && listOfBird[lastNiche].size()>0){
+                (listOfBird[lastNiche])[i].neighbourLeft = &((listOfBird[lastNiche])[listOfBird[lastNiche].size() -1]);
              }
-         }*/
+         }
+    }else{
+        cout << "AddBirdFromPolyline : initial and target size does not match \n";
     }
-    nbBird += p.size();
+    nbBird += target.size();
+    
+    // Return index of niche, in order to associate niche to polyline of letter
+    return listOfBird.size() -1;
 }
+
 
 //-------------------------------------------------------------
 void BirdManager::killAll(){
@@ -335,7 +344,7 @@ void BirdManager::createInvicibleArmy() {
 		for (int i = 0; i < armySize; i++) {
 						
 			int randomSize = size + ofRandom(-15, 15);
-			Bird newBird = Bird(polyBg, ofVec2f(0,0), randomSize, w, h, screenW, screenH, stiffness, 100000, flyDuration, true);
+			Bird newBird = Bird(polyBg, ofVec2f(0,0), ofVec2f(w/2,h/2) , randomSize, w, h, screenW, screenH, stiffness, 100000, flyDuration, true);
 			newNiche.push_back(newBird);
 			
 		}

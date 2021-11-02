@@ -7,8 +7,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 2048;
-    final_h = 768;
+    final_w = 2000;
+    final_h = 1000;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -25,25 +25,28 @@ void ofApp::setup() {
 	birdManager->createInvicibleArmy();
 
     // Text Manager
-    textManager = new TextManager(birdManager, &pg_textManager);
+    textManager = new TextManager(birdManager, &pg_textManager, final_w , final_h);
     
     //Global parameter
     pg.setName("main");
-    pg.add(color.set("color",5,0,255));
+    pg.add(color.set("color",ofColor::darkGray));
     pg.add(frameRate.set("frameRate", 35, 0, 50));
     pg.add(debug.set("debug", false));
     pg.add(fakeCursor.set("Fake cursor", false));
+    pg.add(lightTopEnable.set("light Top Enable", true));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
     pg.add(lightTopPosY.set("light Y", 0, 0, final_h));
+    pg.add(lightTopPosZ.set("light Z", 150, -400,400 ));
     pg.add(lightTopColor.set("Light Top Color", ofColor::whiteSmoke));
+    pg.add(lightBottomEnable.set("light Bottom Enable", true));
     pg.add(lightBottomColor.set("Light Bottom Color", ofColor::darkorange));
-	pg.add(lightBottomDirectionnal.set("Light Bottom Directionnal", true));
+	pg.add(lightBottomDirectionnal.set("Light Bot Directionnal", true));
     
     
     // Adding all parameter to GUI
     gui.setup(pg);
     gui.add(pg_birdManager);
-    gui.add(pg_polyBackground);
+    //gui.add(pg_polyBackground);
     gui.add(pg_textManager);
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
 	isGuiVisible = true;
@@ -75,6 +78,7 @@ void ofApp::setup() {
 void ofApp::update() {
 
 	birdManager->update( textManager->msg);
+    textManager->update();
 
 	// GUI update
 	if (isGuiVisible) {
@@ -131,38 +135,54 @@ void ofApp::draw() {
 		//LIGHTING ON TOP
 		ofEnableLighting();
 		//ofEnableSeparateSpecularLight();
-		lightTop.setPosition(lightTopPosX, lightTopPosY, 0);
+		lightTop.setPosition(lightTopPosX, lightTopPosY, lightTopPosZ);
 		lightTop.setDiffuseColor((ofColor)lightTopColor);
 		lightTop.setSpecularColor((ofColor)lightTopColor);
-		lightTop.enable();
+        if(lightTopEnable){
+            lightTop.enable();
+        }else{
+            lightTop.disable();
+        }
+		
 
 		//LIGHTING ON BOTTOM
-		lightBottom.setPosition(lightTopPosX, final_h / 2, 0);
+		lightBottom.setPosition(lightTopPosX, final_h / 2, lightTopPosZ);
 		lightBottom.setDiffuseColor((ofColor)lightBottomColor);
 		lightBottom.setSpecularColor((ofColor)lightBottomColor);
 		if (lightBottomDirectionnal) {
 			lightBottom.setDirectional();
 		}
-		lightBottom.enable();
+        if(lightBottomEnable){
+            lightBottom.enable();
+        }else{
+            lightBottom.disable();
+        }
+		
 
+        // Text Manager
+        textManager->draw();
 
-
-		// BIRD MANAGER
+		// BIRD MANAGER - over text
 		birdManager->draw();
+    
+        if(debug){
+            ofSetColor(255);
+            ofDrawCircle(ofGetWidth()/2, ofGetHeight()/2, 200);
+            
+        }
+    
 
 		// DISABLE LIGHT
 		ofDisableDepthTest();
 		ofDisableLighting();
 
 		// BIRD MANAGER DEBUG
-		ofSetColor(230);
+		ofSetColor(255);
 		birdManager->drawDebug();
 
 		
 
-		// Text Manager
-		textManager->draw();
-		textManager->drawPoly(); //debug function
+		
 
 		// Polybackground - draw center of point as a circle
 		polyBackground->draw();
@@ -197,7 +217,9 @@ void ofApp::draw() {
 
     //DRAW FBO ON SCREEN
     ofSetColor(255);
-    fbo.draw(0, 0, ofGetWidth(), ofGetHeight());
+    
+    fbo.draw(0, -100 );
+    
     
     //GUI
 	if (isGuiVisible) {
@@ -227,6 +249,7 @@ void ofApp::keyPressed(int key) {
 
 	}else	{  
 		
+        //13 entree
 		//ù 249
 		textManager->addLetter(key);
 		// à 224

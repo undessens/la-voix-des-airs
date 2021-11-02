@@ -27,6 +27,7 @@ public:
     Bird();
     Bird( PolyBackground* p,
          ofVec2f t,
+         ofVec2f i,
          int size,
          int w,
          int h,
@@ -55,6 +56,7 @@ public:
 	void goDieOnBorder();
 	void borders();
 	void randomSpeed(int s);
+    void randomSpeedFromCenter(int s);
     
     ofPoint pos;
     ofPoint origin;
@@ -92,8 +94,8 @@ public:
 	float twt;	// go to target
     
     //Neighbours - NOT USED ANYMORE
-    //bool isNeighbour;
-    //Bird* neighbourLeft;
+    bool isNeighbour;
+    Bird* neighbourLeft;
 
     //Environnement
     PolyBackground* polyBg;

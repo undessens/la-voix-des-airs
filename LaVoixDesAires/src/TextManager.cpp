@@ -4,17 +4,21 @@ TextManager::TextManager()
 {
 }
 
-TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
+TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
-    msgPosition = ofPoint(400, 300);
+    msgPosition = ofPoint(150, 300);
+    
+    w = _w;
+    h = _h;
 
 //    Verdana 60pt bbox on 1440px
 //    top-left x:219, y:282
 //    down-right x:1207, y:349 ==> ~900
-    fontSpacing = 70;
+    fontSpacing = 45;
     fontSize= 60;
-    fontDistSampling = 2.9;
+    fontDistSampling = 5;
+    changeFontSize(fontSize);
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
@@ -37,7 +41,9 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg)
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
-	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 0.0, 7.0));
+	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
+    pg->add(zoomBigLetter.set("zoom big letter", 12 , 1, 20));
+    pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
 
 	for (int i = 0; i < MAX_LETTER; i++) {
 		timeOfLastLetter[i] = 0.f;
@@ -72,35 +78,50 @@ void TextManager::changeFontSpacing(int &newSpacing) {
 	fontSpacing = newSpacing;
 }
 
+void TextManager::update(){
+    myLetter.update(birdmanager);
+}
+
 
 void TextManager::draw() {
 	//DRAW only the last letter shortly
-
-	if (msgPolys.size() > 0) 
+	if (msgPaths.size() > 0)
 	{
 	
 			ofFill();
 			int k = 0;
 
-			for (int t = (msgPolys.size()-1) ; t >= 0; t--) 
+			for (int t = (msgPaths.size()-1) ; t >= 0; t--)
 			{
 		
 				float duration = ofGetElapsedTimef() - timeOfLastLetter[t];
-				if (duration < 2)
+				
+                //Draw the last letter, only for 2 seconds.
+                if (duration < 2)
 				{
-					if (duration < 1)
+					// 1st second, white only
+                    if (duration < 1)
 					{
 						ofSetColor(255);
 					}
+                    // Then, fade to black.
 					else
 					{
 						ofSetColor(255 - (duration - 1.0)/1.0 * 255.0);
 					}
-					for (int i = 0; i < msgPolys[t].size(); i++)
-					{
-						ofVec3f p = msgPolys[t][i];
-						ofDrawCircle(p, 3);
-					}
+                    
+                    if(drawMsgFill){
+                        ofFill();
+                    }else{
+                        ofNoFill();
+                    }
+                    
+                        msgPaths[t].draw();
+//                    for (int i = 0; i < msgPolys[t].size(); i++)
+//                    {
+//                        ofVec3f p = msgPolys[t][i];
+//                        ofDrawCircle(p, 3);
+//                    }
 
 				}
 				else {
@@ -110,10 +131,12 @@ void TextManager::draw() {
 
 			}
 
-		
-
 
 	}
+    
+    myLetter.drawBasic(zoomBigLetter, alphaBigLetter);
+    
+    
 
 		
 }
@@ -223,99 +246,143 @@ void TextManager::addPathWithCustomSpacing(int letter, ofVec2f position){
     msgPaths.push_back(letterPath);
 }
 
-void TextManager::addPathSimple(){
-    std::vector<ofPath> lettersPaths = msgFont.getStringAsPoints(msg);
-    if( lettersPaths.size()){
-        ofPath letterPaths = lettersPaths.back();
-        letterPaths.translate(msgPosition);
-        msgPaths.push_back(letterPaths);
-    }
+ofPath TextManager::createPathFromLetter( char letter, ofVec2f newLetterPosition){
+    //NOT FILLED
+    // permet de récuperer facilement un polyline avec la liste des points
+    // Ne permet pas de bien déssiner le ofpath
+    ofPath lastLetter = msgFont.getCharacterAsPoints(letter, true , false);
+   
+    lastLetter.translate(newLetterPosition);
+    return lastLetter;
+    
 }
+
+ofPath TextManager::createFilledPathFromLetter(char letter, ofVec2f newLetterPosition){
+    // Ne permet pas de bien récuperer les polyline, mais permet de dessiner.
+    ofPath lastLetter = msgFont.getCharacterAsPoints(letter, true , true);
+    lastLetter.translate(newLetterPosition);
+    return lastLetter;
+    
+}
+
+vector<ofPolyline> TextManager::reduceDistanceSampling( ofPath path){
+    //NOT FILLED
+    // permet de récuperer facilement un polyline avec la liste des points
+    // Ne permet pas de bien déssiner le ofpath
+    vector<ofPolyline> listOfPoly;
+    
+    int size = path.getOutline().size();
+    for(int i=0; i<size; i++){
+        
+        ofPolyline poly = path.getOutline()[i];
+        poly = poly.getResampledBySpacing(fontDistSampling);
+        listOfPoly.push_back(poly);
+    }
+    
+    
+    return listOfPoly;
+    
+}
+
+
+
 
 void TextManager::addLetter(int letter) {
     
 	int prevMsgLength = ofUTF8Length(msg);
-	if (prevMsgLength < MAX_LETTER)
-	{
+    if(letter==13){
+        msgPosition.y+= fontSize;
+        msg.clear();
 
-
-		string newLetter = ofUTF8ToString(letter);
-		msg += newLetter;
-
-		ofVec2f newLetterPosition = ofVec2f(msgPosition.x + (float)prevMsgLength*fontSpacing, msgPosition.y);
-
-		ofLog() << "New letter received: " << newLetter;
-		ofLog() << "New message size:" << prevMsgLength + 1;
-
-		if (msgFont.isLoaded()) {
-			addPathSimple();
-			//        addPathWithCustomSpacing(letter, newLetterPosition);
-		}
-		else {
-			ofLog(OF_LOG_ERROR) << "No message font on the system!";
-		}
-
-		//First create polyline
-		//Then simplify if necessary
-		//
-		ofPolyline originalPoly = createPolyline(letter, newLetterPosition);
-		ofPolyline simplifiedPoly = originalPoly;
-		if ((letter > 47 && letter < 58) || (letter > 65 && letter < 91) || (letter > 96 && letter < 123))
-		{
-			//Simplify if need ( letter and not special caracter )
-			simplifiedPoly = simplifyPolyline(originalPoly);
-		}
-
-		// Add to msg poly the original one
-		msgPolys.push_back(originalPoly);
-
-		//Check time from the added letter
-		timeOfLastLetter[msgPolys.size() - 1] = ofGetElapsedTimef();
-
-		// Add bird with the simplified one
-		birdmanager->addBird(simplifiedPoly);
-
-	}
-    
-}
-
-void TextManager::drawPoly(){
-
-    if(drawMsgFill){
-        ofFill();
-        ofSetColor(ofColor::black);
-        for (vector<ofPath>::iterator ito = msgPaths.begin(); ito < msgPaths.end(); ito++){
-            ito-> draw();
-        }
-    }
-    
-    if(drawMsgContour){
-//        ofSetColor(ofColor::blue);
-        int k = 0;
-        for (vector<ofPolyline>::iterator ito = msgPolys.begin(); ito < msgPolys.end(); ito++){
-            ofNoFill();
-//            ofVec2f center = (*ito)[0];
-//            ofDrawCircle(center, 10);
-            k+=1;
-            for (int i = 0; i < ito->size(); i++) {
-                ofVec3f p = (*ito)[i];
-                
-                //Draw Cercle
-                ofSetLineWidth(1);
-                ofSetColor(255,152, 0);
-                ofDrawCircle(p, 3);
-                //Draw Line
-//                if (i > 0) {
-//                    ofDrawLine((*ito)[i], (*ito)[i - 1]);
-//                } else {
-//                    ofDrawLine((*ito)[i], (*ito)[ito->size() - 1]);
-//                }
+    }else{
+        
+        if (prevMsgLength < MAX_LETTER)
+        {
+            
+            
+            string newLetter = ofUTF8ToString(letter);
+            msg += newLetter;
+            
+            ofVec2f newLetterPosition = ofVec2f(msgPosition.x + (float)prevMsgLength*fontSpacing, msgPosition.y);
+            
+            ofLog() << "New letter received: " << newLetter;
+            ofLog() << "New message size:" << prevMsgLength + 1;
+            
+            ofPath pathLetterToBird, pathLetterToDraw;
+            
+            if (msgFont.isLoaded()) {
+                pathLetterToBird = createPathFromLetter(msg.back(), newLetterPosition);
+                pathLetterToDraw = createFilledPathFromLetter(msg.back(), newLetterPosition);
             }
-
+            else {
+                ofLog(OF_LOG_ERROR) << "No message font on the system!";
+            }
+            
+            
+            
+            // Add bird polyline by polyline
+            /*
+             Plusieurs étape. On créé déja le path, puis on utilise reduceDistanceSampling pour limiter le nombre de point.
+             On le transforme en vector<ofPolyline> car trop dur de modifier directement le ofpath
+             Ensuite pour chaque polyline, on récréé un "BIG" polyline, destiné au lettrage, mais avec le meme nombre de point.
+             
+             */
+            
+            
+            
+            vector<int> listOfNiche;
+            vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird);
+            ofPolyline bigLetterPolyline;
+            vector<ofPolyline> listOfBigPolyline;
+            ofVec2f translation;
+            
+            for(int i=0; i<listOfPolyline.size(); i++){
+                bigLetterPolyline = listOfPolyline[i];
+                bigLetterPolyline.scale(zoomBigLetter, zoomBigLetter);
+                if(i==0){
+                    ofVec2f centroid = bigLetterPolyline.getCentroid2D();
+                    ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
+                    translation =  ofVec2f(w/2, h/2) - centroid;
+                    translation.x -= boudingBox.width/4 + ofRandom(-500, 200);
+                    translation.y +=  ofRandom(-200, 200);
+                    
+                }
+                bigLetterPolyline.translate(translation);
+                int niche = birdmanager->addBirdFromPolyline(listOfPolyline[i],bigLetterPolyline);
+                listOfNiche.push_back(niche);
+                listOfBigPolyline.push_back(bigLetterPolyline);
+            }
+            
+            msgPaths.push_back(pathLetterToDraw);
+            
+            //Check time from the added letter
+            if(msgPaths.size()>0){
+                timeOfLastLetter[msgPaths.size() - 1] = ofGetElapsedTimef();
+            }
+            
+            
+            
+            // Add big letter. Char, ofPath of the initial shape, listOfNiche = nichée associated to polyline
+            
+            /*
+             if(lastLetter.getOutline().size()>0){
+             lastLetter.scale(zoomBigLetter, zoomBigLetter);
+             ofVec2f centroid = lastLetter.getOutline()[0].getCentroid2D();
+             ofVec2f translation =  ofVec2f(ofGetWidth()/2, ofGetHeight()/2) - centroid ;
+             lastLetter.translate(translation);
+             }
+             */
+            
+            
+            myLetter =  Letter(letter, listOfBigPolyline, listOfNiche );
+            
         }
+        
     }
+
     
 }
+
 
 void TextManager::clear(){
     msg = "";

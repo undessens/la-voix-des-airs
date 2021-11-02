@@ -37,13 +37,17 @@ class ofApp : public ofBaseApp{
 		bool isGuiVisible;
     
         //Parameters of main program
-        ofParameter<int> color;
+        ofParameter<ofColor> color;
         ofParameter<int> frameRate;
         ofParameter<bool> debug;
         ofParameter<bool> fakeCursor;
+        ofParameter<bool> lightTopEnable;
         ofParameter<int> lightTopPosX;
         ofParameter<int> lightTopPosY;
+        ofParameter<int> lightTopPosZ;
+    
         ofParameter<ofColor> lightBottomColor;
+        ofParameter<bool> lightBottomEnable;
         ofParameter<bool> lightBottomDirectionnal;
         ofParameter<ofColor> lightTopColor;
 

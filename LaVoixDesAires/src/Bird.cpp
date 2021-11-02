@@ -17,6 +17,7 @@ Bird::Bird(){
 //-------------------------------------------------------------
 Bird::Bird( PolyBackground* p ,
            ofVec2f _target,
+           ofVec2f initialPos,
            int _size,
            int _w,                   // Width on fbo surface
            int _h,                    // Height on fbo surface
@@ -30,9 +31,9 @@ Bird::Bird( PolyBackground* p ,
     //TODO  : order + total of bird . Like percetange position
     
     // Geometrie cartesian stuff
-    pos = ofPoint(w/2, h/2);
+    pos = initialPos;
     acc = ofVec2f(0, 0);
-	randomSpeed( 3);
+	randomSpeedFromCenter( 0);
 	target = _target;
     
     //State of life
@@ -69,7 +70,7 @@ Bird::Bird( PolyBackground* p ,
     // Noise stuff ... not really clear
     size = _size;
 	initalSize = size;
-    finalSize = 23;
+    finalSize = 5;
    
     stiffness = _stiff;  //force to join centroid
 
@@ -221,7 +222,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             //applyForce(ali);
             applyForce(coh);
             // INTERACTION WITH MOUSE
-            if (isAtt)
+            if (isAtt && flyingTime> 100)
             {
                 ofVec2f att = attraction(attPoint);
                 applyForce(att);
@@ -238,7 +239,8 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
                 size -=0.08;
             }
             if(maxSpeed > 0.01){
-                maxSpeed -= 0.0001;
+                //maxSpeed -= 0.0003;
+                maxSpeed *=0.998;
             }
             break;
         }
@@ -250,7 +252,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             tar.limit(maxForce);
             applyForce(tar);
             if(size>finalSize){
-                size -=0.05;
+                size -=0.9;
             }
 			break;
         }
@@ -486,7 +488,7 @@ void Bird::goDieOnBorder() {
 
 	}
 }
-
+//------------------------------------------------------------------
 void Bird::randomSpeed(int s) {
 
 
@@ -498,4 +500,17 @@ void Bird::randomSpeed(int s) {
 
 
 	speed = direction * r;
+}
+//------------------------------------------------------------------
+void Bird::randomSpeedFromCenter(int s){
+    
+    ofPoint centroid = ofPoint(w/2, h/2);
+    ofVec2f direction = centroid - pos ;
+    direction = direction.normalize();
+    
+    float r = 1;
+    speed = direction * r;
+    
+    
+    
 }

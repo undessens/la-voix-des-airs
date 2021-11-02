@@ -40,7 +40,7 @@ public:
     void changeToLetter();
     
     //Manage instances
-    void addBird(ofPolyline p);
+    int addBirdFromPolyline(ofPolyline target, ofPolyline initialPos);
     void setNbBird( int &i);
     void killAll();
 	void lastFlyAll();
