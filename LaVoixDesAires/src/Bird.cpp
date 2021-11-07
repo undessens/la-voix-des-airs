@@ -221,8 +221,9 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             applyForce(sep);
             //applyForce(ali);
             applyForce(coh);
-            // INTERACTION WITH MOUSE
-            if (isAtt && flyingTime> 100)
+            // attractive force
+            // TODO : change this 40 with parameter value
+            if (isAtt && flyingTime> 40)
             {
                 ofVec2f att = attraction(attPoint);
                 applyForce(att);

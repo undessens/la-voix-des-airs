@@ -7,7 +7,7 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 2000;
+    final_w = 1600;
     final_h = 1000;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
@@ -79,6 +79,13 @@ void ofApp::update() {
 
 	birdManager->update( textManager->msg);
     textManager->update();
+    
+    //Force attraction quickly after new letter
+    float timeSpendFromLastLetter = ofGetElapsedTimef() - textManager-> timeOfLastLetter[textManager->msgPaths.size()-1];
+    if( timeSpendFromLastLetter < 1.2f && !birdManager->attractionActive  ){
+        birdManager->attractionActive = true;
+    }
+    
 
 	// GUI update
 	if (isGuiVisible) {
@@ -165,11 +172,7 @@ void ofApp::draw() {
 		// BIRD MANAGER - over text
 		birdManager->draw();
     
-        if(debug){
-            ofSetColor(255);
-            ofDrawCircle(ofGetWidth()/2, ofGetHeight()/2, 200);
-            
-        }
+
     
 
 		// DISABLE LIGHT
@@ -208,8 +211,13 @@ void ofApp::draw() {
 		}
 
 		//DEBUG PART
+
 		if (debug) {
-			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight());
+            ofSetColor(255);
+            ofDrawCircle(final_w/2, final_h/2, 200);
+			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() - 10);
+            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(textManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
+
 		}
 
 		fbo.end();
@@ -218,7 +226,7 @@ void ofApp::draw() {
     //DRAW FBO ON SCREEN
     ofSetColor(255);
     
-    fbo.draw(0, -100 );
+    fbo.draw(200, 50, 1280, 800 );
     
     
     //GUI

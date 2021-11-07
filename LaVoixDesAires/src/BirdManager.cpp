@@ -70,7 +70,7 @@ void BirdManager::setup(){
     pg->add(maxForce.set("max force", 2, 0.001, 2));
     pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
-    pg->add(flyDuration.set("fly duration", 300, 0, 6000));
+    pg->add(flyDuration.set("fly duration", 300, 0, 400));
 	pg->add(attractionActive.set("attraction", true));
 	pg->add(attractionFrequence.set("att freq", 1.2, 0.01, 10.));
 	pg->add(attractionRadius.set("att radius", 400, 50, h ));
@@ -115,7 +115,7 @@ void BirdManager::update(string msg){
 	//Update attraction point
 	float angle = ofGetElapsedTimef() * attractionFrequence;
 	att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
-	if (ofRandom(1) > 0.99 && attractionActive) {
+	if (ofRandom(1) > 0.90 && attractionActive) {
 		attractionActive = false;
 	}
 	if (ofRandom(1) > 0.990 && !attractionActive) {

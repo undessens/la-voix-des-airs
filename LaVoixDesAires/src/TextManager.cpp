@@ -8,6 +8,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
     msgPosition = ofPoint(150, 300);
+    nextLetterPosition = msgPosition;
     
     w = _w;
     h = _h;
@@ -35,19 +36,21 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
     
     pg = _pg;
     pg->setName("Text Manager");
-    pg->add(drawMsgFill.set("Draw Fill", false));
     pg->add(drawMsgContour.set("Draw Contour", false));
+    pg->add(drawMsgFill.set("Draw Fill", false));
     pg->add(gFontSize.set("Font Size", fontSize, 38, 150));
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
-    pg->add(zoomBigLetter.set("zoom big letter", 12 , 1, 20));
+    pg->add(zoomBigLetter.set("zoom big letter", 8 , 1, 20));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
 
 	for (int i = 0; i < MAX_LETTER; i++) {
 		timeOfLastLetter[i] = 0.f;
 	}
+    writingSpeed = 0;
+    
 }
 
 
@@ -85,50 +88,17 @@ void TextManager::update(){
 
 void TextManager::draw() {
 	//DRAW only the last letter shortly
-	if (msgPaths.size() > 0)
-	{
 	
+    if (msgPaths.size()>0 && drawMsgContour)
+	{
+        
+        ofSetColor(ofColor::blue);
 			ofFill();
-			int k = 0;
 
-			for (int t = (msgPaths.size()-1) ; t >= 0; t--)
+			for (int i = 0 ; i<msgPaths.size() ; i++)
 			{
 		
-				float duration = ofGetElapsedTimef() - timeOfLastLetter[t];
-				
-                //Draw the last letter, only for 2 seconds.
-                if (duration < 2)
-				{
-					// 1st second, white only
-                    if (duration < 1)
-					{
-						ofSetColor(255);
-					}
-                    // Then, fade to black.
-					else
-					{
-						ofSetColor(255 - (duration - 1.0)/1.0 * 255.0);
-					}
-                    
-                    if(drawMsgFill){
-                        ofFill();
-                    }else{
-                        ofNoFill();
-                    }
-                    
-                        msgPaths[t].draw();
-//                    for (int i = 0; i < msgPolys[t].size(); i++)
-//                    {
-//                        ofVec3f p = msgPolys[t][i];
-//                        ofDrawCircle(p, 3);
-//                    }
-
-				}
-				else {
-					break;
-				}
-
-
+                        msgPaths[i].draw();
 			}
 
 
@@ -289,10 +259,20 @@ vector<ofPolyline> TextManager::reduceDistanceSampling( ofPath path){
 
 void TextManager::addLetter(int letter) {
     
-	int prevMsgLength = ofUTF8Length(msg);
+	//Calculate speed of writing
+    if(msg.length()>0){
+        float newspeed = 1.0f / (ofGetElapsedTimef() - timeOfLastLetter[msg.length()-1]) ;
+        float valueToAdd = newspeed - writingSpeed;
+        writingSpeed = writingSpeed + 0.3 * valueToAdd;
+        
+    }
+    
+    
+    int prevMsgLength = ofUTF8Length(msg);
     if(letter==13){
-        msgPosition.y+= fontSize;
-        msg.clear();
+        // BACKSPACE
+        nextLetterPosition.y = nextLetterPosition.y + fontSize;
+        nextLetterPosition.x = msgPosition.x;
 
     }else{
         
@@ -303,21 +283,21 @@ void TextManager::addLetter(int letter) {
             string newLetter = ofUTF8ToString(letter);
             msg += newLetter;
             
-            ofVec2f newLetterPosition = ofVec2f(msgPosition.x + (float)prevMsgLength*fontSpacing, msgPosition.y);
-            
             ofLog() << "New letter received: " << newLetter;
             ofLog() << "New message size:" << prevMsgLength + 1;
             
             ofPath pathLetterToBird, pathLetterToDraw;
             
             if (msgFont.isLoaded()) {
-                pathLetterToBird = createPathFromLetter(msg.back(), newLetterPosition);
-                pathLetterToDraw = createFilledPathFromLetter(msg.back(), newLetterPosition);
+                pathLetterToBird = createPathFromLetter(msg.back(), nextLetterPosition);
+                pathLetterToDraw = createFilledPathFromLetter(msg.back(), nextLetterPosition);
             }
             else {
                 ofLog(OF_LOG_ERROR) << "No message font on the system!";
             }
             
+            // Change the next letter position 1 character
+            nextLetterPosition.x = nextLetterPosition.x + fontSpacing;
             
             
             // Add bird polyline by polyline
@@ -343,7 +323,7 @@ void TextManager::addLetter(int letter) {
                     ofVec2f centroid = bigLetterPolyline.getCentroid2D();
                     ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
                     translation =  ofVec2f(w/2, h/2) - centroid;
-                    translation.x -= boudingBox.width/4 + ofRandom(-500, 200);
+                    translation.x -= boudingBox.width/4 + ofRandom(200, 200);
                     translation.y +=  ofRandom(-200, 200);
                     
                 }
@@ -353,7 +333,11 @@ void TextManager::addLetter(int letter) {
                 listOfBigPolyline.push_back(bigLetterPolyline);
             }
             
-            msgPaths.push_back(pathLetterToDraw);
+            // NOT AN ERROR . PathLetterToDraw does not have Outline>0 . So it's easier to user pathLetterToBird instead.
+            if(pathLetterToBird.getOutline().size()>0){
+               msgPaths.push_back(pathLetterToDraw);
+            }
+            
             
             //Check time from the added letter
             if(msgPaths.size()>0){
@@ -388,6 +372,7 @@ void TextManager::clear(){
     msg = "";
     msgPolys.clear();
     msgPaths.clear();
+    nextLetterPosition = msgPosition;
     
 	// When clear the message, don't kill Birds, but push them into DIE ON BORDER MODE
 	//birdmanager->killAll();

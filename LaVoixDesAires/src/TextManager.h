@@ -46,7 +46,9 @@ public:
     
     string msg;
     ofPoint msgPosition;
+    ofPoint nextLetterPosition;
 	float timeOfLastLetter[MAX_LETTER];
+    float writingSpeed; // Change fly duration according to writing speed
 	
     //Polyline
     // Suppression de ceci, qui n'a plus lieu d'être
