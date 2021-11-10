@@ -9,6 +9,7 @@
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
 #include "TextManager.h"
+#include "ofxGLWarper.h"
 #if defined(_WIN32)
 #include "ofxSpout.h"
 #endif
@@ -54,6 +55,7 @@ class ofApp : public ofBaseApp{
         ofParameter<bool> lightBottomEnable;
         ofParameter<bool> lightBottomDirectionnal;
         ofParameter<ofColor> lightTopColor;
+        ofParameter<int> clear;
 
     
 		//Lighting
@@ -67,6 +69,9 @@ class ofApp : public ofBaseApp{
 		//FBO
 		ofFbo fbo;          //Clear on every frame
         ofFbo fboLetter;    // NOT USED ; Draw of bird "joined Target"
+    
+        // Quad Warper
+        ofxGLWarper warper;
     
     
 

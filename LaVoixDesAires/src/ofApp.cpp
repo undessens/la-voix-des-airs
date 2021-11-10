@@ -9,8 +9,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1600;
-    final_h = 1000;
+    final_w = 1920;
+    final_h = 1080;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -31,6 +31,7 @@ void ofApp::setup() {
     
     //Global parameter
     pg.setName("main");
+    pg.add(clear.set("clear_all", 1, 0, 1));
     pg.add(color.set("color",ofColor(0, 0, 10)));
     pg.add(frameRate.set("frameRate", 35, 0, 50));
     pg.add(debug.set("debug", false));
@@ -38,7 +39,7 @@ void ofApp::setup() {
     pg.add(lightTopEnable.set("light Top Enable", true));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
     pg.add(lightTopPosY.set("light Y", 0, 0, final_h));
-    pg.add(lightTopPosZ.set("light Z", 150, -400,400 ));
+    pg.add(lightTopPosZ.set("light Z", 400, -400,400 ));
     pg.add(lightTopColor.set("Light Top Color", ofColor::whiteSmoke));
     pg.add(lightBottomEnable.set("light Bottom Enable", true));
     pg.add(lightBottomColor.set("Light Bottom Color", ofColor::darkorange));
@@ -63,7 +64,10 @@ void ofApp::setup() {
     ofClear(0,0,0,0);
     fboLetter.end();
     
-
+    // WARPER
+    warper.setup(0, 100, ofGetWidth(), ofGetHeight());
+    warper.deactivate();
+    
 	// OSC receiver
 	osc_receiver.setup(12345);
     
@@ -86,22 +90,23 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	birdManager->update( textManager->msg, &fboLetter);
+    if(clear>0){
+        clear_all();
+        clear = 0;
+    }
+    
+    birdManager->update( textManager->msg, &fboLetter);
     textManager->update();
     
     //Force attraction quickly after new letter
-    float timeSpendFromLastLetter = ofGetElapsedTimef() - textManager-> timeOfLastLetter[textManager->msgPaths.size()-1];
+    float timeSpendFromLastLetter = ofGetElapsedTimef() - textManager->timeOfLastLetter[textManager->msg.size()-1];
     if( timeSpendFromLastLetter < 1.2f && !birdManager->attractionActive  ){
         birdManager->attractionActive = true;
     }
     
 
-	// GUI update
-	if (isGuiVisible) {
-		sync.update();
-	}
-	
 
+    sync.update();
 
 	
 	while (osc_receiver.hasWaitingMessages()) {
@@ -125,6 +130,8 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+    
+         ofBackground(0);
 
 		//DRAW ON FBO
 		fbo.begin();
@@ -232,10 +239,12 @@ void ofApp::draw() {
 		fbo.end();
 
 
-    //DRAW FBO ON SCREEN
-    ofSetColor(255);
+    //DRAW FBO ON SCREEN THROUGH WARPER
     
-    fbo.draw(200, 50, 1280, 800 );
+    warper.begin();
+    ofSetColor(255);
+    fbo.draw(0, 0 );
+    warper.end();
     
     
     //SPOUT windows only
@@ -287,7 +296,12 @@ void ofApp::keyPressed(int key) {
 		//CTRL - undraw GUI
 		isGuiVisible = !isGuiVisible;
 
-	}else	{  
+    } else if ( key == 4){
+        // ALT
+        if(warper.isActive())warper.deactivate();
+        else warper.activate();
+        
+    }else	{
 		
         //13 entree
 		//ù 249

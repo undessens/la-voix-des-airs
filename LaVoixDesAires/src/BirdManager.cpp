@@ -58,7 +58,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 55, 2, 100));
+    pg->add(size.set("size", 40, 2, 100));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     
     
@@ -117,10 +117,10 @@ void BirdManager::update(string msg, ofFbo* fboLetter){
 	//Update attraction point
 	float angle = ofGetElapsedTimef() * attractionFrequence;
 	att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
-	if (ofRandom(1) > 0.90 && attractionActive) {
+	if (ofRandom(1) > 0.96 && attractionActive) {
 		attractionActive = false;
 	}
-	if (ofRandom(1) > 0.990 && !attractionActive) {
+	if (ofRandom(1) > 0.920 && !attractionActive) {
 		attractionActive = true;
 	}
 
