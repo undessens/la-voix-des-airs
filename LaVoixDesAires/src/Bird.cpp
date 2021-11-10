@@ -36,9 +36,15 @@ Bird::Bird( PolyBackground* p ,
 	randomSpeedFromCenter( 0);
 	target = _target;
     
-    //State of life
-    state = BIRD_FREE;
+    
 	isInvicible = _isInvicible;
+    
+    //State of life
+    if(isInvicible){
+        state = BIRD_FREE;
+    }else{
+        state = BIRD_WAITING;
+    }
     
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
@@ -189,8 +195,7 @@ void Bird::getEjected(ofVec2f v ){
     
     is_ejected = true;
     eject_direction = v;
-    
-    
+
 }
 
 
@@ -207,11 +212,30 @@ void Bird::applyForce(ofVec2f f) {
 void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 
     switch (state) {
-        case BIRD_FREE:
+        case BIRD_WAITING:
         {
             // CALCULATE INTERACTION FORCES
             ofVec2f sep = separate(birds);
             //ofVec2f ali = align(birds);
+            //ofVec2f coh = cohesion(birds);
+            //COEF
+            sep *= swt; //multiply these force
+            // ali *= awt;
+            //coh *= cwt;
+            // APPLY
+            applyForce(sep);
+            //applyForce(ali);
+            //applyForce(coh);
+            // attractive force
+            // TODO : change this 40 with parameter value
+            // NON :  il faut forcer le départ quand une nouvelle lettre est tapée
+            break;
+        }
+        case BIRD_FREE:
+        {
+            // CALCULATE INTERACTION FORCES
+            ofVec2f sep = separate(birds);
+            //ofVec2f ali = align(birds);  // WHY THIS IS COMMENT
             ofVec2f coh = cohesion(birds);
             //COEF
             sep *= swt; //multiply these force
@@ -222,8 +246,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             //applyForce(ali);
             applyForce(coh);
             // attractive force
-            // TODO : change this 40 with parameter value
-            if (isAtt && flyingTime> 40)
+            if (isAtt )
             {
                 ofVec2f att = attraction(attPoint);
                 applyForce(att);
@@ -239,7 +262,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             if(size>finalSize){
                 size -=0.08;
             }
-            if(maxSpeed > 0.01){
+            if(maxSpeed > 0.01  ){
                 //maxSpeed -= 0.0003;
                 maxSpeed *=0.998;
             }
@@ -277,16 +300,18 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 //-------------------------------------------------------------
 void Bird::changeState(int msgSize){
     
+    
+    if(state ==  BIRD_WAITING && !isInvicible && flyingTime > 50){
+        state = BIRD_FREE;
+    }
+    
+    
     if(state == BIRD_FREE)
     {
       
-        if(msgSize > (order+LETTERS_ADDED_ON_FLY)){
-            state = BIRD_GOTOTARGET;
-
-        }else if(flyingTime > flyingDuration && !isInvicible)
+        if(flyingTime > flyingDuration && !isInvicible)
         {
             state = BIRD_GOTOTARGET;
-
 
         }
         
@@ -465,8 +490,8 @@ ofVec2f Bird::goToTarget() {
         state = BIRD_TARGETJOINED;
     }
     //Stiffness does matter with goToTarget
-	dist *= stiffness;
-    dist /= 500;
+	//dist *= stiffness;
+    //dist /= 500;
 	return dist;
 
 }

@@ -12,6 +12,9 @@
 #if defined(_WIN32)
 #include "ofxSpout.h"
 #endif
+#if defined(__APPLE__)
+#include "ofxSyphon.h"
+#endif
 
 
 class ofApp : public ofBaseApp{
@@ -20,6 +23,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+        void clear_all();
     
         BirdManager* birdManager;
         PolyBackground* polyBackground;
@@ -62,7 +66,7 @@ class ofApp : public ofBaseApp{
 
 		//FBO
 		ofFbo fbo;          //Clear on every frame
-        ofFbo fboStatic;    // NOT USED ; Draw of bird "joined Target"
+        ofFbo fboLetter;    // NOT USED ; Draw of bird "joined Target"
     
     
 
@@ -70,6 +74,12 @@ class ofApp : public ofBaseApp{
 #if defined(_WIN32)
 		ofxSpout::Sender sender;
 #endif
+#if defined(__APPLE__)
+    ofxSyphonServer syphonServer;
+#endif
+    
+    
+    
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );

@@ -2,7 +2,7 @@
 #include "ofMain.h"
 #include "BirdManager.hpp"
 #include "Letter.hpp"
-#define MAX_LETTER 50
+#define MAX_LETTER 300
 
 class TextManager
 {
@@ -19,9 +19,10 @@ public:
 	ofPolyline createPolyline(int letter, ofVec2f letterPosition);
     ofPolyline simplifyPolyline(ofPolyline p);
     void addPathWithCustomSpacing(int letter, ofVec2f position);
-    ofPath createPathFromLetter(char letter, ofVec2f newPos);
+    ofPath createPathFromLetter(int letter, ofVec2f newPos);
     vector<ofPolyline> reduceDistanceSampling(ofPath path);
-    ofPath createFilledPathFromLetter(char letter, ofVec2f newPos);
+    ofPath createFilledPathFromLetter(int letter, ofVec2f newPos);
+    ofRectangle getBoundingBoxOfPath(ofPath &path);
 
     void changeFontSize(int &newSize);
     void changeFontSpacing(int &newSpacing);
@@ -52,6 +53,7 @@ public:
 	
     //Polyline
     // Suppression de ceci, qui n'a plus lieu d'être
+    // TODO DELETE
     std::vector<ofPolyline> msgPolys;
     
     // Ici, un ofPath par lettre, donnés dans le position finale.

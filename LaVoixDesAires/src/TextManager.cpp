@@ -4,10 +4,11 @@ TextManager::TextManager()
 {
 }
 
+//--------------------------------------------------------------
 TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
-    msgPosition = ofPoint(150, 300);
+    msgPosition = ofPoint(50, 300);
     nextLetterPosition = msgPosition;
     
     w = _w;
@@ -16,9 +17,9 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 //    Verdana 60pt bbox on 1440px
 //    top-left x:219, y:282
 //    down-right x:1207, y:349 ==> ~900
-    fontSpacing = 45;
-    fontSize= 60;
-    fontDistSampling = 5;
+    fontSpacing = 23;
+    fontSize= 45;
+    fontDistSampling = 7.0;
     changeFontSize(fontSize);
     
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
@@ -43,7 +44,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
-    pg->add(zoomBigLetter.set("zoom big letter", 8 , 1, 20));
+    pg->add(zoomBigLetter.set("zoom big letter", 20 , 1, 40));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
 
 	for (int i = 0; i < MAX_LETTER; i++) {
@@ -53,39 +54,44 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
     
 }
 
-
+//--------------------------------------------------------------
 TextManager::~TextManager()
 {
 }
 
+//--------------------------------------------------------------
 void TextManager::changeFontSampling(float &s) {
 	fontDistSampling = s;
 }
 
+//--------------------------------------------------------------
 void TextManager::changeMsgPositionX(int &x) {
 	msgPosition.x = x;
 }
 
+//--------------------------------------------------------------
 void TextManager::changeMsgPositionY(int &y) {
 	msgPosition.y = y;
 }
 
-
+//--------------------------------------------------------------
 void TextManager::changeFontSize(int &newSize) {
 	fontSize = newSize;
 	msgFont.load(msgFontName, fontSize, true, true, true);
 	birdFont.load(birdFontName, fontSize, true, true, true);
 }
 
+//--------------------------------------------------------------
 void TextManager::changeFontSpacing(int &newSpacing) {
 	fontSpacing = newSpacing;
 }
 
+//--------------------------------------------------------------
 void TextManager::update(){
     myLetter.update(birdmanager);
 }
 
-
+//--------------------------------------------------------------
 void TextManager::draw() {
 	//DRAW only the last letter shortly
 	
@@ -93,7 +99,12 @@ void TextManager::draw() {
 	{
         
         ofSetColor(ofColor::blue);
-			ofFill();
+        if(drawMsgFill){
+            ofFill();
+        }else{
+            ofNoFill();
+        }
+        
 
 			for (int i = 0 ; i<msgPaths.size() ; i++)
 			{
@@ -111,14 +122,17 @@ void TextManager::draw() {
 		
 }
 
+//--------------------------------------------------------------
 bool comparePointX(ofPoint &a, ofPoint &b) {
 	return a.x < b.x;
 }
 
+//--------------------------------------------------------------
 bool comparePointY(ofPoint &a, ofPoint &b) {
 	return a.y < b.y;
 }
 
+//--------------------------------------------------------------
 std::vector<ofPoint> reducePointsBy(std::vector<ofPoint> points, string sense, float minSpaceDistance) {
 	std::vector<ofPoint> result;
 	if (sense == "x") {
@@ -145,6 +159,7 @@ std::vector<ofPoint> reducePointsBy(std::vector<ofPoint> points, string sense, f
 	return result;
 }
 
+//--------------------------------------------------------------
 ofPolyline TextManager::createPolyline(int letter, ofVec2f letterPosition) {
 
 	ofPolyline simplePoly;
@@ -186,6 +201,7 @@ ofPolyline TextManager::createPolyline(int letter, ofVec2f letterPosition) {
 	return simplePoly;
 }
 
+//--------------------------------------------------------------
 ofPolyline TextManager::simplifyPolyline(ofPolyline input) {
 	ofPolyline simplifiedPoly;
 
@@ -210,13 +226,15 @@ ofPolyline TextManager::simplifyPolyline(ofPolyline input) {
     return simplifiedPoly;
 }
 
+//--------------------------------------------------------------
 void TextManager::addPathWithCustomSpacing(int letter, ofVec2f position){
     ofPath letterPath = msgFont.getCharacterAsPoints(letter);
     letterPath.translate(position);
     msgPaths.push_back(letterPath);
 }
 
-ofPath TextManager::createPathFromLetter( char letter, ofVec2f newLetterPosition){
+//--------------------------------------------------------------
+ofPath TextManager::createPathFromLetter( int letter, ofVec2f newLetterPosition){
     //NOT FILLED
     // permet de récuperer facilement un polyline avec la liste des points
     // Ne permet pas de bien déssiner le ofpath
@@ -227,7 +245,8 @@ ofPath TextManager::createPathFromLetter( char letter, ofVec2f newLetterPosition
     
 }
 
-ofPath TextManager::createFilledPathFromLetter(char letter, ofVec2f newLetterPosition){
+//--------------------------------------------------------------
+ofPath TextManager::createFilledPathFromLetter(int letter, ofVec2f newLetterPosition){
     // Ne permet pas de bien récuperer les polyline, mais permet de dessiner.
     ofPath lastLetter = msgFont.getCharacterAsPoints(letter, true , true);
     lastLetter.translate(newLetterPosition);
@@ -235,6 +254,23 @@ ofPath TextManager::createFilledPathFromLetter(char letter, ofVec2f newLetterPos
     
 }
 
+//--------------------------------------------------------------
+ofRectangle TextManager::getBoundingBoxOfPath(ofPath &path){
+    
+    ofRectangle rect;
+    for(int i = 0; i<path.getOutline().size(); i++){
+        ofRectangle b = path.getOutline().at(i).getBoundingBox();
+        if( i==0) rect = b;
+        else rect.growToInclude(b);
+    }
+    
+    return rect;
+    
+    
+    
+}
+
+//--------------------------------------------------------------
 vector<ofPolyline> TextManager::reduceDistanceSampling( ofPath path){
     //NOT FILLED
     // permet de récuperer facilement un polyline avec la liste des points
@@ -256,25 +292,34 @@ vector<ofPolyline> TextManager::reduceDistanceSampling( ofPath path){
 
 
 
-
+//--------------------------------------------------------------
 void TextManager::addLetter(int letter) {
     
 	//Calculate speed of writing
     if(msg.length()>0){
         float newspeed = 1.0f / (ofGetElapsedTimef() - timeOfLastLetter[msg.length()-1]) ;
         float valueToAdd = newspeed - writingSpeed;
-        writingSpeed = writingSpeed + 0.3 * valueToAdd;
+        writingSpeed = writingSpeed + 0.5 * valueToAdd;
+       // writingSpeed = newspeed;
+        
+        birdmanager->adaptativeFlyDuration = birdmanager->flyDuration * (( 1.0f / writingSpeed)/1.0f);
+        if(birdmanager->adaptativeFlyDuration>birdmanager->flyDuration ){
+            birdmanager->adaptativeFlyDuration = birdmanager->flyDuration;
+        }
+    
+        
         
     }
     
     
     int prevMsgLength = ofUTF8Length(msg);
     if(letter==13){
-        // BACKSPACE
+        // RETOUR A LA LIGNE
         nextLetterPosition.y = nextLetterPosition.y + fontSize;
         nextLetterPosition.x = msgPosition.x;
 
     }else{
+        // LETTRE NORMALE
         
         if (prevMsgLength < MAX_LETTER)
         {
@@ -289,15 +334,23 @@ void TextManager::addLetter(int letter) {
             ofPath pathLetterToBird, pathLetterToDraw;
             
             if (msgFont.isLoaded()) {
-                pathLetterToBird = createPathFromLetter(msg.back(), nextLetterPosition);
-                pathLetterToDraw = createFilledPathFromLetter(msg.back(), nextLetterPosition);
+                pathLetterToBird = createPathFromLetter(letter, nextLetterPosition);
+                pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
             }
             else {
                 ofLog(OF_LOG_ERROR) << "No message font on the system!";
             }
             
             // Change the next letter position 1 character
-            nextLetterPosition.x = nextLetterPosition.x + fontSpacing;
+            if(letter != 32){
+                ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
+                nextLetterPosition.x = nextLetterPosition.x + rectOfLetter.width;
+            }else{
+                //SPACE
+                nextLetterPosition.x = nextLetterPosition.x + fontSpacing;
+                
+            }
+            
             
             
             // Add bird polyline by polyline
@@ -323,11 +376,13 @@ void TextManager::addLetter(int letter) {
                     ofVec2f centroid = bigLetterPolyline.getCentroid2D();
                     ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
                     translation =  ofVec2f(w/2, h/2) - centroid;
-                    translation.x -= boudingBox.width/4 + ofRandom(200, 200);
+                    translation.x -= -200 + ofRandom(-600, 600); // RANDOMISATION DE LA POSITION
                     translation.y +=  ofRandom(-200, 200);
+                    
                     
                 }
                 bigLetterPolyline.translate(translation);
+                //TODO : add writing speed in argument to ajust fly duration.
                 int niche = birdmanager->addBirdFromPolyline(listOfPolyline[i],bigLetterPolyline);
                 listOfNiche.push_back(niche);
                 listOfBigPolyline.push_back(bigLetterPolyline);
@@ -340,8 +395,8 @@ void TextManager::addLetter(int letter) {
             
             
             //Check time from the added letter
-            if(msgPaths.size()>0){
-                timeOfLastLetter[msgPaths.size() - 1] = ofGetElapsedTimef();
+            if(msg.size()>0){
+                timeOfLastLetter[msg.size() - 1] = ofGetElapsedTimef();
             }
             
             
@@ -368,6 +423,7 @@ void TextManager::addLetter(int letter) {
 }
 
 
+//--------------------------------------------------------------
 void TextManager::clear(){
     msg = "";
     msgPolys.clear();

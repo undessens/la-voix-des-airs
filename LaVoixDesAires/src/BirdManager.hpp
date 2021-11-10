@@ -29,7 +29,7 @@ public:
                 int screenH
                 );
     void setup();
-    void update(string msg);
+    void update(string msg, ofFbo* fbo);
     void draw();
     void drawDebug();
 	void drawModel(vector<Bird>::iterator i);
@@ -69,6 +69,7 @@ public:
     ofParameter<int> debugScale;
     ofParameter<int> nbBird;
     ofParameter<int> size;
+    ofParameter<float> birdLineWidth;
 
     ofParameter<float> stiffness;
     ofParameter<float> damping;
@@ -79,6 +80,7 @@ public:
     ofParameter<float> maxSpeed;
     ofParameter<float> maxForce;
     ofParameter<int> flyDuration;
+    ofParameter<int> adaptativeFlyDuration;
 	ofParameter<bool> attractionActive;
 	ofParameter<float> attractionFrequence;
 	ofParameter<int> attractionRadius;

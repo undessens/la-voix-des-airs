@@ -12,11 +12,12 @@
 #include "ofxAssimpModelLoader.h"
 #include <stdio.h>
 
-#define BIRD_FREE 0
-#define BIRD_GOTOTARGET 1
-#define BIRD_TARGETJOINED 2
-#define BIRD_DIEONBORDER 3
-#define BIRD_DIE 4
+#define BIRD_WAITING 0
+#define BIRD_FREE 1
+#define BIRD_GOTOTARGET 2
+#define BIRD_TARGETJOINED 3
+#define BIRD_DIEONBORDER 4
+#define BIRD_DIE 5
 #define LETTERS_ADDED_ON_FLY 2
 
 class Bird

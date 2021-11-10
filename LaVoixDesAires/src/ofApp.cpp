@@ -4,6 +4,8 @@
 int const ofApp::fps = 35;
 //--------------------------------------------------------------
 void ofApp::setup() {
+    
+    ofSetWindowTitle("La Voix des Airs");
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
@@ -29,7 +31,7 @@ void ofApp::setup() {
     
     //Global parameter
     pg.setName("main");
-    pg.add(color.set("color",ofColor::darkGray));
+    pg.add(color.set("color",ofColor(0, 0, 10)));
     pg.add(frameRate.set("frameRate", 35, 0, 50));
     pg.add(debug.set("debug", false));
     pg.add(fakeCursor.set("Fake cursor", false));
@@ -56,6 +58,10 @@ void ofApp::setup() {
 
 	//fbo allocation
 	fbo.allocate(final_w, final_h, GL_RGBA);
+    fboLetter.allocate(final_w, final_h, GL_RGBA);
+    fboLetter.begin();
+    ofClear(0,0,0,0);
+    fboLetter.end();
     
 
 	// OSC receiver
@@ -71,13 +77,16 @@ void ofApp::setup() {
 #if defined(_WIN32)
 	sender.init("My_Lovely_Birds");
 #endif
+#if defined(__APPLE__)
+    //syphonServer.init  // INIT NEED ?
+#endif
     
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	birdManager->update( textManager->msg);
+	birdManager->update( textManager->msg, &fboLetter);
     textManager->update();
     
     //Force attraction quickly after new letter
@@ -93,10 +102,7 @@ void ofApp::update() {
 	}
 	
 
-    //SPOUT windows only
-#if defined(_WIN32)
-    sender.send(fbo.getTexture());
-#endif
+
 	
 	while (osc_receiver.hasWaitingMessages()) {
 		ofxOscMessage m; 
@@ -105,7 +111,7 @@ void ofApp::update() {
 			letter = m.getArgAsInt32(0);
 			ofLog() << "message : " << letter; 
 			if (letter == '\n') {
-				textManager->clear();
+                textManager->addLetter(13);
 			}
 			else {
 				textManager->addLetter(letter);
@@ -125,6 +131,10 @@ void ofApp::draw() {
 
 		ofBackground(color);
 		ofSetVerticalSync(true);
+    
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        fboLetter.draw(0, 0);
+        ofDisableBlendMode();
 
 		//DRAW STATIC BIRD
 	//    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
@@ -168,11 +178,11 @@ void ofApp::draw() {
 
         // Text Manager
         textManager->draw();
+    
+
 
 		// BIRD MANAGER - over text
 		birdManager->draw();
-    
-
     
 
 		// DISABLE LIGHT
@@ -214,7 +224,6 @@ void ofApp::draw() {
 
 		if (debug) {
             ofSetColor(255);
-            ofDrawCircle(final_w/2, final_h/2, 200);
 			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() - 10);
             ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(textManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
 
@@ -229,6 +238,15 @@ void ofApp::draw() {
     fbo.draw(200, 50, 1280, 800 );
     
     
+    //SPOUT windows only
+#if defined(_WIN32)
+    sender.send(fbo.getTexture());
+#endif
+#if defined(__APPLE__)
+    syphonServer.publishTexture(&fbo.getTexture());
+#endif
+    
+    
     //GUI
 	if (isGuiVisible) {
 		gui.draw();
@@ -238,16 +256,30 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
+void ofApp::clear_all(){
+    textManager->clear();
+    fboLetter.begin();
+    ofClear(0, 0, 0);
+    fboLetter.end();
+    
+}
+
+
+
+//--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
     ofLog() << "Key code from keyboard : " << key;
     
 	cout << ofToString(key);
 	if(key == 8){
         // Clear when backspace  received
-        textManager->clear();
+        clear_all();
     } else if( key>31 && key < 128){
         // Only draw ASCII extended code
        textManager->addLetter(key);
+    }else if(key== 232 || key == 233){
+        // char "Ž" & ""
+        textManager->addLetter(key);
 	}else if(key == 3680 || key== 1 ||key == 3681) {
 		//Maj DO NOTHING
 	}
