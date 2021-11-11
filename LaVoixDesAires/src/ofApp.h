@@ -55,7 +55,6 @@ class ofApp : public ofBaseApp{
         ofParameter<bool> lightBottomEnable;
         ofParameter<bool> lightBottomDirectionnal;
         ofParameter<ofColor> lightTopColor;
-        ofParameter<int> clear;
 
     
 		//Lighting

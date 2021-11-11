@@ -343,55 +343,67 @@ void TextManager::addLetter(int letter) {
             
             // Change the next letter position 1 character
             if(letter != 32){
+                //NORMAL LETTER
+                
                 ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
                 nextLetterPosition.x = nextLetterPosition.x + rectOfLetter.width;
+                
+                
+                // Add bird polyline by polyline
+                /*
+                 Plusieurs étape. On créé déja le path, puis on utilise reduceDistanceSampling pour limiter le nombre de point.
+                 On le transforme en vector<ofPolyline> car trop dur de modifier directement le ofpath
+                 Ensuite pour chaque polyline, on récréé un "BIG" polyline, destiné au lettrage, mais avec le meme nombre de point.
+                 
+                 */
+                
+                
+                
+                vector<int> listOfNiche;
+                vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird);
+                ofPolyline bigLetterPolyline;
+                vector<ofPolyline> listOfBigPolyline;
+                ofVec2f translation;
+                
+                for(int i=0; i<listOfPolyline.size(); i++){
+                    bigLetterPolyline = listOfPolyline[i];
+                    bigLetterPolyline.scale(zoomBigLetter, zoomBigLetter);
+                    if(i==0){
+                        ofVec2f centroid = bigLetterPolyline.getCentroid2D();
+                        ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
+                        translation =  ofVec2f(w/2, h/2) - centroid;
+                        translation.x -= -200 + ofRandom(-600, 600); // RANDOMISATION DE LA POSITION
+                        translation.y +=  ofRandom(-200, 200);
+                        
+                        
+                    }
+                    bigLetterPolyline.translate(translation);
+                    //TODO : add writing speed in argument to ajust fly duration.
+                    int niche = birdmanager->addBirdFromPolyline(listOfPolyline[i],bigLetterPolyline);
+                    listOfNiche.push_back(niche);
+                    listOfBigPolyline.push_back(bigLetterPolyline);
+                }
+                
+                // NOT AN ERROR . PathLetterToDraw does not have Outline>0 . So it's easier to user pathLetterToBird instead.
+                if(pathLetterToBird.getOutline().size()>0){
+                    msgPaths.push_back(pathLetterToDraw);
+                }
+                
+                 myLetter =  Letter(letter, listOfBigPolyline, listOfNiche );
+                
+                
+                
+                
+                
+                
             }else{
-                //SPACE
+                //SPACE LETTER
                 nextLetterPosition.x = nextLetterPosition.x + fontSpacing;
                 
             }
             
             
-            
-            // Add bird polyline by polyline
-            /*
-             Plusieurs étape. On créé déja le path, puis on utilise reduceDistanceSampling pour limiter le nombre de point.
-             On le transforme en vector<ofPolyline> car trop dur de modifier directement le ofpath
-             Ensuite pour chaque polyline, on récréé un "BIG" polyline, destiné au lettrage, mais avec le meme nombre de point.
-             
-             */
-            
-            
-            
-            vector<int> listOfNiche;
-            vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird);
-            ofPolyline bigLetterPolyline;
-            vector<ofPolyline> listOfBigPolyline;
-            ofVec2f translation;
-            
-            for(int i=0; i<listOfPolyline.size(); i++){
-                bigLetterPolyline = listOfPolyline[i];
-                bigLetterPolyline.scale(zoomBigLetter, zoomBigLetter);
-                if(i==0){
-                    ofVec2f centroid = bigLetterPolyline.getCentroid2D();
-                    ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
-                    translation =  ofVec2f(w/2, h/2) - centroid;
-                    translation.x -= -200 + ofRandom(-600, 600); // RANDOMISATION DE LA POSITION
-                    translation.y +=  ofRandom(-200, 200);
-                    
-                    
-                }
-                bigLetterPolyline.translate(translation);
-                //TODO : add writing speed in argument to ajust fly duration.
-                int niche = birdmanager->addBirdFromPolyline(listOfPolyline[i],bigLetterPolyline);
-                listOfNiche.push_back(niche);
-                listOfBigPolyline.push_back(bigLetterPolyline);
-            }
-            
-            // NOT AN ERROR . PathLetterToDraw does not have Outline>0 . So it's easier to user pathLetterToBird instead.
-            if(pathLetterToBird.getOutline().size()>0){
-               msgPaths.push_back(pathLetterToDraw);
-            }
+ 
             
             
             //Check time from the added letter
@@ -413,7 +425,7 @@ void TextManager::addLetter(int letter) {
              */
             
             
-            myLetter =  Letter(letter, listOfBigPolyline, listOfNiche );
+           
             
         }
         

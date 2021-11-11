@@ -31,7 +31,6 @@ void ofApp::setup() {
     
     //Global parameter
     pg.setName("main");
-    pg.add(clear.set("clear_all", 1, 0, 1));
     pg.add(color.set("color",ofColor(0, 0, 10)));
     pg.add(frameRate.set("frameRate", 35, 0, 50));
     pg.add(debug.set("debug", false));
@@ -65,7 +64,7 @@ void ofApp::setup() {
     fboLetter.end();
     
     // WARPER
-    warper.setup(0, 100, ofGetWidth(), ofGetHeight());
+    warper.setup(0, 20, final_w, final_h);
     warper.deactivate();
     
 	// OSC receiver
@@ -90,10 +89,6 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 
-    if(clear>0){
-        clear_all();
-        clear = 0;
-    }
     
     birdManager->update( textManager->msg, &fboLetter);
     textManager->update();
@@ -123,6 +118,55 @@ void ofApp::update() {
 			}
 			
 		}
+        else if(m.getAddress() == "/background"){
+            int r = m.getArgAsFloat(0);
+            int g = m.getArgAsFloat(1);
+            int b = m.getArgAsFloat(2);
+            color = ofColor(r,g,b);
+        }else if(m.getAddress() == "/light"){
+            int r = m.getArgAsFloat(0);
+            int g = m.getArgAsFloat(1);
+            int b = m.getArgAsFloat(2);
+            lightTopColor = ofColor(r,g,b);
+        }
+        else if(m.getAddress() == "/showwarper"){
+            int show = m.getArgAsInt(0);
+            if(show==1) warper.activate();
+            else warper.deactivate();
+        }
+        else if(m.getAddress() == "/showgui"){
+            int show = m.getArgAsInt(0);
+            if(show==1) isGuiVisible = true;
+            else isGuiVisible = false;
+        }
+        else if(m.getAddress() == "/clear"){
+            clear_all();
+        }else if(m.getAddress() == "/bird/size"){
+            birdManager->size = m.getArgAsInt32(0);
+        }else if(m.getAddress() == "/bird/duration"){
+            birdManager->flyDuration = m.getArgAsInt32(0);
+        }else if(m.getAddress() == "/bird/line"){
+            birdManager->birdLineWidth = m.getArgAsFloat(0);
+        }
+        else if(m.getAddress() == "/warper/topleft"){
+            int x = m.getArgAsFloat(0)*final_w;
+            int y = m.getArgAsFloat(1)*final_h;
+            warper.setCorner(warper.TOP_LEFT, x, y);
+        } else if(m.getAddress() == "/warper/topright"){
+            int x = m.getArgAsFloat(0)*final_w;
+            int y = m.getArgAsFloat(1)*final_h;
+            warper.setCorner(warper.TOP_RIGHT, x, y);
+        } else if(m.getAddress() == "/warper/bottomleft"){
+            int x = m.getArgAsFloat(0)*final_w;
+            int y = m.getArgAsFloat(1)*final_h;
+            warper.setCorner(warper.BOTTOM_LEFT, x, y);
+        } else if(m.getAddress() == "/warper/bottomright"){
+            int x = m.getArgAsFloat(0)*final_w;
+            int y = m.getArgAsFloat(1)*final_h;
+            warper.setCorner(warper.BOTTOM_RIGHT, x, y);
+        }
+        
+
 	}
     
     frameRate = ofGetFrameRate();
@@ -243,7 +287,10 @@ void ofApp::draw() {
     
     warper.begin();
     ofSetColor(255);
-    fbo.draw(0, 0 , ofGetWidth(), ofGetHeight());
+    fbo.draw(0, 0);
+    if (warper.isActive()) {
+        warper.draw();
+    }
     warper.end();
     
     
@@ -268,7 +315,7 @@ void ofApp::draw() {
 void ofApp::clear_all(){
     textManager->clear();
     fboLetter.begin();
-    ofClear(0, 0, 0);
+    ofClear(0, 0, 0, 0);
     fboLetter.end();
     
 }
