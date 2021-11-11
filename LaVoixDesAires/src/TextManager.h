@@ -51,10 +51,6 @@ public:
 	float timeOfLastLetter[MAX_LETTER];
     float writingSpeed; // Change fly duration according to writing speed
 	
-    //Polyline
-    // Suppression de ceci, qui n'a plus lieu d'être
-    // TODO DELETE
-    std::vector<ofPolyline> msgPolys;
     
     // Ici, un ofPath par lettre, donnés dans le position finale.
     std::vector<ofPath> msgPaths;

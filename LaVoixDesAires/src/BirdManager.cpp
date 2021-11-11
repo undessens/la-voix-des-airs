@@ -202,10 +202,9 @@ void BirdManager::draw(){
 		
 
         //Draw line between Neighbour - letter - not used anymore
-           if(it->pos.distance(it->neighbourLeft->pos) <300  && !it->isInvicible)
+           if(it->pos.distance(it->neighbourLeft->pos) <30  && !it->isInvicible && it->state!=BIRD_FREE)
            {
               ofSetColor(255);
-            
               ofSetLineWidth(birdLineWidth);
               ofDrawLine(it->pos,it->neighbourLeft->pos);
          }

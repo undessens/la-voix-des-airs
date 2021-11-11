@@ -26,7 +26,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
 //    birdFont.load(, fontSize, true, true, true);
     birdmanager = b;
-    msgPolys.clear();
+
     
     
     gFontSize.addListener(this, &TextManager::changeFontSize);
@@ -438,7 +438,7 @@ void TextManager::addLetter(int letter) {
 //--------------------------------------------------------------
 void TextManager::clear(){
     msg = "";
-    msgPolys.clear();
+
     msgPaths.clear();
     nextLetterPosition = msgPosition;
     
