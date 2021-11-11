@@ -58,7 +58,7 @@ void BirdManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 40, 2, 100));
+    pg->add(size.set("size", 88, 2, 150));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     
     
@@ -68,7 +68,7 @@ void BirdManager::setup(){
 	pg->add(alignment.set("alignment",0.1, 0, 1));
     pg->add(targetAttraction.set("target att", 5.1,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
-    pg->add(maxForce.set("max force", 2, 0.001, 2));
+    pg->add(maxForce.set("max force", 0.6, 0.001, 2));
     pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
     pg->add(flyDuration.set("fly duration", 300, 0, 400));

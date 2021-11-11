@@ -315,7 +315,7 @@ void TextManager::addLetter(int letter) {
     int prevMsgLength = ofUTF8Length(msg);
     if(letter==13){
         // RETOUR A LA LIGNE
-        nextLetterPosition.y = nextLetterPosition.y + fontSize;
+        nextLetterPosition.y = nextLetterPosition.y + fontSize + 30;
         nextLetterPosition.x = msgPosition.x;
 
     }else{

@@ -243,7 +243,7 @@ void ofApp::draw() {
     
     warper.begin();
     ofSetColor(255);
-    fbo.draw(0, 0 );
+    fbo.draw(0, 0 , ofGetWidth(), ofGetHeight());
     warper.end();
     
     

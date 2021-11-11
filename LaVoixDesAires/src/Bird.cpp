@@ -260,7 +260,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             tar.limit(maxForce);
             applyForce(tar);
             if(size>finalSize){
-                size -=0.12;
+                size -=0.30;
             }
             if(maxSpeed > 0.01  ){
                 //maxSpeed -= 0.0003;
