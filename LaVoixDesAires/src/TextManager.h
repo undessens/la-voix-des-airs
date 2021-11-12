@@ -3,6 +3,7 @@
 #include "BirdManager.hpp"
 #include "Letter.hpp"
 #define MAX_LETTER 300
+#define MAX_LETTER_PER_LINE 44
 
 class TextManager
 {
@@ -46,6 +47,7 @@ public:
     
     
     string msg;
+    int currentLineCharacter;
     ofPoint msgPosition;
     ofPoint nextLetterPosition;
 	float timeOfLastLetter[MAX_LETTER];

@@ -8,6 +8,7 @@ TextManager::TextManager()
 TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
+    currentLineCharacter = 0;
     msgPosition = ofPoint(50, 300);
     nextLetterPosition = msgPosition;
     
@@ -317,16 +318,18 @@ void TextManager::addLetter(int letter) {
         // RETOUR A LA LIGNE
         nextLetterPosition.y = nextLetterPosition.y + fontSize + 30;
         nextLetterPosition.x = msgPosition.x;
+        currentLineCharacter = 0;
 
     }else{
         // LETTRE NORMALE
         
-        if (prevMsgLength < MAX_LETTER)
+        if (prevMsgLength < MAX_LETTER && currentLineCharacter <= MAX_LETTER_PER_LINE)
         {
             
             
             string newLetter = ofUTF8ToString(letter);
             msg += newLetter;
+            currentLineCharacter++;
             
             ofLog() << "New letter received: " << newLetter;
             ofLog() << "New message size:" << prevMsgLength + 1;
@@ -438,6 +441,7 @@ void TextManager::addLetter(int letter) {
 //--------------------------------------------------------------
 void TextManager::clear(){
     msg = "";
+    currentLineCharacter = 0;
 
     msgPaths.clear();
     nextLetterPosition = msgPosition;
