@@ -9,8 +9,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1280;
-    final_h = 1800;
+    final_w = 1920;
+    final_h = 1080;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -64,7 +64,7 @@ void ofApp::setup() {
     fboLetter.end();
     
     // WARPER
-    warper.setup(0, 20, final_w, final_h);
+    warper.setup(0, 20, final_w*0.8, final_h*0.8);
     warper.deactivate();
     
 	// OSC receiver
