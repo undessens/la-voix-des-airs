@@ -19,7 +19,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 //    top-left x:219, y:282
 //    down-right x:1207, y:349 ==> ~900
     fontSpacing = 23;
-    fontSize= 45;
+    fontSize= 58;
     fontDistSampling = 7.0;
     changeFontSize(fontSize);
     

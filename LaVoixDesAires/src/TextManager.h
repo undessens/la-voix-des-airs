@@ -38,10 +38,10 @@ public:
     ofTrueTypeFont msgFont ;
     ofTrueTypeFont birdFont;
     //string msgFontName = "Raleway-Medium.ttf";
-    string msgFontName = "typo-writer.otf";
-
-   //string birdFontName = "Raleway-Dots.ttf";
-    string birdFontName = "typo-writer.otf";
+   // string msgFontName = "typo-writer.otf";
+    //string birdFontName = "typo-writer.otf";
+    string msgFontName = "atwriter.ttf";
+    string birdFontName = "atwriter.ttf";
     
     int w, h;
     

@@ -9,8 +9,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1920;
-    final_h = 1080;
+    final_w = 1280;
+    final_h = 1800;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -112,7 +112,13 @@ void ofApp::update() {
 			ofLog() << "message : " << letter; 
 			if (letter == '\n') {
                 textManager->addLetter(13);
-			}
+			} else if( letter==224){
+            // Only draw ASCII extended code
+            textManager->addLetter(97);
+        }  else if(letter== 232 || letter== 233){
+            // char "Ž" & ""
+            textManager->addLetter(101);
+        }
 			else {
 				textManager->addLetter(letter);
 			}
@@ -333,22 +339,24 @@ void ofApp::keyPressed(int key) {
     } else if( key>31 && key < 128){
         // Only draw ASCII extended code
        textManager->addLetter(key);
-    }else if(key== 232 || key == 233){
+    } else if( key==224){
+        // Only draw ASCII extended code
+        textManager->addLetter(97);
+    }  else if(key== 232 || key == 233){
         // char "Ž" & ""
-        textManager->addLetter(key);
-	}else if(key == 3680 || key== 1 ||key == 3681) {
-		//Maj DO NOTHING
-	}
-	else  if (key == 3682) {
+        textManager->addLetter(101);
+	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
+		//Maj  CMD , DO NOTHING
+        return;
+	}else if(key == 3682) {
 		//CTRL - undraw GUI
 		isGuiVisible = !isGuiVisible;
 
-    } else if ( key == 4){
+    }else if ( key == 4){
         // ALT
         if(warper.isActive())warper.deactivate();
         else warper.activate();
-        
-    }else	{
+    }else{
 		
         //13 entree
 		//ù 249
