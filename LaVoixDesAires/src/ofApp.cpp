@@ -64,7 +64,7 @@ void ofApp::setup() {
     fboLetter.end();
     
     // WARPER
-    warper.setup(0, 20, final_w*0.8, final_h*0.8);
+    warper.setup(0, 0, final_w*0.99, final_h*0.99);
     warper.deactivate();
     
 	// OSC receiver
@@ -115,10 +115,12 @@ void ofApp::update() {
 			} else if( letter==224){
             // Only draw ASCII extended code
             textManager->addLetter(97);
-        }  else if(letter== 232 || letter== 233){
+            }  else if(letter== 232 || letter== 233){
             // char "" & ""
             textManager->addLetter(101);
-        }
+            } else if(letter =='#'){
+                clear_all();
+            }
 			else {
 				textManager->addLetter(letter);
 			}

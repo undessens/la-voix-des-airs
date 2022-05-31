@@ -9,7 +9,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
     currentLineCharacter = 0;
-    msgPosition = ofPoint(50, 300);
+    msgPosition = ofPoint(50, 100);
     nextLetterPosition = msgPosition;
     
     w = _w;
@@ -45,7 +45,7 @@ TextManager::TextManager(BirdManager* b, ofParameterGroup* _pg, int _w, int _h)
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
-    pg->add(zoomBigLetter.set("zoom big letter", 20 , 1, 40));
+    pg->add(zoomBigLetter.set("zoom big letter", 13 , 1, 40));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
 
 	for (int i = 0; i < MAX_LETTER; i++) {
@@ -375,7 +375,7 @@ void TextManager::addLetter(int letter) {
                         ofVec2f centroid = bigLetterPolyline.getCentroid2D();
                         ofRectangle boudingBox = bigLetterPolyline.getBoundingBox();
                         translation =  ofVec2f(w/2, h/2) - centroid;
-                        translation.x -= -200 + ofRandom(-600, 600); // RANDOMISATION DE LA POSITION
+                        translation.x -= 150 +ofRandom(- w/3, w/3); // RANDOMISATION DE LA POSITION
                         translation.y +=  ofRandom(-200, 200);
                         
                         
