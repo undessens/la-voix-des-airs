@@ -5,3 +5,6 @@ LaVoixDesAires/*
 .DS_Store
 .com.apple.timemachine.supported
 LaVoixDesAires/src/.vs/
+LaVoixDesAires/LaVoixDesAires.xcodeproj/*
+*.pbxproj
+*.xcuserstate
