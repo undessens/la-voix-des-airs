@@ -1,14 +1,15 @@
 #pragma once
 
 #include "ofMain.h"
-#include "BirdManager.hpp"
+#include "LetterManager.hpp"
+#include "NicheManager.hpp"
 #include "Bird.hpp"
 #include "Centroid.hpp"
 #include "TrajectoryPlayer.hpp"
 #include "PolyBackground.hpp"
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
-#include "TextManager.h"
+
 #include "ofxGLWarper.h"
 #if defined(_WIN32)
 #include "ofxSpout.h"
@@ -26,19 +27,19 @@ class ofApp : public ofBaseApp{
 		void draw();
         void clear_all();
     
-        BirdManager* birdManager;
+        NicheManager* nicheManager;
         PolyBackground* polyBackground;
-		TextManager* textManager;
+		LetterManager* letterManager;
     
     
         //GUI
         ofxPanel gui;
         ofxOscParameterSync sync;
         ofParameterGroup pg;
-        ofParameterGroup pg_birdManager;
-        ofParameterGroup pg_polyBackground;
-        ofParameterGroup pg_trajectoryPlayer;
-        ofParameterGroup pg_textManager;
+        ofParameterGroup pg_nicheManager;
+        //ofParameterGroup pg_polyBackground; // not used
+       //ofParameterGroup pg_trajectoryPlayer; // NOT USED
+        ofParameterGroup pg_letterManager;
 		bool isGuiVisible;
     
         //Parameters of main program

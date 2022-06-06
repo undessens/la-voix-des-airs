@@ -2,15 +2,18 @@
 //  Letter.hpp
 //  LaVoixDesAires
 //
-//  Created by Admin Mac on 31/10/2021.
+//  Created by Admin Mac on 31/05/2022.
 //
 
 #ifndef Letter_hpp
 #define Letter_hpp
 
 #include <stdio.h>
+#include "Niche.hpp"
 #include "ofMain.h"
-#include "BirdManager.hpp"
+#include "BigLetter.hpp"
+//#include "LetterManager.hpp"
+#include "NicheManager.hpp"
 
 class Letter
 {
@@ -18,22 +21,27 @@ class Letter
 public:
     
     Letter();
-    Letter(char text_letter, vector<ofPolyline> p, vector<int> n);
+    Letter(char _c, ofVec2f p, vector<ofPolyline> liste, NicheManager* nicheManager, int w, int h);
     
-    void init();
-    void update(BirdManager*);
-    void drawBasic(float zoom, int alpha);
-    void drawDebug();
+    enum class StateOfLetter { BIG_LETTER = 1, FLYING, SMALL_LETTER , NONE};
+    StateOfLetter state;
     
-    int iteration;
-    int iterationMax;
+    vector<Niche> listOfNiche;
+    ofVec2f positionSmallLetter;
+    ofVec2f positionBigLetter;
+    void update();
+    void draw();
+    void drawLetter();
+    void drawBirds();
+    char c;
+    int w;
+    int h;
     
-    std::vector<ofPolyline> listOfPolyline;
-    std::vector<int> listOfNiche;
-    uint32_t text_letter;
-    bool associatedToBirds;
     
-
+private:
+    BigLetter bigLetter;
+    NicheManager* nicheManager;
+    vector<ofPolyline> listOfPolyline;
     
     
 };

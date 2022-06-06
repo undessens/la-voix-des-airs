@@ -9,25 +9,28 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1920;
-    final_h = 1080;
+    final_w = 1280;
+    final_h = 720;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
     ofSetFrameRate(ofApp::fps);
 
 	// Background Image, ofPolyline ...
-	polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);
+	//polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);  // Polybackground, not really used
 
 	// OSC, Gui parameters
-	pg_birdManager.setName("birdmanager");
+	pg_nicheManager.setName("birdmanager");
 
 	//BirdManager
-	birdManager = new BirdManager(polyBackground, &pg_birdManager, final_w, final_h, ofGetWidth(), ofGetHeight());
-	birdManager->createInvicibleArmy();
+
+	nicheManager = new NicheManager( &pg_nicheManager, final_w, final_h, ofGetWidth(), ofGetHeight());
+    
+    // INVICIBLE ARMY : add this ...
+    //nicheManager->createInvicibleArmy();
 
     // Text Manager
-    textManager = new TextManager(birdManager, &pg_textManager, final_w , final_h);
+    letterManager = new LetterManager(nicheManager, &pg_letterManager, final_w , final_h);
     
     //Global parameter
     pg.setName("main");
@@ -47,9 +50,9 @@ void ofApp::setup() {
     
     // Adding all parameter to GUI
     gui.setup(pg);
-    gui.add(pg_birdManager);
+    gui.add(pg_nicheManager);
     //gui.add(pg_polyBackground);
-    gui.add(pg_textManager);
+    gui.add(pg_letterManager);
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
 	isGuiVisible = true;
 
@@ -90,14 +93,15 @@ void ofApp::setup() {
 void ofApp::update() {
 
     
-    birdManager->update( textManager->msg, &fboLetter);
-    textManager->update();
+    //birdManager->update( textManager->msg, &fboLetter);
+    
+    letterManager->update();
     
     //Force attraction quickly after new letter
-    float timeSpendFromLastLetter = ofGetElapsedTimef() - textManager->timeOfLastLetter[textManager->msg.size()-1];
-    if( timeSpendFromLastLetter < 1.2f && !birdManager->attractionActive  ){
-        birdManager->attractionActive = true;
-    }
+//    float timeSpendFromLastLetter = ofGetElapsedTimef() - textManager->timeOfLastLetter[textManager->msg.size()-1];
+//    if( timeSpendFromLastLetter < 1.2f && !birdManager->attractionActive  ){
+//        birdManager->attractionActive = true;
+//    }
     
 
 
@@ -111,18 +115,18 @@ void ofApp::update() {
 			letter = m.getArgAsInt32(0);
 			ofLog() << "message : " << letter; 
 			if (letter == '\n') {
-                textManager->addLetter(13);
+                letterManager->addLetter(13);
 			} else if( letter==224){
             // Only draw ASCII extended code
-            textManager->addLetter(97);
+                letterManager->addLetter(97);
             }  else if(letter== 232 || letter== 233){
             // char "Ž" & ""
-            textManager->addLetter(101);
+                letterManager->addLetter(101);
             } else if(letter =='#'){
                 clear_all();
             }
 			else {
-				textManager->addLetter(letter);
+				letterManager->addLetter(letter);
 			}
 			
 		}
@@ -150,11 +154,11 @@ void ofApp::update() {
         else if(m.getAddress() == "/clear"){
             clear_all();
         }else if(m.getAddress() == "/bird/size"){
-            birdManager->size = m.getArgAsInt32(0);
+            nicheManager->size = m.getArgAsInt32(0);
         }else if(m.getAddress() == "/bird/duration"){
-            birdManager->flyDuration = m.getArgAsInt32(0);
+            nicheManager->flyDuration = m.getArgAsInt32(0);
         }else if(m.getAddress() == "/bird/line"){
-            birdManager->birdLineWidth = m.getArgAsFloat(0);
+            nicheManager->birdLineWidth = m.getArgAsFloat(0);
         }
         else if(m.getAddress() == "/warper/topleft"){
             int x = m.getArgAsFloat(0)*final_w;
@@ -183,22 +187,22 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
     
-         ofBackground(0);
+     ofBackground(0);
 
-		//DRAW ON FBO
-		fbo.begin();
+    //DRAW ON FBO
+    fbo.begin();
 
-		ofBackground(color);
-		ofSetVerticalSync(true);
+    ofBackground(color);
+    ofSetVerticalSync(true);
+
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-        fboLetter.draw(0, 0);
-        ofDisableBlendMode();
+    letterManager->drawLetter();
+    
+    ofDisableBlendMode();
+    
+    
 
-		//DRAW STATIC BIRD
-	//    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	//    fboStatic.draw(0,0);
-	//    ofDisableBlendMode();
 
 		// DRAW ACCORDING TO Z DEPTH and not code order
 		ofEnableDepthTest();
@@ -236,35 +240,31 @@ void ofApp::draw() {
 		
 
         // Text Manager
-        textManager->draw();
+        letterManager->drawBirds();
     
-
-
-		// BIRD MANAGER - over text
-		birdManager->draw();
-    
-
 		// DISABLE LIGHT
 		ofDisableDepthTest();
 		ofDisableLighting();
 
 		// BIRD MANAGER DEBUG
+     
+        
+    
 		ofSetColor(255);
-		birdManager->drawDebug();
+		//letterManager->drawDebug();
 
-		
-
-		
 
 		// Polybackground - draw center of point as a circle
-		polyBackground->draw();
-		//Polybackground - draw the pencil mode
-		if (polyBackground->isPencil)
-		{
-			polyBackground->pencilOnFbo();
-			ofSetColor(255);
-			polyBackground->fbo.draw(0, 0);
-		}
+		//polyBackground->draw();
+		
+    
+        //Polybackground - draw the pencil mode
+//        if (polyBackground->isPencil)
+//        {
+//            polyBackground->pencilOnFbo();
+//            ofSetColor(255);
+//            polyBackground->fbo.draw(0, 0);
+//        }
 
 		// Fake cursor
 		if (fakeCursor) {
@@ -284,7 +284,7 @@ void ofApp::draw() {
 		if (debug) {
             ofSetColor(255);
 			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() - 10);
-            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(textManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
+            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
 
 		}
 
@@ -293,13 +293,13 @@ void ofApp::draw() {
 
     //DRAW FBO ON SCREEN THROUGH WARPER
     
-    warper.begin();
-    ofSetColor(255);
-    fbo.draw(0, 0);
-    if (warper.isActive()) {
-        warper.draw();
-    }
-    warper.end();
+//    warper.begin();
+//    ofSetColor(255);
+        fbo.draw(0, 0);
+//    if (warper.isActive()) {
+//        warper.draw();
+//    }
+//    warper.end();
     
     
     //SPOUT windows only
@@ -321,10 +321,13 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::clear_all(){
-    textManager->clear();
-    fboLetter.begin();
-    ofClear(0, 0, 0, 0);
-    fboLetter.end();
+    
+    
+    letterManager->clear();
+    //TODO : is fbo letter still used ???
+//    fboLetter.begin();
+//    ofClear(0, 0, 0, 0);
+//    fboLetter.end();
     
 }
 
@@ -340,13 +343,13 @@ void ofApp::keyPressed(int key) {
         clear_all();
     } else if( key>31 && key < 128){
         // Only draw ASCII extended code
-       textManager->addLetter(key);
+       letterManager->addLetter(key);
     } else if( key==224){
         // Only draw ASCII extended code
-        textManager->addLetter(97);
+        letterManager->addLetter(97);
     }  else if(key== 232 || key == 233){
         // char "Ž" & ""
-        textManager->addLetter(101);
+        letterManager->addLetter(101);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
         return;
@@ -362,7 +365,7 @@ void ofApp::keyPressed(int key) {
 		
         //13 entree
 		//ù 249
-		textManager->addLetter(key);
+		letterManager->addLetter(key);
 		// à 224
 		// ° à 176
 

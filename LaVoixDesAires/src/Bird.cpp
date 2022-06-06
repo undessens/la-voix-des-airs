@@ -235,7 +235,7 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
         {
             // CALCULATE INTERACTION FORCES
             ofVec2f sep = separate(birds);
-            //ofVec2f ali = align(birds);  // WHY THIS IS COMMENT
+            ofVec2f ali = align(birds);  
             ofVec2f coh = cohesion(birds);
             //COEF
             sep *= swt; //multiply these force
@@ -298,13 +298,12 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 
 }
 //-------------------------------------------------------------
-void Bird::changeState(int msgSize){
+void Bird::changeState(){
     
     
     if(state ==  BIRD_WAITING && !isInvicible && flyingTime > 50){
         state = BIRD_FREE;
     }
-    
     
     if(state == BIRD_FREE)
     {

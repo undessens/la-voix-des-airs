@@ -39,19 +39,6 @@ void BirdManager::setup(){
     listOfBird.clear();
 	listOfBird.reserve(2000);
     
-    //Add Listener
-    debug.addListener(this,&BirdManager::setDebug);
-    debugScale.addListener(this,&BirdManager::setDebugScale);
-    stiffness.addListener(this, &BirdManager::setStiffness);
-    damping.addListener(this, &BirdManager::setDamping);
-	separation.addListener(this, &BirdManager::setSeparation);
-	alignment.addListener(this, &BirdManager::setAlignment);
-	cohesion.addListener(this, &BirdManager::setCohesion);
-    targetAttraction.addListener(this, &BirdManager::setTargetAttraction);
-	size.addListener(this, &BirdManager::setSize);
-    maxSpeed.addListener(this, &BirdManager::setMaxSpeed);
-    maxForce.addListener(this, &BirdManager::setMaxForce);
-    flyDuration.addListener(this, &BirdManager::setFlyDuration);
     
     // GUI parameter
     //pg->setName("birdmanager");
@@ -134,7 +121,7 @@ void BirdManager::update(string msg, ofFbo* fboLetter){
 		for (vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end(); it++)
 		{
 			//CHANGE STATE : go to target if necessary. From WAITING TO MOVE
-			it->changeState(sizeMsg);
+			it->changeState();
 			// FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
 			it->flock(&(*itn), att, attractionActive);
 			// UPDATE there forces to calculate pos, speed, flying time, flying distance
