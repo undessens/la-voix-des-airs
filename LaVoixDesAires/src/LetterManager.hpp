@@ -56,7 +56,7 @@ public:
     
     // C'est ici que tout se joue :
     // LIST OF LETTER .
-    vector<Letter> listOfLetter;
+    vector<Letter*> listOfLetter;
 
     //BirdManager
     NicheManager* nicheManager;

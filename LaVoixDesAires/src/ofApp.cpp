@@ -93,8 +93,6 @@ void ofApp::setup() {
 void ofApp::update() {
 
     
-    //birdManager->update( textManager->msg, &fboLetter);
-    
     letterManager->update();
     
     //Force attraction quickly after new letter
@@ -293,13 +291,13 @@ void ofApp::draw() {
 
     //DRAW FBO ON SCREEN THROUGH WARPER
     
-//    warper.begin();
-//    ofSetColor(255);
+    warper.begin();
+    ofSetColor(255);
         fbo.draw(0, 0);
-//    if (warper.isActive()) {
-//        warper.draw();
-//    }
-//    warper.end();
+    if (warper.isActive()) {
+        warper.draw();
+    }
+    warper.end();
     
     
     //SPOUT windows only

@@ -56,29 +56,29 @@ void BigLetter::update(vector<Niche>* listOfNiche){
     
     
     if(iteration<iterationMax){
-//        for( int i =0; i<listOfPolyline.size(); i++){
-//
-//            ofPolyline newPolyline;
-//
-//            if(birdManager->listOfBird[associatedNichee].size()==listOfPolyline[i].size() ){
-//
-//                for(int j=0; j<listOfPolyline[i].size(); j++){
-//
-//                    ofVec2f birdPos = birdManager->listOfBird[associatedNichee].at(j).pos;
-//                    ofPoint p = (listOfPolyline[i])[j];
-//                    newPolyline.addVertex(birdPos.x, birdPos.y);
-//                }
-//
-//                //newPolyline.close();
-//                listOfPolyline.at(i) = newPolyline;
-//
-//
-//
-//            }else{
-//                cout << "Leter update ERROR, associated nichee and listOfPyline sizes does not match \n";
-//            }
-//
-//        }
+        for( int i =0; i<listOfPolyline.size(); i++){
+
+            ofPolyline newPolyline;
+
+            if(listOfPolyline[i].size() == listOfNiche->at(i).listOfBird.size() ){
+
+                for(int j=0; j<listOfPolyline[i].size(); j++){
+
+                    ofVec2f birdPos = listOfNiche->at(i).listOfBird.at(j).pos;
+                    ofPoint p = (listOfPolyline[i])[j];
+                    newPolyline.addVertex(birdPos.x, birdPos.y);
+                }
+
+                //newPolyline.close();
+                listOfPolyline.at(i) = newPolyline;
+
+
+
+            }else{
+                cout << "Leter update ERROR, associated nichee and listOfPyline sizes does not match \n";
+            }
+
+        }
         
         iteration++;
     }
@@ -91,37 +91,40 @@ void BigLetter::update(vector<Niche>* listOfNiche){
 //-------------------------------------------------
 void BigLetter::drawBasic(float zoom, int alpha){
     
-    
     if(iteration<iterationMax){
-        ofFill();
-        ofPushMatrix();
-        ofBlendMode(OF_BLENDMODE_ALPHA);
-        ofEnableAlphaBlending();
-        
-        float alphaAttenuator = 1.0f - (iteration*1.0f / iterationMax);
-        ofSetColor(255, 255, 255, alpha*alphaAttenuator);
-        ofTranslate(0, 0, 0);
-        ofBeginShape();
-        
-        
-        ofVec2f translation;
+
+        ofPath path;
         
         for(int k = 0; k <(int)listOfPolyline.size(); k++){
             
-            if( k!= 0)ofNextContour(true) ;
+            if( k!= 0){
+                path.close();
+                path.newSubPath();
+            }
             
             ofPolyline simplePoly = (listOfPolyline[k]);
             
             for(int i = 0; i < (int)simplePoly.size(); i++){
                 ofPoint p = ofPoint(simplePoly.getVertices()[i].x, simplePoly.getVertices()[i].y);
-                ofCurveVertex(p.x, p.y);
+                path.curveTo(p);
+                
             }
         }
-        ofEndShape( true );
+        path.close();
+        
+        ofFill();
+        ofPushMatrix();
+        ofBlendMode(OF_BLENDMODE_ALPHA);
+        ofEnableAlphaBlending();
+        float alphaAttenuator = 1.0f - (iteration*1.0f / iterationMax);
+        ofColor col = ofColor(255, 255, 255, alpha*alphaAttenuator);
+        path.setColor(col);
+        path.draw();
         ofDisableAlphaBlending();
         ofPopMatrix();
     }
     
+
 
     
 }
@@ -129,12 +132,13 @@ void BigLetter::drawBasic(float zoom, int alpha){
 void BigLetter::drawDebug(){
     
     ofSetColor(255, 0, 0);
-    ofFill();
+    ofNoFill();
     for(int k = 0; k <(int)listOfPolyline.size(); k++){
         ofPolyline simplePoly = listOfPolyline[k];
         for(int i = 0; i < (int)simplePoly.size(); i++){
             ofPoint p = ofPoint(simplePoly.getVertices()[i].x, simplePoly.getVertices()[i].y);
-            ofDrawCircle(p, 5);
+            ofDrawCircle(p, 1);
+            ofDrawBitmapString(ofToString(i), p.x - 15, p.y - 5);
         }
     }
     

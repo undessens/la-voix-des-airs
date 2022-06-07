@@ -78,6 +78,7 @@ public:
     //Time and distance to fly
     unsigned long flyingTime;
     unsigned long flyingDuration;
+    int waitingDuration; // Waiting time when it appears with the big letter
     float flyingDistance;
     float lastUpdateTime;
     

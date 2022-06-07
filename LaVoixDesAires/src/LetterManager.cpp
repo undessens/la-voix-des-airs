@@ -91,12 +91,8 @@ void LetterManager::update(){
     
     for (auto &letter : listOfLetter) // access by reference to avoid copying
     {
-        letter.update();
+        letter->update();
     }
-    
-    
-    
-
     
     
     
@@ -119,7 +115,7 @@ void LetterManager::drawLetter() {
     //ofPushMatrix();
     for (auto &letter : listOfLetter) // access by reference to avoid copying
     {
-        letter.drawLetter();
+        letter->drawLetter();
         
     }
     //ofPopMatrix();
@@ -134,7 +130,7 @@ void LetterManager::drawBirds() {
     ofPushMatrix();
     for (auto &letter : listOfLetter) // access by reference to avoid copying
     {
-        letter.drawBirds();
+        letter->drawBirds();
         
     }
     ofPopMatrix();
@@ -266,8 +262,6 @@ void LetterManager::addLetter(int letter) {
                 //NORMAL LETTER
                 
                 
-                
-                
                 // Add bird polyline by polyline
                 /*
                  Ensuite on va créer une instance de lettre, avec toutes les infos dont on a besoin.
@@ -279,15 +273,15 @@ void LetterManager::addLetter(int letter) {
                 
                 ofPath pathLetterToBird, pathLetterToDraw;
                 
-                pathLetterToBird = createPathFromLetter(letter, ofVec2f(w/2,h/2));
+                pathLetterToBird = createPathFromLetter(letter, ofVec2f(0,0));
                 pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
                 
                 ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
-                nextLetterPosition.x = nextLetterPosition.x + rectOfLetter.width;
+                nextLetterPosition.x +=  rectOfLetter.width;
                 
                 vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                 
-                Letter newLetter = Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
+                Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
                 listOfLetter.push_back(newLetter);
                 
                 if(msg.size() != listOfLetter.size()){
@@ -338,6 +332,10 @@ void LetterManager::addLetter(int letter) {
 void LetterManager::clear(){
     msg = "";
     currentLineCharacter = 0;
+    
+    for(auto letter : listOfLetter){
+        delete letter;
+    }
 
     listOfLetter.clear();
     nextLetterPosition = msgPosition;

@@ -64,15 +64,17 @@ Letter::Letter(char _c, ofVec2f p, vector<ofPolyline> shape, NicheManager* _nich
     w = _w;
     h = _h;
     bigLetter = BigLetter(listOfPolyline, w, h);
-    //At this point, list of polyline is centered on screen.
+    //At this point, list of polyline is 0,0 position
     //Move it to final position
-    for( auto &polyline : shape){
+    for( auto &polyline : listOfPolyline){
         polyline.translate(positionSmallLetter);
     }
     nicheManager = _nicheManager;
-    listOfNiche = nicheManager->createNicheFromPolyline(bigLetter.listOfPolyline ,  listOfPolyline);
-
     
+    listOfNiche = nicheManager->createNicheFromPolyline(bigLetter.listOfPolyline ,  listOfPolyline);
+    for( auto &niche : listOfNiche){
+        nicheManager->addNeighbourFromNiche(niche);
+    }
     
 }
 
@@ -97,10 +99,16 @@ void Letter::drawBirds(){
             break;
         case StateOfLetter::FLYING:
             //bird
-            
+            for (auto &niche : listOfNiche) // access by reference to avoid copying
+            {
+                nicheManager->drawBirds(niche);
+            }
             break;
         case StateOfLetter::SMALL_LETTER:
-            
+            for (auto &niche : listOfNiche) // access by reference to avoid copying
+            {
+                nicheManager->drawBirds(niche);
+            }
             break;
             
         default:
@@ -119,7 +127,7 @@ void Letter::drawLetter(){
             //bigLetter.drawDebug();
             break;
         case StateOfLetter::FLYING:
-            bigLetter.drawDebug();
+            //bigLetter.drawDebug();
             break;
         case StateOfLetter::SMALL_LETTER:
             for (auto &niche : listOfNiche) // access by reference to avoid copying
@@ -137,42 +145,53 @@ void Letter::drawLetter(){
 //--------------------------------------------------------------
 void Letter::update(){
     
+    /*
+     #define BIRD_WAITING 0
+     #define BIRD_FREE 1
+     #define BIRD_GOTOTARGET 2
+     #define BIRD_TARGETJOINED 3
+     #define BIRD_DIEONBORDER 4
+     #define BIRD_DIE 5
+     */
+    
+    int minimalState = 100;
+    //Update Birds in all situation first
     for (auto &niche : listOfNiche) // access by reference to avoid copying
     {
-        nicheManager->update(niche);
+        minimalState = min(nicheManager->update(niche), minimalState);
     }
     
-    bigLetter.update(&listOfNiche);
+    switch (state) {
+        case StateOfLetter::BIG_LETTER:
+            bigLetter.update(&listOfNiche);
+            if (minimalState>= 1) {
+                state = StateOfLetter::FLYING;
+                // Cette fonction est vide : TODO : write it
+                
+            }
+            break;
+        case StateOfLetter::FLYING :
+            if(minimalState>= 3){
+                state = StateOfLetter::SMALL_LETTER;
+            }
+            break;
+        case StateOfLetter::SMALL_LETTER:
+            if(minimalState>= 5){
+                state = StateOfLetter::NONE;
+            }
+            break;
+        
+            
+        default:
+            break;
+    }
+    
+    
     
     
 
     
-    
-    
-// MAJ du BIG LETTER en fonction de la poisiton des oiseaux.
-//    for( int i =0; i<listOfPolyline.size(); i++){
-//
-//        ofPolyline newPolyline;
-//
-//        if(birdManager->listOfBird[associatedNichee].size()==listOfPolyline[i].size() ){
-//
-//            for(int j=0; j<listOfPolyline[i].size(); j++){
-//
-//                ofVec2f birdPos = birdManager->listOfBird[associatedNichee].at(j).pos;
-//                ofPoint p = (listOfPolyline[i])[j];
-//                newPolyline.addVertex(birdPos.x, birdPos.y);
-//            }
-//
-//            //newPolyline.close();
-//            listOfPolyline.at(i) = newPolyline;
-//
-//
-//
-//        }else{
-//            cout << "Leter update ERROR, associated nichee and listOfPyline sizes does not match \n";
-//        }
-//
-//    }
+
     
     
     

@@ -39,6 +39,7 @@ void NicheManager::setup(){
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 88, 2, 150));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
+    pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 200));
     
     
     // Parameter to cartesian spring equation
@@ -52,7 +53,7 @@ void NicheManager::setup(){
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
     pg->add(flyDuration.set("fly duration", 300, 0, 400));
     pg->add(adaptativeFlyDuration.set(" ada fly dur", 300, 0, 400));
-    pg->add(attractionActive.set("attraction", true));
+    pg->add(attractionActive.set("attraction", false));
     pg->add(attractionFrequence.set("att freq", 1.2, 0.01, 10.));
     pg->add(attractionRadius.set("att radius", 400, 50, h ));
     pg->add(attractionHeight.set("att Y", 168, 0, h));
@@ -95,6 +96,8 @@ vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, ve
         
         result.push_back(newNiche);
         
+
+        
         
     }
     
@@ -104,10 +107,27 @@ vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, ve
 
 
 //---------------------------------------------------
-bool NicheManager::update(Niche &n){
+void NicheManager::addNeighbourFromNiche(Niche &n){
+    
+
+    for(int i=0; i< n.listOfBird.size(); i++){
+        
+        if(i>0){
+            (n.listOfBird[i].neighbourLeft = &(n.listOfBird)[i-1]);
+        }
+        if(i==0 && n.listOfBird.size()>0){
+            (n.listOfBird[i].neighbourLeft = &(n.listOfBird)[n.listOfBird.size() -1]);
+        }
+    }
+    
+}
+
+//---------------------------------------------------
+int NicheManager::update(Niche &n){
     
         int nbOfBirdLiving = 0;
         bool targetJoined = true;
+    int minimalStateOfBird = 100;
         
         for (vector<Bird>::iterator it = n.listOfBird.begin(); it < n.listOfBird.end(); it++)
         {
@@ -129,11 +149,17 @@ bool NicheManager::update(Niche &n){
             if(it->state != BIRD_TARGETJOINED ){
                 targetJoined = false;
             }
+            minimalStateOfBird = min(it->state, minimalStateOfBird);
             
             
         }
     
-    return targetJoined;
+    /*
+     targetJoined is not used, but minimalStateOfBird > BIRD_TARGETJOINED is similar
+     
+     */
+    
+    return minimalStateOfBird;
         
 
         
@@ -154,7 +180,7 @@ void NicheManager::drawBirds(Niche &n){
         
         
         //Draw line between Neighbour - letter - not used anymore
-        if(it->pos.distance(it->neighbourLeft->pos) <30  && !it->isInvicible && it->state!=BIRD_FREE)
+        if(it->pos.distance(it->neighbourLeft->pos) <birdDistanceLine  && !it->isInvicible && it->state!=BIRD_DIEONBORDER)
         {
             ofSetColor(255);
             ofSetLineWidth(birdLineWidth);
@@ -217,9 +243,9 @@ void NicheManager::drawModel(vector<Bird>::iterator it) {
     listOfModel[index].setScale((it->size)/1000.0, (it->size) /1000.0, (it->size) /1000.0);
     
     // Draw the kind of rendering you want
-    listOfModel[index].drawFaces();
-    //listOfModel[modelId][index].drawVertices();
-    //listOfModel[modelId][index].drawWireframe();
+    //listOfModel[index].drawFaces();
+    //listOfModel[index].drawVertices();
+    listOfModel[index].drawWireframe();
     
     ofPopMatrix();
     

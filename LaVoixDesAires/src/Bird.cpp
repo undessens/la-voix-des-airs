@@ -49,6 +49,7 @@ Bird::Bird( PolyBackground* p ,
     //Time and distance
     flyingTime = 0;            // time of fly : use for join to target
     flyingDuration = _flyDuration;      // Flying time in FREE_BIRD state , before going in BIRD_GOTARGET state
+    waitingDuration = 50;
     flyingDistance = 0;        //meter of fly : use for wing motion
     lastUpdateTime = ofGetElapsedTimef();
     
@@ -56,14 +57,14 @@ Bird::Bird( PolyBackground* p ,
     order = _order;
 
     // Max
-    maxSpeed = 15; //15 before 
-    maxForce = 1.2; // 0.25before
+    maxSpeed = 15; //15 before
+    maxForce = 5; // 0.25before
     
     //FLOCK parameter
-    swt = 0.7; //multiply these force
-    awt = 0.1;
-    cwt = 0.1;
-    twt = 5.1;
+    swt = 0.05;      //0.7; //multiply these force
+    awt = 0.05;       // 0.1;
+    cwt = 0.05;     //0.1
+    twt = 0.4;       //5.1;
     
     //Neighbour- not used anymore
     //isNeighbour = false;
@@ -105,7 +106,7 @@ void Bird::update(){
 	speed += acc / (deltaTime * (theoricPeriod));
     
     //Limit Speed
-	speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
+    speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
     
     // Update flying distance : 1) acceleration 2) fight gravity 3) fight air
     flyingDistance += min( acc.length() * 500.0 , 5.0 ) ;
@@ -125,7 +126,6 @@ void Bird::update(){
     if(flyingDistance > 100){
             flyingDistance = (int)(flyingDistance) % 100;
     }
-    
     
     //UPDATE TIME
     flyingTime += 1;
@@ -224,8 +224,6 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             //coh *= cwt;
             // APPLY
             applyForce(sep);
-            //applyForce(ali);
-            //applyForce(coh);
             // attractive force
             // TODO : change this 40 with parameter value
             // NON :  il faut forcer le départ quand une nouvelle lettre est tapée
@@ -239,11 +237,11 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
             ofVec2f coh = cohesion(birds);
             //COEF
             sep *= swt; //multiply these force
-            // ali *= awt;
+            ali *= awt;
             coh *= cwt;
             // APPLY
             applyForce(sep);
-            //applyForce(ali);
+            applyForce(ali);
             applyForce(coh);
             // attractive force
             if (isAtt )
@@ -256,16 +254,26 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
         case BIRD_GOTOTARGET:
         {
             ofVec2f tar = goToTarget();
+            ofVec2f sep = separate(birds);
+            ofVec2f ali = align(birds);
+            ofVec2f coh = cohesion(birds);
+            //COEF
+            sep *= swt; //multiply these force
+            ali *= awt;
+            coh *= cwt;
             tar *= twt;
-            tar.limit(maxForce);
+            
             applyForce(tar);
             if(size>finalSize){
-                size -=0.30;
+               // size = ofMap(target.distance(pos),w , 0, 50, finalSize);
             }
-            if(maxSpeed > 0.01  ){
-                //maxSpeed -= 0.0003;
-                maxSpeed *=0.998;
-            }
+            // Max speed is reduced, probably to smooth motion
+            // But is also changed in goToTarget
+            // and if pos is really far away, it is better not to reduce speed;
+//            if(maxSpeed > 0.01  ){
+//                //maxSpeed -= 0.0003;
+//                maxSpeed *=0.998;
+//            }
             break;
         }
         case BIRD_TARGETJOINED:
@@ -301,19 +309,13 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 void Bird::changeState(){
     
     
-    if(state ==  BIRD_WAITING && !isInvicible && flyingTime > 50){
+    if(state ==  BIRD_WAITING && !isInvicible && flyingTime > waitingDuration){
         state = BIRD_FREE;
     }
     
-    if(state == BIRD_FREE)
+    if(state == BIRD_FREE && !isInvicible && flyingTime > flyingDuration)
     {
-      
-        if(flyingTime > flyingDuration && !isInvicible)
-        {
-            state = BIRD_GOTOTARGET;
-
-        }
-        
+        state = BIRD_GOTOTARGET;
     }
 
     
@@ -466,15 +468,10 @@ ofVec2f Bird::attraction(ofPoint tempTarget) {
 // ------------------------------------------------------------ -
 ofVec2f Bird::goToTarget() {
 	
-	//if (maxForce > 0.25)maxForce *= 0.99;
-	
-
     ofVec2f dist = (target - pos);
     if(dist.length() < 150 )
     {
-       // if(maxSpeed>2)maxSpeed *=0.995;
-       // if(maxSpeed>1.5)maxSpeed *=0.99;
-       // if(maxSpeed>1)maxSpeed *=0.98;
+
 		if (maxSpeed > 2)maxSpeed *= 0.995;
 		if (maxSpeed > 1.5)maxSpeed *= 0.99;
 		if (maxSpeed > 0.9)maxSpeed *= 0.98;
@@ -491,6 +488,9 @@ ofVec2f Bird::goToTarget() {
     //Stiffness does matter with goToTarget
 	//dist *= stiffness;
     //dist /= 500;
+    
+    dist.limit(maxForce);
+    
 	return dist;
 
 }

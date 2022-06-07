@@ -23,10 +23,11 @@ public:
                   int screenH
                  );
     void setup();
-    bool update(Niche &n); // passer sous forme de référence .. return si la forme si l'arrivée est atteinte.
+    int update(Niche &n); // passer sous forme de référence .. return si la forme si l'arrivée est atteinte.
     void drawBirds(Niche &n);
     void drawSmallLetter(Niche n);
     vector<Niche> createNicheFromPolyline(vector<ofPolyline> start,vector<ofPolyline> end );
+    void addNeighbourFromNiche( Niche &n);
     PolyBackground* polyBg;
     
     //Geometry
@@ -43,6 +44,7 @@ public:
     ofParameter<int> nbBird;
     ofParameter<int> size;
     ofParameter<float> birdLineWidth;
+    ofParameter<int> birdDistanceLine;
     
     ofParameter<float> stiffness;
     ofParameter<float> damping;
