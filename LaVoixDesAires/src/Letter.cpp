@@ -123,10 +123,11 @@ void Letter::drawLetter(){
     
     switch (state) {
         case StateOfLetter::BIG_LETTER:
-            bigLetter.drawBasic(1, 127);
+            bigLetter.drawBig(1, 245);
             //bigLetter.drawDebug();
             break;
         case StateOfLetter::FLYING:
+            //bigLetter.drawBasic(1, 127);
             //bigLetter.drawDebug();
             break;
         case StateOfLetter::SMALL_LETTER:
@@ -134,6 +135,7 @@ void Letter::drawLetter(){
             {
                 nicheManager->drawSmallLetter(niche);
             }
+            bigLetter.drawSmall(1, 245);
             break;
             
         default:
@@ -164,18 +166,20 @@ void Letter::update(){
     switch (state) {
         case StateOfLetter::BIG_LETTER:
             bigLetter.update(&listOfNiche);
-            if (minimalState>= 1) {
+            if(bigLetter.iteration>bigLetter.iterationMax){
+            //if (minimalState>= 1) { // accorder le changement par rapport aux oiseaux qui attendent, ou la lettre qui s'estompe ?
                 state = StateOfLetter::FLYING;
-                // Cette fonction est vide : TODO : write it
-                
             }
             break;
         case StateOfLetter::FLYING :
+            //bigLetter.update(&listOfNiche);
             if(minimalState>= 3){
                 state = StateOfLetter::SMALL_LETTER;
+                bigLetter.update(&listOfNiche);
             }
             break;
         case StateOfLetter::SMALL_LETTER:
+            bigLetter.update(&listOfNiche);
             if(minimalState>= 5){
                 state = StateOfLetter::NONE;
             }

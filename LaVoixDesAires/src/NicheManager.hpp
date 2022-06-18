@@ -27,6 +27,7 @@ public:
     void drawBirds(Niche &n);
     void drawSmallLetter(Niche n);
     vector<Niche> createNicheFromPolyline(vector<ofPolyline> start,vector<ofPolyline> end );
+    Niche createInvicibleArmy();
     void addNeighbourFromNiche( Niche &n);
     PolyBackground* polyBg;
     

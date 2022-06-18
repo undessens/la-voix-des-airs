@@ -20,6 +20,7 @@ void Niche::draw(){
         bird.drawBasic();
     }
     
+    stateOfNiche = 0;
     
 }
 

@@ -42,7 +42,7 @@ public:
     
     void update();
     void drawBasic();
-    void drawDebug();
+    void drawDebug(int l);
     
     void getEjected(ofVec2f v);
 	void applyForce(ofVec2f force);
@@ -90,7 +90,7 @@ public:
 	float maxSpeed;
 
 	//Force multiplier
-	float swt; //go to mouse
+	float swt; //separation
 	float awt;  // align
 	float cwt;	//cohesion
 	float twt;	// go to target
@@ -121,7 +121,6 @@ public:
     int screenH;
     
     //Debug stuff
-    int debugLevel;
     int debugScale;
     
     

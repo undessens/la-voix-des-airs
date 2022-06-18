@@ -18,6 +18,7 @@ public:
     Niche();
     void draw();
     vector<Bird> listOfBird;
+    int stateOfNiche;
     
     
 };

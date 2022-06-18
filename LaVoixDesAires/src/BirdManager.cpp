@@ -182,10 +182,17 @@ void BirdManager::draw(){
     for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
     for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
     {
-		// IF bird is die : don't draw it
+		
+        // IF bird is die : don't draw it
 		if (it->state != BIRD_DIE && it->size>6) {
 			drawModel(it);
+            if(debug>0){
+                ofNoFill();
+                it->drawDebug(debug);
+            }
 		}
+        
+        
 		
 
         //Draw line between Neighbour - letter - not used anymore
@@ -218,7 +225,7 @@ void BirdManager::drawDebug(){
         {
 			if (it->state != BIRD_DIE) {
 				ofNoFill();
-				it->drawDebug();
+				it->drawDebug(debug);
 			}
 
         }
@@ -421,11 +428,11 @@ void BirdManager::setDamping(float &f){
 //-------------------------------------------------------------
 void BirdManager::setDebug(int &i){
     
-    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
-        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
-        {
-            it->debugLevel = i;
-        }
+//    for( vector<vector<Bird>>::iterator itn = listOfBird.begin(); itn < listOfBird.end() ; itn++)
+//        for( vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end() ; it++)
+//        {
+//            it->debugLevel = i;
+//        }
     
 }
 

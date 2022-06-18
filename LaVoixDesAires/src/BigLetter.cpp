@@ -30,6 +30,9 @@ void BigLetter::init(){
     bool vflip = true;
     bool filled = false;
     
+    scale +=ofRandom(15);
+    ofVec2f randomPos = ofVec2f(ofRandom(-50, 50),ofRandom(-50, 50));
+    
 
     for(auto &polyline : listOfPolyline){
         
@@ -42,6 +45,7 @@ void BigLetter::init(){
     for(auto &polyline : listOfPolyline){
 
         polyline.translate(ofVec2f(translate.x, translate.y));
+        polyline.translate(randomPos);
 
     }
     
@@ -55,7 +59,6 @@ void BigLetter::init(){
 void BigLetter::update(vector<Niche>* listOfNiche){
     
     
-    if(iteration<iterationMax){
         for( int i =0; i<listOfPolyline.size(); i++){
 
             ofPolyline newPolyline;
@@ -80,8 +83,8 @@ void BigLetter::update(vector<Niche>* listOfNiche){
 
         }
         
-        iteration++;
-    }
+        
+    iteration++;
     
 
     
@@ -89,7 +92,7 @@ void BigLetter::update(vector<Niche>* listOfNiche){
 }
 
 //-------------------------------------------------
-void BigLetter::drawBasic(float zoom, int alpha){
+void BigLetter::drawBig(float zoom, int alpha){
     
     if(iteration<iterationMax){
 
@@ -117,6 +120,7 @@ void BigLetter::drawBasic(float zoom, int alpha){
         ofBlendMode(OF_BLENDMODE_ALPHA);
         ofEnableAlphaBlending();
         float alphaAttenuator = 1.0f - (iteration*1.0f / iterationMax);
+        //float alphaAttenuator = 127;
         ofColor col = ofColor(255, 255, 255, alpha*alphaAttenuator);
         path.setColor(col);
         path.draw();
@@ -128,6 +132,46 @@ void BigLetter::drawBasic(float zoom, int alpha){
 
     
 }
+
+
+//------------------------------------------------
+
+void BigLetter::drawSmall(float zoom, int alpha){
+    
+        
+        ofPath path;
+        
+        for(int k = 0; k <(int)listOfPolyline.size(); k++){
+            
+            if( k!= 0){
+                path.close();
+                path.newSubPath();
+            }
+            
+            ofPolyline simplePoly = (listOfPolyline[k]);
+            
+            for(int i = 0; i < (int)simplePoly.size(); i++){
+                ofPoint p = ofPoint(simplePoly.getVertices()[i].x, simplePoly.getVertices()[i].y);
+                path.curveTo(p);
+                
+            }
+        }
+        path.close();
+        
+        ofFill();
+        ofPushMatrix();
+        ofBlendMode(OF_BLENDMODE_ALPHA);
+        ofEnableAlphaBlending();
+        //float alphaAttenuator = 127;
+        ofColor col = ofColor(255, 255, 255, alpha);
+        path.setColor(col);
+        path.draw();
+        ofDisableAlphaBlending();
+        ofPopMatrix();
+    
+    
+}
+
 //-------------------------------------------------
 void BigLetter::drawDebug(){
     

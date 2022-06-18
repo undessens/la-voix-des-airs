@@ -61,9 +61,9 @@ Bird::Bird( PolyBackground* p ,
     maxForce = 5; // 0.25before
     
     //FLOCK parameter
-    swt = 0.05;      //0.7; //multiply these force
-    awt = 0.05;       // 0.1;
-    cwt = 0.05;     //0.1
+    swt = 0.7;      //0.7; //multiply these force
+    awt = 0.1;       // 0.1;
+    cwt = 0.1;     //0.1
     twt = 0.4;       //5.1;
     
     //Neighbour- not used anymore
@@ -89,7 +89,6 @@ Bird::Bird( PolyBackground* p ,
     screenH = _screenH;
     
     //Debug Level
-    debugLevel = 0;
     debugScale = 10;
     
 }
@@ -154,7 +153,7 @@ void Bird::drawBasic(){
      
 }
 
-void Bird::drawDebug(){
+void Bird::drawDebug(int debugLevel){
     
     //Debut Printing
     switch(debugLevel)
@@ -278,7 +277,6 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
         }
         case BIRD_TARGETJOINED:
         {
-            debugLevel = 3;
             ofVec2f tar = goToTarget();
             tar *= twt;
             tar.limit(maxForce);
@@ -358,12 +356,12 @@ ofVec2f Bird::separate(vector<Bird>* birds) {
 	int count = 0;
 	for (vector<Bird>::iterator it = (*birds).begin(); it < (*birds).end(); it++)
 	{
-		float d = pos.distance(it->pos);
-		if ((d > 0) && (d < desiredseparation))
+        float d = pos.distance(it->pos);
+		if ( (d>0)&& (d < desiredseparation))
         {
 			ofVec2f diff = pos - (it->pos);
 			diff.normalize();
-			diff /= d;
+			diff /= (d);  // avoid division by 0
 			steer += diff;
 			count++;
 		}
@@ -505,7 +503,6 @@ void Bird::goDieOnBorder() {
 
 		randomSpeed( 20);
 		size = initalSize;
-		debugLevel = 0;
 
 		// Max
 		maxSpeed = 45;
@@ -530,7 +527,7 @@ void Bird::randomSpeed(int s) {
 void Bird::randomSpeedFromCenter(int s){
     
     ofPoint centroid = ofPoint(w/2, h/2);
-    ofVec2f direction = centroid - pos ;
+    ofVec2f direction =  pos - centroid ;
     direction = direction.normalize();
     
     float r = 1;

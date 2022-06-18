@@ -22,7 +22,8 @@ public:
     
     void init();
     void update(vector<Niche>* listOfNiche);
-    void drawBasic(float zoom, int alpha);
+    void drawBig(float zoom, int alpha);
+    void drawSmall(float zoom, int alpha);
     void drawDebug();
     
     int iteration;

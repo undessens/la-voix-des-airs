@@ -26,7 +26,22 @@ LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int
 //    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
 //    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
 //    birdFont.load(, fontSize, true, true, true);
+    
     nicheManager = b;
+    
+    nicheManager->stiffness.addListener(this, &LetterManager::setStiffness);
+    nicheManager->debugScale.addListener(this, &LetterManager::setDebugScale);
+    nicheManager->damping.addListener(this, &LetterManager::setDamping);
+    nicheManager->separation.addListener(this, &LetterManager::setSeparation);
+    nicheManager->cohesion.addListener(this, &LetterManager::setCohesion);
+    nicheManager->alignment.addListener(this, &LetterManager::setAlignment);
+    nicheManager->targetAttraction.addListener(this, &LetterManager::setTargetAttraction);
+    nicheManager->maxSpeed.addListener(this, &LetterManager::setMaxSpeed);
+    nicheManager->maxForce.addListener(this, &LetterManager::setMaxForce);
+    nicheManager->size.addListener(this, &LetterManager::setSize);
+    nicheManager->flyDuration.addListener(this, &LetterManager::setFlyDuration);
+    
+    permanentNiche = nicheManager->createInvicibleArmy();
 
 
     gFontSize.addListener(this, &LetterManager::changeFontSize);
@@ -34,6 +49,7 @@ LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int
     gMsgPositionX.addListener(this, &LetterManager::changeMsgPositionX);
     gMsgPositionY.addListener(this, &LetterManager::changeMsgPositionY);
     gfontDistSampling.addListener(this, &LetterManager::changeFontSampling);
+    
     
     pg = _pg;
     pg->setName("Text Manager");
@@ -51,6 +67,8 @@ LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int
 		timeOfLastLetter[i] = 0.f;
 	}
     writingSpeed = 0;
+    
+    
     
 }
 
@@ -94,6 +112,8 @@ void LetterManager::update(){
         letter->update();
     }
     
+
+    nicheManager->update(permanentNiche);
     
     
 }
@@ -104,6 +124,7 @@ void LetterManager::draw() {
 	
     drawLetter();
     drawBirds();
+    
 
 		
 }
@@ -133,6 +154,9 @@ void LetterManager::drawBirds() {
         letter->drawBirds();
         
     }
+    
+    nicheManager->drawBirds(permanentNiche);
+    
     ofPopMatrix();
     
     
@@ -142,13 +166,11 @@ void LetterManager::drawBirds() {
 void LetterManager::drawDebug() {
 
     
-//    ofPushMatrix();
-//    for (auto &letter : listOfLetter) // access by reference to avoid copying
-//    {
-//        letter.drawDebug()
-//    }
-//    ofPopMatrix();
-//
+    if(nicheManager->debug>0){
+        ofSetColor(0,255,0);
+        ofNoFill();
+        ofDrawCircle(nextLetterPosition.x, nextLetterPosition.y, 20);
+    }
     
 }
 
@@ -185,8 +207,6 @@ ofRectangle LetterManager::getBoundingBoxOfPath(ofPath &path){
     }
     
     return rect;
-    
-    
     
 }
 
@@ -276,13 +296,15 @@ void LetterManager::addLetter(int letter) {
                 pathLetterToBird = createPathFromLetter(letter, ofVec2f(0,0));
                 pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
                 
-                ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
-                nextLetterPosition.x +=  rectOfLetter.width;
+                
                 
                 vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                 
                 Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
                 listOfLetter.push_back(newLetter);
+                
+                ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
+                nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
                 
                 if(msg.size() != listOfLetter.size()){
                     ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
@@ -343,4 +365,158 @@ void LetterManager::clear(){
 	// When clear the message, don't kill Birds, but push them into DIE ON BORDER MODE
 	//birdmanager->killAll();
     //nicheManager->lastFlyAll();
+}
+
+
+//--------------------------------------------------------------
+void LetterManager::setDebug(int &i){
+    //Debug is not is bird anymore but in NicheManager
+}
+
+//--------------------------------------------------------------
+void LetterManager::setDebugScale(int &i){
+    
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.debugScale = i;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.debugScale = i;
+    }
+}
+
+//--------------------------------------------------------------
+void LetterManager::setStiffness(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.stiffness = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.stiffness = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setDamping(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.damping = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.damping = f;
+    }
+
+    
+}
+//--------------------------------------------------------------
+void LetterManager::setSeparation(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.swt = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.swt = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setCohesion(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.cwt = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.cwt = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setAlignment(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.awt = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.awt = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setTargetAttraction(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.twt = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.twt = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setMaxSpeed(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.maxSpeed = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.maxSpeed = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setMaxForce(float &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.maxForce = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.maxForce = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setSize(int &f){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.size = f;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.size = f;
+    }
+}
+//--------------------------------------------------------------
+void LetterManager::setFlyDuration(int &i){
+    for(auto letter : listOfLetter){
+        for(auto &niche : letter->listOfNiche){
+            for(auto &bird : niche.listOfBird){
+                bird.flyingDuration = i;
+            }
+        }
+    }
+    for(auto &bird : permanentNiche.listOfBird){
+        bird.flyingDuration = i;
+    }
 }

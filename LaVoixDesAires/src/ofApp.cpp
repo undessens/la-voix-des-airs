@@ -9,8 +9,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1280;
-    final_h = 720;
+    final_w = 1920;
+    final_h = 1080;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -20,15 +20,12 @@ void ofApp::setup() {
 	//polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);  // Polybackground, not really used
 
 	// OSC, Gui parameters
-	pg_nicheManager.setName("birdmanager");
+	pg_nicheManager.setName("Nichemanager");
 
 	//BirdManager
 
 	nicheManager = new NicheManager( &pg_nicheManager, final_w, final_h, ofGetWidth(), ofGetHeight());
     
-    // INVICIBLE ARMY : add this ...
-    //nicheManager->createInvicibleArmy();
-
     // Text Manager
     letterManager = new LetterManager(nicheManager, &pg_letterManager, final_w , final_h);
     
@@ -36,7 +33,7 @@ void ofApp::setup() {
     pg.setName("main");
     pg.add(color.set("color",ofColor(0, 0, 10)));
     pg.add(frameRate.set("frameRate", 35, 0, 50));
-    pg.add(debug.set("debug", false));
+    pg.add(debug.set("debug", true));
     pg.add(fakeCursor.set("Fake cursor", false));
     pg.add(lightTopEnable.set("light Top Enable", true));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
@@ -240,16 +237,29 @@ void ofApp::draw() {
         // Text Manager
         letterManager->drawBirds();
     
+        // Draw Centroid
+//    ofSetColor(255, 0, 0);
+//    ofDrawCircle(final_w/2, final_h/2, 30);
+    
 		// DISABLE LIGHT
 		ofDisableDepthTest();
 		ofDisableLighting();
 
 		// BIRD MANAGER DEBUG
+    if(nicheManager->debug>0){
+        ofSetColor(255,0,0);
+        if(nicheManager->attractionActive){
+            ofFill();
+        }else{
+            ofNoFill();
+        }
+        ofDrawCircle(nicheManager->att.x, nicheManager->att.y, 10);
+    }
      
         
     
 		ofSetColor(255);
-		//letterManager->drawDebug();
+		letterManager->drawDebug();
 
 
 		// Polybackground - draw center of point as a circle
@@ -291,13 +301,13 @@ void ofApp::draw() {
 
     //DRAW FBO ON SCREEN THROUGH WARPER
     
-    warper.begin();
-    ofSetColor(255);
+   // warper.begin();
+   // ofSetColor(255);
         fbo.draw(0, 0);
-    if (warper.isActive()) {
-        warper.draw();
-    }
-    warper.end();
+   // if (warper.isActive()) {
+   //     warper.draw();
+    //}
+    //warper.end();
     
     
     //SPOUT windows only
@@ -350,6 +360,7 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(101);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
+        
         return;
 	}else if(key == 3682) {
 		//CTRL - undraw GUI

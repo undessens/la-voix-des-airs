@@ -39,20 +39,20 @@ void NicheManager::setup(){
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 88, 2, 150));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
-    pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 200));
+    pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 800));
     
     
     // Parameter to cartesian spring equation
-    pg->add(separation.set("separation",0.1, 0, 1));
-    pg->add(cohesion.set("cohesion",0.1, 0, 1));
-    pg->add(alignment.set("alignment",0.1, 0, 1));
-    pg->add(targetAttraction.set("target att", 5.1,0, 10.0 ));
+    pg->add(separation.set("separation",0.7, 0, 1));
+    pg->add(cohesion.set("cohesion",0.2, 0, 1));
+    pg->add(alignment.set("alignment",0.2, 0, 1));
+    pg->add(targetAttraction.set("target att", 1.2,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
     pg->add(maxForce.set("max force", 0.6, 0.001, 2));
-    pg->add(stiffness.set("stiffness", 1.0, 0.001, 2.0));
+    pg->add(stiffness.set("stiffness", 0.5, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
-    pg->add(flyDuration.set("fly duration", 300, 0, 400));
-    pg->add(adaptativeFlyDuration.set(" ada fly dur", 300, 0, 400));
+    pg->add(flyDuration.set("fly duration", 300, 0, 400)); // NOT USED ANYMORE
+    pg->add(adaptativeFlyDuration.set(" ada fly dur", 200, 0, 3000));
     pg->add(attractionActive.set("attraction", false));
     pg->add(attractionFrequence.set("att freq", 1.2, 0.01, 10.));
     pg->add(attractionRadius.set("att radius", 400, 50, h ));
@@ -60,13 +60,17 @@ void NicheManager::setup(){
     
     //3D MODEL
     loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
-    //TEXTURE ( CPU SAVE WHEN TARGET IN JOINED )
-    birdImage.load("png_oiseau.png");
-    birdTexture = birdImage.getTexture();
+    //loadModel("../../../model/Bird_Asset.fbx");
+    //loadModel("../../../model/bird_white_emission.fbx");
+    //loadModel("../../../model/bird_01.fbx");
+    
+    //TEXTURE ( CPU SAVE WHEN TARGET IN JOINED ... NOT USED)
+//    birdImage.load("png_oiseau.png");
+//    birdTexture = birdImage.getTexture(
     
     
-    
-    
+    //Attraction
+    att = ofVec2f(w/2, h/2);
     
 }
 
@@ -159,12 +163,10 @@ int NicheManager::update(Niche &n){
      
      */
     
+    n.stateOfNiche = minimalStateOfBird;
     return minimalStateOfBird;
         
 
-        
-
-    
 }
 
 
@@ -176,16 +178,22 @@ void NicheManager::drawBirds(Niche &n){
         // IF bird is die : don't draw it
         if (it->state != BIRD_DIE && it->size>6) {
             drawModel(it);
+            if(debug>0){
+                it->drawDebug(debug);
+            }
         }
         
         
-        //Draw line between Neighbour - letter - not used anymore
-        if(it->pos.distance(it->neighbourLeft->pos) <birdDistanceLine  && !it->isInvicible && it->state!=BIRD_DIEONBORDER)
-        {
-            ofSetColor(255);
-            ofSetLineWidth(birdLineWidth);
-            ofDrawLine(it->pos,it->neighbourLeft->pos);
+        //Draw line between Neighbour - Invicible birds does not have neighbour
+        if(!it->isInvicible){
+            if(it->pos.distance(it->neighbourLeft->pos) <birdDistanceLine   && it->state!=BIRD_DIEONBORDER)
+            {
+                ofSetColor(255);
+                ofSetLineWidth(birdLineWidth);
+                ofDrawLine(it->pos,it->neighbourLeft->pos);
+            }
         }
+
         
         
     }
@@ -243,9 +251,9 @@ void NicheManager::drawModel(vector<Bird>::iterator it) {
     listOfModel[index].setScale((it->size)/1000.0, (it->size) /1000.0, (it->size) /1000.0);
     
     // Draw the kind of rendering you want
-    //listOfModel[index].drawFaces();
+    listOfModel[index].drawFaces();
     //listOfModel[index].drawVertices();
-    listOfModel[index].drawWireframe();
+    //listOfModel[index].drawWireframe();
     
     ofPopMatrix();
     
@@ -294,3 +302,21 @@ void NicheManager::loadModel(string filename){
     
 }
 
+//-------------------------------------------------------------
+Niche NicheManager::createInvicibleArmy(){
+    
+    Niche newNiche;
+    int armySize = 20;
+    
+    for (int i = 0; i < armySize; i++) {
+        
+        int randomSize = size + ofRandom(-15, 15);
+        Bird newBird = Bird(polyBg, ofVec2f(0,0), ofVec2f(w/2,h/2) , randomSize, w, h, screenW, screenH, stiffness, 0, flyDuration, true);
+        newNiche.listOfBird.push_back(newBird);
+        nbBird++;
+        
+    }
+    
+    return newNiche;
+    
+}
