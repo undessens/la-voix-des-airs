@@ -14,7 +14,7 @@ void ofApp::setup() {
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
-    ofSetFrameRate(ofApp::fps);
+    
 
 	// Background Image, ofPolyline ...
 	//polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);  // Polybackground, not really used
@@ -31,16 +31,16 @@ void ofApp::setup() {
     
     //Global parameter
     pg.setName("main");
-    pg.add(color.set("color",ofColor(0, 0, 10)));
-    pg.add(frameRate.set("frameRate", 35, 0, 50));
+    pg.add(color.set("color",ofColor(0, 0, 0)));
+    pg.add(frameRate.set("frameRate", 50, 0, 60));
     pg.add(debug.set("debug", true));
     pg.add(fakeCursor.set("Fake cursor", false));
     pg.add(lightTopEnable.set("light Top Enable", true));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
     pg.add(lightTopPosY.set("light Y", 0, 0, final_h));
     pg.add(lightTopPosZ.set("light Z", 400, -400,400 ));
-    pg.add(lightTopColor.set("Light Top Color", ofColor::whiteSmoke));
-    pg.add(lightBottomEnable.set("light Bottom Enable", true));
+    pg.add(lightTopColor.set("Light Top Color", ofColor::white));
+    pg.add(lightBottomEnable.set("light Bottom Enable", false));
     pg.add(lightBottomColor.set("Light Bottom Color", ofColor::darkorange));
 	pg.add(lightBottomDirectionnal.set("Light Bot Directionnal", true));
     
@@ -66,6 +66,9 @@ void ofApp::setup() {
     // WARPER
     warper.setup(0, 0, final_w*0.99, final_h*0.99);
     warper.deactivate();
+    
+    //FPS
+    ofSetFrameRate(frameRate);
     
 	// OSC receiver
 	osc_receiver.setup(12345);
@@ -176,7 +179,8 @@ void ofApp::update() {
 
 	}
     
-    frameRate = ofGetFrameRate();
+    //frameRate = ofGetFrameRate();
+    ofSetFrameRate(frameRate);
 }
 
 //--------------------------------------------------------------
@@ -291,7 +295,7 @@ void ofApp::draw() {
 
 		if (debug) {
             ofSetColor(255);
-			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() - 10);
+			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() );
             ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
 
 		}

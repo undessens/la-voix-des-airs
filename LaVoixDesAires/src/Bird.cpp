@@ -33,7 +33,7 @@ Bird::Bird( PolyBackground* p ,
     // Geometrie cartesian stuff
     pos = initialPos;
     acc = ofVec2f(0, 0);
-	randomSpeedFromCenter( 0);
+	randomSpeedFromCenter(1.2);
 	target = _target;
     
     
@@ -96,41 +96,52 @@ Bird::Bird( PolyBackground* p ,
 void Bird::update(){
     
     //Get Delta Time from last update
-    float deltaTime = 1/(ofGetElapsedTimef() - lastUpdateTime);
-	float theoricPeriod = 1.0 / ofApp::fps;
+    float theoricPeriod = 1.0 / ofGetFrameRate();
+    //  divided by 0.02 as 50 fps is 1 unity of time.
+    float deltaTime = (ofGetElapsedTimef() - lastUpdateTime) / 0.02;
     lastUpdateTime = ofGetElapsedTimef();
     
-    //Update speed
-   // speed += acc  /(deltaTime * (ofApp::fps*1.0) );
-	speed += acc / (deltaTime * (theoricPeriod));
+    //Update speed. Choose between theroicDeltaTaime, or pratical DeltaTime
+    //speed += acc * theoricPeriod;
+    speed +=   acc * deltaTime  ; // Try to be independant of framerate, but it doesnot work
     
     //Limit Speed
     speed.limit(maxSpeed); // MAX SPEED IF NECESSARY
+    
+    // Update : flyingDistance, according to distance
+    flyingDistance += (speed.length() * (deltaTime) / 10.0f ) ;
     
     // Update flying distance : 1) acceleration 2) fight gravity 3) fight air
     flyingDistance += min( acc.length() * 500.0 , 5.0 ) ;
     if(speed.y < -0.1)
     {
-        flyingDistance += abs(speed.y)  * 1;
+        flyingDistance += abs(speed.y)  * 0.5;
     }
     
+    /*
     if(state != BIRD_TARGETJOINED)
     {
-        flyingDistance += 1;    //inscrease normal
+        flyingDistance += 0.5;    //inscrease normal
     }
     else{
-        flyingDistance += 0.3; //increase just a bit
+        flyingDistance += 0.1; //increase just a bit
     }
+     */
+
     
     if(flyingDistance > 100){
             flyingDistance = (int)(flyingDistance) % 100;
+    }
+    
+    if(flyingDistance < 0){
+        ofLog(OF_LOG_ERROR, "flying distance negative");
     }
     
     //UPDATE TIME
     flyingTime += 1;
 
     //update pos
-    pos += speed /(deltaTime * (theoricPeriod));
+    pos += speed * (deltaTime);
     
     // RESET SPEED
     if(state == BIRD_TARGETJOINED){
@@ -529,9 +540,7 @@ void Bird::randomSpeedFromCenter(int s){
     ofPoint centroid = ofPoint(w/2, h/2);
     ofVec2f direction =  pos - centroid ;
     direction = direction.normalize();
-    
-    float r = 1;
-    speed = direction * r;
+    speed = direction * s;
     
     
     

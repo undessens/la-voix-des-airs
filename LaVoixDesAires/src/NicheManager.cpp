@@ -43,13 +43,13 @@ void NicheManager::setup(){
     
     
     // Parameter to cartesian spring equation
-    pg->add(separation.set("separation",0.7, 0, 1));
-    pg->add(cohesion.set("cohesion",0.2, 0, 1));
-    pg->add(alignment.set("alignment",0.2, 0, 1));
+    pg->add(separation.set("separation",0.28, 0, 1));
+    pg->add(cohesion.set("cohesion",0.05, 0, 1));
+    pg->add(alignment.set("alignment",0.12, 0, 1));
     pg->add(targetAttraction.set("target att", 1.2,0, 10.0 ));
     pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
     pg->add(maxForce.set("max force", 0.6, 0.001, 2));
-    pg->add(stiffness.set("stiffness", 0.5, 0.001, 2.0));
+    pg->add(stiffness.set("stiffness", 0.26, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
     pg->add(flyDuration.set("fly duration", 300, 0, 400)); // NOT USED ANYMORE
     pg->add(adaptativeFlyDuration.set(" ada fly dur", 200, 0, 3000));
@@ -60,6 +60,10 @@ void NicheManager::setup(){
     
     //3D MODEL
     loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
+    //loadModel("../../../model/birds/bird_01_white.fbx");
+     //loadModel("../../../model/birds/bird_02.fbx");   // ULtra aplati
+    //loadModel("../../../model/birds/bird_03.fbx"); // il est pas sur le zeo. Texture_white.jpg manquant.
+    //loadModel("../../../model/birds/bird_04.fbx"); //BIEN !
     //loadModel("../../../model/Bird_Asset.fbx");
     //loadModel("../../../model/bird_white_emission.fbx");
     //loadModel("../../../model/bird_01.fbx");
@@ -93,6 +97,11 @@ vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, ve
             ofVec2f endPoint = end[i][j];
             int randomSize = size + ofRandom(-15, 15);
             Bird newBird = Bird(polyBg, endPoint, startPoint, randomSize , w, h, screenW, screenH, stiffness, 0, adaptativeFlyDuration, false);
+            newBird.awt = alignment;
+            newBird.swt = separation;
+            newBird.cwt  = cohesion;
+            newBird.twt = targetAttraction;
+            
             newNiche.listOfBird.push_back(newBird);
             int lastNiche = newNiche.listOfBird.size() - 1;
             
@@ -311,7 +320,11 @@ Niche NicheManager::createInvicibleArmy(){
     for (int i = 0; i < armySize; i++) {
         
         int randomSize = size + ofRandom(-15, 15);
-        Bird newBird = Bird(polyBg, ofVec2f(0,0), ofVec2f(w/2,h/2) , randomSize, w, h, screenW, screenH, stiffness, 0, flyDuration, true);
+        Bird newBird = Bird(polyBg, ofVec2f(0,0), ofVec2f(ofRandom(0,w),h) , randomSize, w, h, screenW, screenH, stiffness, 0, flyDuration, true);
+        newBird.awt = alignment;
+        newBird.swt = separation;
+        newBird.cwt  = cohesion;
+        newBird.twt = targetAttraction;
         newNiche.listOfBird.push_back(newBird);
         nbBird++;
         
