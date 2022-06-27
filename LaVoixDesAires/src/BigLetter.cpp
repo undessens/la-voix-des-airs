@@ -15,6 +15,7 @@ BigLetter::BigLetter(){
 BigLetter::BigLetter( vector<ofPolyline> _path,int _w,int _h){
 
     listOfPolyline = _path;
+    finalListOfPolyline = _path;
     iteration = 0;
     iterationMax = 80;
     scale = 10;
@@ -135,7 +136,7 @@ void BigLetter::drawBig(float zoom, int alpha){
 
 
 //------------------------------------------------
-
+// Exactly like draw Big, but alpha fix instead
 void BigLetter::drawSmall(float zoom, int alpha){
     
         
@@ -171,6 +172,45 @@ void BigLetter::drawSmall(float zoom, int alpha){
     
     
 }
+
+//------------------------------------------------
+void BigLetter::drawFinal(int alpha){
+
+        ofPath path;
+        
+        for(int k = 0; k <(int)finalListOfPolyline.size(); k++){
+            
+            if( k!= 0){
+                path.close();
+                path.newSubPath();
+            }
+            
+            ofPolyline simplePoly = (finalListOfPolyline[k]);
+            
+            for(int i = 0; i < (int)simplePoly.size(); i++){
+                ofPoint p = ofPoint(simplePoly.getVertices()[i].x, simplePoly.getVertices()[i].y);
+                path.curveTo(p);
+                
+            }
+        }
+        path.close();
+        
+        ofFill();
+        ofPushMatrix();
+        ofBlendMode(OF_BLENDMODE_ALPHA);
+        ofEnableAlphaBlending();
+        ofColor col = ofColor(255, 255, 255, alpha);
+        path.setColor(col);
+        //path.setFilled(false);
+        path.setStrokeColor(col);
+        path.draw();
+        ofDisableAlphaBlending();
+        ofPopMatrix();
+        
+    
+    
+}
+
 
 //-------------------------------------------------
 void BigLetter::drawDebug(){

@@ -125,7 +125,6 @@ void LetterManager::draw() {
     drawLetter();
     drawBirds();
     
-
 		
 }
 
@@ -295,8 +294,6 @@ void LetterManager::addLetter(int letter) {
                 
                 pathLetterToBird = createPathFromLetter(letter, ofVec2f(0,0));
                 pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
-                
-                
                 
                 vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                 

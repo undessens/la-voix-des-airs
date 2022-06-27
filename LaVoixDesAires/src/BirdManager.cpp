@@ -125,7 +125,7 @@ void BirdManager::update(string msg, ofFbo* fboLetter){
 			// FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
 			it->flock(&(*itn), att, attractionActive);
 			// UPDATE there forces to calculate pos, speed, flying time, flying distance
-			it->update();
+			it->update(ofGetElapsedTimef());
 			// BORDERS : teleportation from left to right, up to bottom
             if(it->state == BIRD_FREE){
                 it->borders();

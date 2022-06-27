@@ -37,7 +37,7 @@ void NicheManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 88, 2, 150));
+    pg->add(size.set("size", 60, 2, 150));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 800));
     
@@ -47,8 +47,8 @@ void NicheManager::setup(){
     pg->add(cohesion.set("cohesion",0.05, 0, 1));
     pg->add(alignment.set("alignment",0.12, 0, 1));
     pg->add(targetAttraction.set("target att", 1.2,0, 10.0 ));
-    pg->add(maxSpeed.set("max speed", 5, 0.001, 15));
-    pg->add(maxForce.set("max force", 0.6, 0.001, 2));
+    pg->add(maxSpeed.set("max speed", 15, 0.001, 15));
+    pg->add(maxForce.set("max force", 1.5, 0.001, 2));
     pg->add(stiffness.set("stiffness", 0.26, 0.001, 2.0));
     pg->add(damping.set("damping", 0.05, 0.001, 4.0 ));
     pg->add(flyDuration.set("fly duration", 300, 0, 400)); // NOT USED ANYMORE
@@ -59,11 +59,11 @@ void NicheManager::setup(){
     pg->add(attractionHeight.set("att Y", 168, 0, h));
     
     //3D MODEL
-    loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
+    //loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
     //loadModel("../../../model/birds/bird_01_white.fbx");
      //loadModel("../../../model/birds/bird_02.fbx");   // ULtra aplati
     //loadModel("../../../model/birds/bird_03.fbx"); // il est pas sur le zeo. Texture_white.jpg manquant.
-    //loadModel("../../../model/birds/bird_04.fbx"); //BIEN !
+    loadModel("../../../model/birds/bird_04.fbx"); //BIEN !
     //loadModel("../../../model/Bird_Asset.fbx");
     //loadModel("../../../model/bird_white_emission.fbx");
     //loadModel("../../../model/bird_01.fbx");
@@ -101,6 +101,9 @@ vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, ve
             newBird.swt = separation;
             newBird.cwt  = cohesion;
             newBird.twt = targetAttraction;
+            newBird.maxSpeed = maxSpeed;
+            newBird.maxForce = maxForce;
+            newBird.damping = damping;
             
             newNiche.listOfBird.push_back(newBird);
             int lastNiche = newNiche.listOfBird.size() - 1;
@@ -140,7 +143,8 @@ int NicheManager::update(Niche &n){
     
         int nbOfBirdLiving = 0;
         bool targetJoined = true;
-    int minimalStateOfBird = 100;
+        int minimalStateOfBird = 100;
+        float currentTime= ofGetElapsedTimef();
         
         for (vector<Bird>::iterator it = n.listOfBird.begin(); it < n.listOfBird.end(); it++)
         {
@@ -149,7 +153,7 @@ int NicheManager::update(Niche &n){
             // FLOCK : increasing accelation from forces ( interaction, target, mouse ... )
             it->flock(&n.listOfBird, att, attractionActive);
             // UPDATE there forces to calculate pos, speed, flying time, flying distance
-            it->update();
+            it->update(currentTime);
             // BORDERS : teleportation from left to right, up to bottom
             if(it->state == BIRD_FREE){
                 it->borders();
@@ -158,6 +162,9 @@ int NicheManager::update(Niche &n){
             //Check is bird is alive
             if (it->state != BIRD_DIE ) {
                 nbOfBirdLiving++;
+            }
+            if(it->state == BIRD_GOTOTARGET ){
+                it->durationToTarget++;
             }
             if(it->state != BIRD_TARGETJOINED ){
                 targetJoined = false;
@@ -169,10 +176,20 @@ int NicheManager::update(Niche &n){
     
     /*
      targetJoined is not used, but minimalStateOfBird > BIRD_TARGETJOINED is similar
-     
      */
     
     n.stateOfNiche = minimalStateOfBird;
+    
+    //Update attraction point
+    float angle = currentTime * attractionFrequence;
+    att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
+    if (ofRandom(1) > 0.98 && attractionActive) {
+        attractionActive = false;
+    }
+    if (ofRandom(1) > 0.960 && !attractionActive) {
+        attractionActive = true;
+    }
+    
     return minimalStateOfBird;
         
 
@@ -288,10 +305,6 @@ void NicheManager::drawSmallLetter(Niche n){
     
             }
 
-    
-    
-    
-    
 }
 
 
@@ -305,6 +318,8 @@ void NicheManager::loadModel(string filename){
         //listOfModel[atIndex][i].setPosition(0, 10, -5);
         listOfModel[i].setPosition(-5, 2, 0 );
         listOfModel[i].setPausedForAllAnimations(true);
+        int nbAnimation = listOfModel[i].getAnimationCount();
+        int getPoses = listOfModel[i].getAnimation(0).getDurationInSeconds();
         listOfModel[i].setPositionForAllAnimations((float)i/nbModelPose);
         listOfModel[i].update();
     }

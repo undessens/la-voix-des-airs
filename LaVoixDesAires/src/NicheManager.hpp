@@ -80,7 +80,7 @@ public:
     ofVec2f att;    //attractor point
     
     //3D MODEL
-    static const int nbModelPose = 50;
+    static const int nbModelPose = 100;
     ofxAssimpModelLoader listOfModel[nbModelPose];
     
     void drawModel(vector<Bird>::iterator i);

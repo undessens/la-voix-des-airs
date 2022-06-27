@@ -40,7 +40,7 @@ public:
 		 bool isInvicible
          );
     
-    void update();
+    void update(float t);
     void drawBasic();
     void drawDebug(int l);
     
@@ -81,6 +81,7 @@ public:
     int waitingDuration; // Waiting time when it appears with the big letter
     float flyingDistance;
     float lastUpdateTime;
+    int durationToTarget;// Time from when target appears
     
     //Nichée
     int order;
@@ -93,7 +94,8 @@ public:
 	float swt; //separation
 	float awt;  // align
 	float cwt;	//cohesion
-	float twt;	// go to target
+    float twt;	// go to target . Final value;
+    float smooth_twt; // Gradual value, from 0 to twt
     
     //Neighbours - NOT USED ANYMORE
     bool isNeighbour;

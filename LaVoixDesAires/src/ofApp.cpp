@@ -305,13 +305,13 @@ void ofApp::draw() {
 
     //DRAW FBO ON SCREEN THROUGH WARPER
     
-   // warper.begin();
-   // ofSetColor(255);
-        fbo.draw(0, 0);
-   // if (warper.isActive()) {
-   //     warper.draw();
-    //}
-    //warper.end();
+        warper.begin();
+            ofSetColor(255);
+            fbo.draw(0, 0);
+            if (warper.isActive()) {
+                warper.draw();
+            }
+        warper.end();
     
     
     //SPOUT windows only

@@ -24,11 +24,13 @@ public:
     void update(vector<Niche>* listOfNiche);
     void drawBig(float zoom, int alpha);
     void drawSmall(float zoom, int alpha);
+    void drawFinal(int alpha);
     void drawDebug();
     
     int iteration;
     int iterationMax; // duration in frame
     
+    std::vector<ofPolyline> finalListOfPolyline;
     std::vector<ofPolyline> listOfPolyline;
     int scale;
     

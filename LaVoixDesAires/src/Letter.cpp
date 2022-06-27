@@ -63,12 +63,13 @@ Letter::Letter(char _c, ofVec2f p, vector<ofPolyline> shape, NicheManager* _nich
     listOfPolyline = shape;
     w = _w;
     h = _h;
-    bigLetter = BigLetter(listOfPolyline, w, h);
+    
     //At this point, list of polyline is 0,0 position
     //Move it to final position
     for( auto &polyline : listOfPolyline){
         polyline.translate(positionSmallLetter);
     }
+    bigLetter = BigLetter(listOfPolyline, w, h);
     nicheManager = _nicheManager;
     
     listOfNiche = nicheManager->createNicheFromPolyline(bigLetter.listOfPolyline ,  listOfPolyline);
@@ -107,7 +108,7 @@ void Letter::drawBirds(){
         case StateOfLetter::SMALL_LETTER:
             for (auto &niche : listOfNiche) // access by reference to avoid copying
             {
-                nicheManager->drawBirds(niche);
+                //nicheManager->drawBirds(niche); // Small letter, no birds anymore
             }
             break;
             
@@ -125,16 +126,19 @@ void Letter::drawLetter(){
         case StateOfLetter::BIG_LETTER:
             bigLetter.drawBig(1, 245);
             //bigLetter.drawDebug();
+            bigLetter.drawFinal(120);
             break;
         case StateOfLetter::FLYING:
             //bigLetter.drawBasic(1, 127);
             //bigLetter.drawDebug();
             break;
         case StateOfLetter::SMALL_LETTER:
-            for (auto &niche : listOfNiche) // access by reference to avoid copying
-            {
-                nicheManager->drawSmallLetter(niche);
-            }
+            // draw outline HERE
+            //for (auto &niche : listOfNiche) // access by reference to avoid copying
+            //{
+            //nicheManager->drawSmallLetter(niche);
+            //}
+            // Draw fill Path here : CPU Consoming
             bigLetter.drawSmall(1, 245);
             break;
             
