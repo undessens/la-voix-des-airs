@@ -392,7 +392,7 @@ void BirdManager::lastFlyAll() {
 		for (vector<Bird>::iterator it = (*itn).begin(); it < (*itn).end(); it++)
 		{
             if(!it->isInvicible){
-                it->goDieOnBorder();
+                it->goDieOnBorder(20);
             }else{
                 it->randomSpeed(20);
             }

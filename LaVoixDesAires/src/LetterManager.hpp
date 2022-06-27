@@ -14,7 +14,7 @@ class LetterManager
 {
 public:
     LetterManager();
-    LetterManager(NicheManager* b, ofParameterGroup* pg, int w, int h);
+    LetterManager(NicheManager* b, PolyBackground* p, ofParameterGroup* pg, int w, int h);
     ~LetterManager();
     
 	void draw();
@@ -61,9 +61,14 @@ public:
     
     //Invicible army of bird
     Niche permanentNiche;
+    
+    //Shape to draw with bird
+    vector<Niche> temporaryNiche;
 
     //BirdManager
     NicheManager* nicheManager;
+    
+    PolyBackground* polybackground;
 
     //OfParameter group
     ofParameterGroup* pg;

@@ -24,9 +24,11 @@ public:
                  );
     void setup();
     int update(Niche &n); // passer sous forme de référence .. return si la forme si l'arrivée est atteinte.
+    void updateAttractionPoint();
     void drawBirds(Niche &n);
     void drawSmallLetter(Niche n);
     vector<Niche> createNicheFromPolyline(vector<ofPolyline> start,vector<ofPolyline> end );
+    Niche createEphemereNicheFromPolyline(ofPolyline p );
     Niche createInvicibleArmy();
     void addNeighbourFromNiche( Niche &n);
     PolyBackground* polyBg;

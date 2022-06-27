@@ -296,6 +296,11 @@ void Bird::flock(vector<Bird>* birds, ofVec2f attPoint, bool isAtt) {
 			sep *= swt; //multiply these force
 			// APPLY
 			applyForce(sep);
+            if (isAtt )
+            {
+                ofVec2f att = attraction(attPoint);
+                applyForce(att);
+            }
 
 		}
         default:
@@ -513,16 +518,16 @@ ofVec2f Bird::goToTarget() {
 // ------------------------------------------------------------ 
 //			Change of state : after target pos, fly until cross a border
 // ------------------------------------------------------------ -
-void Bird::goDieOnBorder() {
+void Bird::goDieOnBorder(int randSpeed) {
 
 	if (!isInvicible) {	//Invicible never die
 		state = BIRD_DIEONBORDER;
 
-		randomSpeed( 20);
+		randomSpeed( randSpeed);
 		size = initalSize;
 
 		// Max
-		maxSpeed = 45;
+		maxSpeed = 15;
 		maxForce = 5;
 
 	}

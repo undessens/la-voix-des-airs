@@ -37,7 +37,7 @@ class ofApp : public ofBaseApp{
         ofxOscParameterSync sync;
         ofParameterGroup pg;
         ofParameterGroup pg_nicheManager;
-        //ofParameterGroup pg_polyBackground; // not used
+        ofParameterGroup pg_polyBackground; 
        //ofParameterGroup pg_trajectoryPlayer; // NOT USED
         ofParameterGroup pg_letterManager;
 		bool isGuiVisible;

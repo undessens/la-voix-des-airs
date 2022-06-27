@@ -11,35 +11,41 @@
 #include <stdio.h>
 #include "ofMain.h"
 
+#define POLYBACKGROUND_NUM 4
+
 class PolyBackground{
 
 public :
     
     PolyBackground();
     PolyBackground(ofParameterGroup* pg, int w, int h);
+    void init();
     void draw();
-    void addObstacle(ofVec2f p);
     void clear(bool & b);
-    ofVec2f getClosestPoint(ofVec2f);
-    void saveFboToFile(bool & b);   //Save fbo to png image
-    void pencilOnFbo();
-    
+    int getClosestPoint(ofVec2f);
     bool isEditing;
-    vector<ofVec2f> listOfPoint;
+    vector<ofPolyline> listOfPolyline;
+    
+    ofPolyline createRandomPolyline();
+    void clickForMove(ofVec2f mouse);
+    void clickForSelect(ofVec2f mouse);
+    ofPolyline getCurrentSelected();
+    
+    //Selection radius
+    int radius = 20;
     
     //Parameters Group
     ofParameterGroup* pg;
-    ofParameter<int> nbObstacle;
+    ofParameter<int> currentPolylineSelected;
+    ofParameter<int> currentPointSelected;
     ofParameter<bool> isDraw;
     ofParameter<bool> isAddObstacle;
     ofParameter<bool> clearButton;
-    ofParameter<int> radius;
-    ofParameter<bool> isPencil;
     ofParameter<bool> saveImage;
     
     //FBO image for pencil. Draw on it from mouse and save to file
     ofFbo fbo;
-    ofImage img;
+    
     
     //Geometry
     int w;

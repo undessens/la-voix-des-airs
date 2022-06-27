@@ -16,21 +16,18 @@ PolyBackground::PolyBackground(ofParameterGroup* _pg, int _w, int _h){
     
     //Listener
     clearButton.addListener(this,&PolyBackground::clear);
-    saveImage.addListener(this, &PolyBackground::saveFboToFile);
     
     //Parameters
     pg = _pg;
     pg->setName("polyBg");
+    pg->add(currentPolylineSelected.set("selection", -1, -1, POLYBACKGROUND_NUM));
+    pg->add(currentPointSelected.set("p_selection", -1, -1, 10));
     pg->add(isDraw.set("draw", false));
-    pg->add(nbObstacle.set("nbObstacle", 5, 1, 10));
     pg->add(isAddObstacle.set("add obstacle", false));
-    pg->add(radius.set("radius", 40, 1, 200));
     pg->add(clearButton.set("clear", false));
-    pg->add(isPencil.set("use Pencil", false));
     pg->add(saveImage.set("save", false));
     
     //List of Point/obstacle
-    listOfPoint.clear();
     
     //Geomtry
     w = _w;
@@ -45,47 +42,107 @@ PolyBackground::PolyBackground(ofParameterGroup* _pg, int _w, int _h){
     ofClear(255,255,255, 0);
     ofBackground(255);
     fbo.end();
+    
+    init();
 }
 
-void PolyBackground::addObstacle(ofVec2f p){
+//-----------------------------------------------------------
+void PolyBackground::init(){
     
-    listOfPoint.push_back(p);
+    int fixNumberOfPolyline = POLYBACKGROUND_NUM;
+    listOfPolyline.clear();
+    for(int i=0; i<fixNumberOfPolyline; i++){
+        listOfPolyline.push_back(createRandomPolyline());
+    }
     
 }
 
+//-----------------------------------------------------------
 void PolyBackground::draw(){
     
     ofSetLineWidth(1);
     if(isDraw)
     {
-        for( vector<ofVec2f>::iterator it = listOfPoint.begin(); it < listOfPoint.end() ; it++)
+        for( int i=0; i<listOfPolyline.size(); i++)
         {
-            ofSetColor(255);
-            ofDrawCircle( *it, radius);
+            ofPolyline p = listOfPolyline[i];
+            if(i==currentPolylineSelected){
+                ofSetColor(0,0,200);
+            }else{
+                ofSetColor(127);
+            }
+            p.draw();
+            for(int j=0; j<p.size(); j++){
+                if(i==currentPolylineSelected && j==currentPointSelected){
+                    ofSetColor(0,200,0);
+                }else{
+                    ofSetColor(127);
+                }
+                ofPoint polypoint = p[j];
+                ofNoFill();
+                ofDrawCircle(polypoint.x, polypoint.y, 10);
+            }
         }
     }
     
 }
-
+//-----------------------------------------------------------
 void PolyBackground::clear(bool & b){
     
-    listOfPoint.clear();
-    clearButton = false;
+    if(listOfPolyline.size()>0 && currentPolylineSelected>-1){
+            listOfPolyline[currentPolylineSelected].clear();
+    }
+    
 
+}
+//-----------------------------------------------------------
+void PolyBackground::clickForSelect(ofVec2f mouse){
+    
+    int closest_point = getClosestPoint(mouse);
+    if(closest_point>=0){
+        currentPointSelected = closest_point;
+    }
+}
+//-----------------------------------------------------------
+void PolyBackground::clickForMove(ofVec2f mouse){
+    
+    int closest_point = getClosestPoint(mouse);
+    if(closest_point==currentPointSelected){	
+        
+        ofPolyline actual = listOfPolyline.at(currentPolylineSelected);
+        ofPolyline newPolyline;
+        for(int i=0; i<actual.size(); i++){
+            if(i==currentPointSelected){
+                newPolyline.addVertex(mouse.x, mouse.y);
+            }else{
+                newPolyline.addVertex(actual[i]);
+            }
+        }
+        newPolyline.close();
+        listOfPolyline.at(currentPolylineSelected) = newPolyline;
+    }
+    if(currentPointSelected == -1){
+        ofVec2f translation = mouse -  listOfPolyline.at(currentPolylineSelected).getCentroid2D();
+        
+        listOfPolyline.at(currentPolylineSelected).translate(translation);
+    }
     
 }
-
-ofVec2f PolyBackground::getClosestPoint(ofVec2f p){
+//-----------------------------------------------------------
+int PolyBackground::getClosestPoint(ofVec2f p){
     
-    ofVec2f ret = ofVec2f(0, 0);
+    int ret = -1;
     
-    for( vector<ofVec2f>::iterator it = listOfPoint.begin(); it < listOfPoint.end() ; it++)
-    {
-        
-        if(p.distance(*it)<radius)
+    if(currentPolylineSelected>=0 && currentPointSelected>= 0){
+        for( int i=0; i<listOfPolyline[currentPolylineSelected].size(); i++)
         {
-            ret = *it;
-            break;
+            ofVec2f point = listOfPolyline[currentPolylineSelected][i];
+            if(p.distance(point)<radius)
+            {
+                return i;
+
+            }
+            
         }
         
     }
@@ -93,32 +150,37 @@ ofVec2f PolyBackground::getClosestPoint(ofVec2f p){
     return ret;
 }
 
-void PolyBackground::pencilOnFbo(){
+
+
+//-----------------------------------------------------------
+ofPolyline PolyBackground::getCurrentSelected(){
+    ofPolyline ret;
     
-    if(isPencil && ofGetMousePressed())
-    {
-        fbo.begin();
-        ofSetColor(0, 0, 50);
-        ofDrawCircle(ofGetMouseX() * (w*1.0) /ofGetWidth() , ofGetMouseY() * (h*1.0)/ofGetHeight() , 1);
-        fbo.end();
+    if(currentPolylineSelected>=0){
+        ret = listOfPolyline[currentPolylineSelected];
+        ret = ret.getResampledByCount(20);
     }
     
-    
+    return ret;
     
 }
 
-void PolyBackground::saveFboToFile(bool & b){
+//-----------------------------------------------------------
+ofPolyline PolyBackground::createRandomPolyline(){
     
-    if(b)
-    {
-        ofPixels pix;
-        fbo.readToPixels(pix);
-        img.setFromPixels(pix);
-        img.save("fbo_pencil.png");
-        //Wait 500ms just for user to see the check sign on save button
-        ofSleepMillis(500);
-        saveImage = false;
+    int fixPointNumber = 5;
+    
+    ofPolyline newPoly;
+    for(int i=0; i<fixPointNumber; i++){
+        newPoly.addVertex(ofRandom(w), ofRandom(h));
     }
+    newPoly.close();
+    newPoly.scale(0.1, 0.1);
+    ofRectangle r = newPoly.getBoundingBox();
+    
+    newPoly.translate( ofVec2f( ofVec2f(w/2, h/2) - r.getCenter()) );
+    newPoly.translate(ofVec2f(ofRandom(-w/2, w/2), ofRandom(-h/2, h/2)));
+    
+    return newPoly;
+    
 }
-
-

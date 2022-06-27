@@ -54,7 +54,7 @@ public:
 	ofVec2f seek(ofVec2f);
 	ofVec2f goToTarget();
 	ofVec2f attraction(ofPoint p);
-	void goDieOnBorder();
+	void goDieOnBorder(int s);
 	void borders();
 	void randomSpeed(int s);
     void randomSpeedFromCenter(int s);

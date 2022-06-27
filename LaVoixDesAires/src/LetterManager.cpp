@@ -5,7 +5,7 @@ LetterManager::LetterManager()
 }
 
 //--------------------------------------------------------------
-LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int _h)
+LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGroup* _pg, int _w, int _h)
 {
     msg = "";
     currentLineCharacter = 0;
@@ -28,6 +28,7 @@ LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int
 //    birdFont.load(, fontSize, true, true, true);
     
     nicheManager = b;
+    polybackground = p;
     
     nicheManager->stiffness.addListener(this, &LetterManager::setStiffness);
     nicheManager->debugScale.addListener(this, &LetterManager::setDebugScale);
@@ -42,6 +43,7 @@ LetterManager::LetterManager(NicheManager* b, ofParameterGroup* _pg, int _w, int
     nicheManager->flyDuration.addListener(this, &LetterManager::setFlyDuration);
     
     permanentNiche = nicheManager->createInvicibleArmy();
+    temporaryNiche.clear();
 
 
     gFontSize.addListener(this, &LetterManager::changeFontSize);
@@ -114,6 +116,17 @@ void LetterManager::update(){
     
 
     nicheManager->update(permanentNiche);
+    for(vector<Niche>::iterator it = temporaryNiche.begin() ;it<temporaryNiche.end(); ){
+        
+        int miniState = nicheManager->update(*it);
+        if(miniState>=5 ){ // Bird Die
+            temporaryNiche.erase(it);
+        }else{
+            ++it;
+        }
+        
+    }
+    
     
     
 }
@@ -155,6 +168,10 @@ void LetterManager::drawBirds() {
     }
     
     nicheManager->drawBirds(permanentNiche);
+    
+    for(auto &niche : temporaryNiche){
+        nicheManager->drawBirds(niche);
+    }
     
     ofPopMatrix();
     
@@ -236,20 +253,19 @@ vector<ofPolyline> LetterManager::reduceDistanceSampling( ofPath path){
 void LetterManager::addLetter(int letter) {
     
 	//Calculate speed of writing
-//    if(msg.length()>0){
-//        float newspeed = 1.0f / (ofGetElapsedTimef() - timeOfLastLetter[msg.length()-1]) ;
-//        float valueToAdd = newspeed - writingSpeed;
-//        writingSpeed = writingSpeed + 0.5 * valueToAdd;
-//       // writingSpeed = newspeed;
-//
-//        birdmanager->adaptativeFlyDuration = birdmanager->flyDuration * (( 1.0f / writingSpeed)/1.0f);
-//        if(birdmanager->adaptativeFlyDuration>birdmanager->flyDuration ){
-//            birdmanager->adaptativeFlyDuration = birdmanager->flyDuration;
-//        }
-//
-//
-//
-//    }
+    if(msg.length()>0){
+        float newspeed = 1.0f / (ofGetElapsedTimef() - timeOfLastLetter[msg.length()-1]) ;
+        float valueToAdd = newspeed - writingSpeed;
+        writingSpeed = writingSpeed + 0.5 * valueToAdd;
+        writingSpeed = newspeed;
+        
+        
+        nicheManager->adaptativeFlyDuration = nicheManager->flyDuration * (( 1.0f / writingSpeed)/1.0f);
+        if(nicheManager->adaptativeFlyDuration>nicheManager->flyDuration ){
+            nicheManager->adaptativeFlyDuration = nicheManager->flyDuration;
+        }
+
+   }
     
     
     int prevMsgLength = ofUTF8Length(msg);
@@ -272,14 +288,9 @@ void LetterManager::addLetter(int letter) {
             ofLog() << "New letter received: " << newLetter;
             ofLog() << "New message size:" << prevMsgLength + 1;
             
-            
-            
-
-            
             // NOT a space and font is loaded
             if(letter != 32  && msgFont.isLoaded()){
                 //NORMAL LETTER
-                
                 
                 // Add bird polyline by polyline
                 /*
@@ -318,26 +329,11 @@ void LetterManager::addLetter(int letter) {
             }
             
             
-            //Check time from the added letter
+            //Check time from the added letter. TODO : not used 
             if(msg.size()>0){
                 timeOfLastLetter[msg.size() - 1] = ofGetElapsedTimef();
             }
             
-            
-            
-            // Add big letter. Char, ofPath of the initial shape, listOfNiche = nichée associated to polyline
-            
-            /*
-             if(lastLetter.getOutline().size()>0){
-             lastLetter.scale(zoomBigLetter, zoomBigLetter);
-             ofVec2f centroid = lastLetter.getOutline()[0].getCentroid2D();
-             ofVec2f translation =  ofVec2f(ofGetWidth()/2, ofGetHeight()/2) - centroid ;
-             lastLetter.translate(translation);
-             }
-             */
-            
-            
-           
             
         }
         

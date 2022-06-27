@@ -14,10 +14,9 @@ void ofApp::setup() {
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
-    
-
 	// Background Image, ofPolyline ...
-	//polyBackground = new PolyBackground(&pg_polyBackground, 2048, 768);  // Polybackground, not really used
+    pg_polyBackground.setName("polybackground");
+	polyBackground = new PolyBackground(&pg_polyBackground, final_w, final_h);  // Polybackground, not really used
 
 	// OSC, Gui parameters
 	pg_nicheManager.setName("Nichemanager");
@@ -27,7 +26,7 @@ void ofApp::setup() {
 	nicheManager = new NicheManager( &pg_nicheManager, final_w, final_h, ofGetWidth(), ofGetHeight());
     
     // Text Manager
-    letterManager = new LetterManager(nicheManager, &pg_letterManager, final_w , final_h);
+    letterManager = new LetterManager(nicheManager,polyBackground, &pg_letterManager, final_w , final_h);
     
     //Global parameter
     pg.setName("main");
@@ -48,8 +47,9 @@ void ofApp::setup() {
     // Adding all parameter to GUI
     gui.setup(pg);
     gui.add(pg_nicheManager);
-    //gui.add(pg_polyBackground);
+    gui.add(pg_polyBackground);
     gui.add(pg_letterManager);
+    
     sync.setup((ofParameterGroup&)gui.getParameter(), 6666, "localhost", 6667);
 	isGuiVisible = true;
 
@@ -92,7 +92,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 
-    
+    nicheManager->updateAttractionPoint();
     letterManager->update();
     
     //Force attraction quickly after new letter
@@ -101,7 +101,6 @@ void ofApp::update() {
 //        birdManager->attractionActive = true;
 //    }
     
-
 
     sync.update();
 
@@ -267,7 +266,7 @@ void ofApp::draw() {
 
 
 		// Polybackground - draw center of point as a circle
-		//polyBackground->draw();
+		polyBackground->draw();
 		
     
         //Polybackground - draw the pencil mode
@@ -297,7 +296,6 @@ void ofApp::draw() {
             ofSetColor(255);
 			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() );
             ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
-
 		}
 
 		fbo.end();
@@ -364,6 +362,7 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(101);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
+        if(key==3680)letterManager->temporaryNiche.push_back(nicheManager->createEphemereNicheFromPolyline(polyBackground->getCurrentSelected()));
         
         return;
 	}else if(key == 3682) {
@@ -397,12 +396,23 @@ void ofApp::mouseMoved(int x, int y) {
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
-
+    
+    if(polyBackground->isDraw){
+        if(polyBackground->currentPolylineSelected>=0 ){
+            polyBackground->clickForMove(ofVec2f(x, y));
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
     ofLog() << "Mouse position is x:" << x << ", y:" << y;
+    
+    if(polyBackground->isDraw){
+        if(polyBackground->currentPolylineSelected>=0 ){
+            polyBackground->clickForSelect(ofVec2f(x, y));
+        }
+    }
 
 }
 

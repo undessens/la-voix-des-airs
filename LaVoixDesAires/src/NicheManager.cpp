@@ -82,6 +82,7 @@ void NicheManager::setup(){
 //-----------------------------------------------------------------------------------------------------
 vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, vector<ofPolyline> end){
     
+    //Create Niche From Vector of polyline, et return Vector of niche.
     
     //TODO : vérifier que les tailles sont équivalentes
     
@@ -123,6 +124,44 @@ vector<Niche> NicheManager::createNicheFromPolyline(vector<ofPolyline> start, ve
 
 
 //---------------------------------------------------
+Niche NicheManager::createEphemereNicheFromPolyline(ofPolyline p ){
+    
+    Niche newNiche;
+    
+    for(int j = 0; j<p.size(); j++){
+        
+        ofVec2f startPoint = p[j];
+        int randomSize = size + ofRandom(-15, 15);
+        Bird newBird = Bird(polyBg, ofVec2f(0, 0), startPoint, randomSize , w, h, screenW, screenH, stiffness, 0, adaptativeFlyDuration, false);
+        newBird.awt = alignment;
+        newBird.swt = separation;
+        newBird.cwt  = cohesion;
+        newBird.twt = targetAttraction;
+        newBird.maxSpeed = maxSpeed;
+        newBird.maxForce = maxForce;
+        newBird.damping = damping;
+        newBird.state = BIRD_DIEONBORDER;
+        
+
+        //Random speed from center of shape
+        ofPoint centroid = p.getCentroid2D();
+        ofVec2f direction =  newBird.pos - centroid ;
+        direction = direction.normalize();
+        newBird.speed = direction * 6;
+        
+        newNiche.listOfBird.push_back(newBird);
+        int lastNiche = newNiche.listOfBird.size() - 1;
+        
+    }
+    
+    addNeighbourFromNiche(newNiche);
+    
+    return newNiche;
+    
+}
+
+
+//---------------------------------------------------
 void NicheManager::addNeighbourFromNiche(Niche &n){
     
 
@@ -155,7 +194,7 @@ int NicheManager::update(Niche &n){
             // UPDATE there forces to calculate pos, speed, flying time, flying distance
             it->update(currentTime);
             // BORDERS : teleportation from left to right, up to bottom
-            if(it->state == BIRD_FREE){
+            if(it->state == BIRD_FREE || it->state == BIRD_DIEONBORDER){
                 it->borders();
             }
             
@@ -180,22 +219,26 @@ int NicheManager::update(Niche &n){
     
     n.stateOfNiche = minimalStateOfBird;
     
-    //Update attraction point
-    float angle = currentTime * attractionFrequence;
-    att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
-    if (ofRandom(1) > 0.98 && attractionActive) {
-        attractionActive = false;
-    }
-    if (ofRandom(1) > 0.960 && !attractionActive) {
-        attractionActive = true;
-    }
+
     
     return minimalStateOfBird;
         
 
 }
 
+//--------------------------------------
+//Update attraction point
+void NicheManager::updateAttractionPoint(){
+    float angle = ofGetElapsedTimef() * attractionFrequence;
+    att = ofVec2f(attractionRadius*cos(angle) + w / 2, attractionRadius*sin(angle) + attractionHeight);
+    if (ofGetFrameNum() % 50==0 && attractionActive) {
+        attractionActive = false;
+    }
+    else if (ofGetFrameNum() % 50==0 && !attractionActive) {
+        attractionActive = true;
+    }
 
+}
 //-------------------------------------
 void NicheManager::drawBirds(Niche &n){
     
@@ -212,7 +255,7 @@ void NicheManager::drawBirds(Niche &n){
         
         //Draw line between Neighbour - Invicible birds does not have neighbour
         if(!it->isInvicible){
-            if(it->pos.distance(it->neighbourLeft->pos) <birdDistanceLine   && it->state!=BIRD_DIEONBORDER)
+            if(it->pos.distance(it->neighbourLeft->pos) <birdDistanceLine)
             {
                 ofSetColor(255);
                 ofSetLineWidth(birdLineWidth);
