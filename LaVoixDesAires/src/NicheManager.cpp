@@ -146,8 +146,6 @@ Niche NicheManager::createEphemereNicheFromPolyline(ofPolyline p ){
         
     }
     
-    addNeighbourFromNiche(newNiche);
-    
     return newNiche;
     
 }

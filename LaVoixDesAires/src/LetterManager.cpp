@@ -344,6 +344,13 @@ void LetterManager::addLetter(int letter) {
 
 
 //--------------------------------------------------------------
+void LetterManager::addTemporaryNiche(Niche n) {
+
+	temporaryNiche.push_back(n);
+	nicheManager->addNeighbourFromNiche(temporaryNiche.back());
+}
+
+//--------------------------------------------------------------
 void LetterManager::clear(){
     msg = "";
     currentLineCharacter = 0;

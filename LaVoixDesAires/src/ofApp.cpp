@@ -362,8 +362,13 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(101);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
-        if(key==3680)letterManager->temporaryNiche.push_back(nicheManager->createEphemereNicheFromPolyline(polyBackground->getCurrentSelected()));
-        
+		if (key == 3680) {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getCurrentSelected());
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+		}
+			
         return;
 	}else if(key == 3682) {
 		//CTRL - undraw GUI

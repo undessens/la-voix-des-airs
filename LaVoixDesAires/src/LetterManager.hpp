@@ -29,6 +29,7 @@ public:
     vector<ofPolyline> reduceDistanceSampling(ofPath path);
     ofPath createFilledPathFromLetter(int letter, ofVec2f newPos);
     ofRectangle getBoundingBoxOfPath(ofPath &path);
+	void addTemporaryNiche(Niche n);
 
     void changeFontSize(int &newSize);
     void changeFontSpacing(int &newSpacing);

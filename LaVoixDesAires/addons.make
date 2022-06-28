@@ -2,4 +2,4 @@ ofxAssimpModelLoader
 ofxGLWarper
 ofxGui
 ofxOsc
-ofxSyphon
+ofxSpout
