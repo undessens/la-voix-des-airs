@@ -69,6 +69,7 @@ public:
     ofParameter<int> debugScale;
     ofParameter<int> nbBird;
     ofParameter<int> size;
+    ofParameter<int> model;
     ofParameter<float> birdLineWidth;
 
     ofParameter<float> stiffness;

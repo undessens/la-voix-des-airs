@@ -46,6 +46,7 @@ void BirdManager::setup(){
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 88, 2, 150));
+    
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     
     

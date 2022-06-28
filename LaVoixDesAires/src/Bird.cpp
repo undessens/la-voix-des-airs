@@ -127,7 +127,7 @@ void Bird::update(float currentTime){
     }
     
     if(flyingDistance > 100){
-            flyingDistance = (int)(flyingDistance) % 100;
+        flyingDistance = (int)(flyingDistance) % 100;
     }
     
     if(flyingDistance < 0){
@@ -502,13 +502,10 @@ ofVec2f Bird::goToTarget() {
     }
     
     if(maxForce>0.25){
-        maxForce -= 0.001;
-        if (maxSpeed > 5)maxSpeed *= 0.95;
+        maxForce *= 0.98;
     }
+    if (maxSpeed > 5)maxSpeed *= 0.99;
 
-    //Stiffness does matter with goToTarget
-	//dist *= stiffness;
-    //dist /= 500;
     dist.limit(maxForce);
     
 	return dist;

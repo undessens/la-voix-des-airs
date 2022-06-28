@@ -38,6 +38,7 @@ void NicheManager::setup(){
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 60, 2, 150));
+    pg->add(model.set("model", 3, 1, 4));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 800));
     
@@ -58,19 +59,11 @@ void NicheManager::setup(){
     pg->add(attractionRadius.set("att radius", 400, 50, h ));
     pg->add(attractionHeight.set("att Y", 168, 0, h));
     
-    //3D MODEL
-    //loadModel("../../../model/Bird_Asset_lowPoly_300.fbx");
-    //loadModel("../../../model/birds/bird_01_white.fbx");
-     //loadModel("../../../model/birds/bird_02.fbx");   // ULtra aplati
-    //loadModel("../../../model/birds/bird_03.fbx"); // il est pas sur le zeo. Texture_white.jpg manquant.
-    loadModel("../../../model/birds/bird_04.fbx"); //BIEN !
-    //loadModel("../../../model/Bird_Asset.fbx");
-    //loadModel("../../../model/bird_white_emission.fbx");
-    //loadModel("../../../model/bird_01.fbx");
+    model.addListener(this, &NicheManager::loadModelFromList);
     
-    //TEXTURE ( CPU SAVE WHEN TARGET IN JOINED ... NOT USED)
-//    birdImage.load("png_oiseau.png");
-//    birdTexture = birdImage.getTexture(
+    loadModel("../../../model/birds/bird_04.fbx");
+    
+
     
     
     //Attraction
@@ -142,7 +135,6 @@ Niche NicheManager::createEphemereNicheFromPolyline(ofPolyline p ){
         newBird.damping = damping;
         newBird.state = BIRD_DIEONBORDER;
         
-
         //Random speed from center of shape
         ofPoint centroid = p.getCentroid2D();
         ofVec2f direction =  newBird.pos - centroid ;
@@ -367,6 +359,31 @@ void NicheManager::loadModel(string filename){
         listOfModel[i].update();
     }
     
+}
+
+//------------------------------------------------------------
+void NicheManager::loadModelFromList(int &i){
+    
+    //3D MODEL
+    string modelName;
+    switch (i) {
+        case 1:
+            modelName = "../../../model/Bird_Asset_lowPoly_300.fbx";
+        break;
+        case 2:
+            modelName = "../../../model/birds/bird_01_white.fbx";
+        break;
+        case 3:
+            modelName = "../../../model/birds/bird_04.fbx";
+        break;
+            
+        default:
+            modelName ="../../../model/bird_01.fbx";
+            break;
+    }
+    
+    loadModel(modelName);
+
 }
 
 //-------------------------------------------------------------

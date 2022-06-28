@@ -46,6 +46,7 @@ public:
     ofParameter<int> debugScale;
     ofParameter<int> nbBird;
     ofParameter<int> size;
+    ofParameter<int> model;
     ofParameter<float> birdLineWidth;
     ofParameter<int> birdDistanceLine;
     
@@ -88,6 +89,7 @@ public:
     void drawModel(vector<Bird>::iterator i);
     ofxAssimpModelLoader getModel(int distance);
     void loadModel(string filename);
+    void loadModelFromList(int &i);
 
     
     //Texture of bird ( save CPU )
