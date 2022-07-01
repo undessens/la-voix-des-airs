@@ -351,7 +351,11 @@ void ofApp::keyPressed(int key) {
 	if(key == 8){
         // Clear when backspace  received
         clear_all();
-    } else if( key>31 && key < 128){
+    }else if( key ==35){
+        // # symbol : clear
+        clear_all();
+    }
+    else if( key>31 && key < 128){
         // Only draw ASCII extended code
        letterManager->addLetter(key);
     } else if( key==224){
@@ -359,7 +363,7 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(97);
     }  else if(key== 232 || key == 233){
         // char "Ž" & ""
-        letterManager->addLetter(101);
+        letterManager->addLetter(key);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
 		if (key == 3680) {

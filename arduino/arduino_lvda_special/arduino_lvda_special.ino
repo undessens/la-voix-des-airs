@@ -19,6 +19,10 @@ int capsValue = 0;
 int slashEndPin = 50;
 int slashEndValue = 0;
 
+//------------------ BOUTON CACHE DERRIERE ---------
+int hiddenButtonPin = 27;
+int hiddenButtonValue = HIGH;
+
 
 // --------------- Keyboard To Pin Layout -----------
 //
@@ -61,6 +65,7 @@ void setup() {
   pinMode(capsPin, INPUT);
   pinMode(slashEndPin, INPUT);
   digitalWrite(slashEndPin, HIGH);
+  pinMode(hiddenButtonPin, INPUT_PULLUP);
 
 }
   
@@ -83,13 +88,21 @@ void loop() {
     }
   }
 
+  //SPECIAL NON ASCII : HIDDEN BUTTON #
+  int newValueHi = digitalRead(hiddenButtonPin);
+  if (newValueHi != hiddenButtonValue) {
+    hiddenButtonValue = newValueHi;
+    if (newValueHi == LOW ) {
+      sendMessage(hiddenButtonPin, "#");
+     }
+  }
+  
   //SPECIAL NON ASCII : SPACE
   int newValueDi = digitalRead(spacePin);
   if (newValueDi != spaceValue) {
     spaceValue = newValueDi;
     if (newValueDi == HIGH ) {
-      if(capsValue)sendMessage(spacePin, "#");
-      else sendMessage(spacePin, " ");
+      sendMessage(spacePin, " ");
      }
   }
 
