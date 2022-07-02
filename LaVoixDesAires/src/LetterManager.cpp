@@ -276,7 +276,7 @@ void LetterManager::addLetter(int letter) {
         currentLineCharacter = 0;
 
     }else{
-        // LETTRE NORMALE
+        // LETTRE NORMALE ( espace compris )
         if (prevMsgLength < MAX_LETTER && currentLineCharacter <= MAX_LETTER_PER_LINE)
         {
             
@@ -292,43 +292,38 @@ void LetterManager::addLetter(int letter) {
             if(letter != 32  && msgFont.isLoaded()){
                 //NORMAL LETTER
                 
-                // Add bird polyline by polyline
-                /*
-                 Ensuite on va créer une instance de lettre, avec toutes les infos dont on a besoin.
-                 Letter(char _c, ofVec2f p, LetterManager* _manager, NicheManager* nicheManager);
-                 Et ensuite ces Lettre qui va se démerder  à créer sa propre niche et sa propre forme avec
-                 partir de nicheManager et LetterManager portés en paramètre
-                 
-                 */
+
+                /******   CREATE OF_PATH FROM LETTER     ******/
                 
                 ofPath pathLetterToBird, pathLetterToDraw;
-                
                 pathLetterToBird = createPathFromLetter(letter, ofVec2f(0,0));
                 pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
                 
-                vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
-                
-                //TODO : check that listOfPolyline is not EMPTY !!!
-                Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
-                listOfLetter.push_back(newLetter);
-                
-                ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
-                nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
-                
-                if(msg.size() != listOfLetter.size()){
-                    ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
+                 /******   CHECK IF NOT EMPTY ( special character for exemple )     ******/
+                if(pathLetterToBird.getOutline().size()>0){
+                    
+                     /******   CONVERT OF_PATH TO VECTOR<POLYLINE>    ******/
+                    vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
+                    
+                    /******   CREATE NEW LETTER   ******/
+                    Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
+                    listOfLetter.push_back(newLetter);
+                    
+                    /******   UPDATE CURSOR   ******/
+                    ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
+                    nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
+                    
+                    if(msg.size() != listOfLetter.size()){
+                        ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
+                    }
+                    
                 }
-            
                 
             }else{
                 //SPACE LETTER
-                //TODO
-                // Est ce qu'il faut considérer espace comme un caractère
-                // pour garder une correspondance entre le nombre de lettre du string et le nombre de letter.
                 nextLetterPosition.x = nextLetterPosition.x + fontSpacing;
                 
             }
-            
             
             //Check time from the added letter. TODO : not used 
             if(msg.size()>0){

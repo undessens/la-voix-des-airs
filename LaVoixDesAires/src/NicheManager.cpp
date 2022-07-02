@@ -37,7 +37,7 @@ void NicheManager::setup(){
     pg->add(debug.set("debug", 0, 0, 5));
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
-    pg->add(size.set("size", 60, 2, 150));
+    pg->add(size.set("size", 50, 2, 150));
     pg->add(model.set("model", 3, 1, 4));
     pg->add(birdLineWidth.set("line width", 1, 0.1, 5));
     pg->add(birdDistanceLine.set("line btwn birds", 30, 1, 800));
@@ -57,7 +57,7 @@ void NicheManager::setup(){
     pg->add(attractionActive.set("attraction", false));
     pg->add(attractionFrequence.set("att freq", 1.2, 0.01, 10.));
     pg->add(attractionRadius.set("att radius", 400, 50, h ));
-    pg->add(attractionHeight.set("att Y", 168, 0, h));
+    pg->add(attractionHeight.set("att Y", 400, 0, h));
     
     model.addListener(this, &NicheManager::loadModelFromList);
     
