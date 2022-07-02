@@ -308,6 +308,7 @@ void LetterManager::addLetter(int letter) {
                 
                 vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                 
+                //TODO : check that listOfPolyline is not EMPTY !!!
                 Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
                 listOfLetter.push_back(newLetter);
                 

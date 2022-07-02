@@ -16,16 +16,17 @@ PolyBackground::PolyBackground(ofParameterGroup* _pg, int _w, int _h){
     
     //Listener
     clearButton.addListener(this,&PolyBackground::clear);
+    save.addListener(this, &PolyBackground::saveToXml);
     
     //Parameters
     pg = _pg;
     pg->setName("polyBg");
-    pg->add(currentPolylineSelected.set("selection", -1, -1, POLYBACKGROUND_NUM));
+    pg->add(currentPolylineSelected.set("selection", -1, -1, (POLYBACKGROUND_NUM-1)));
     pg->add(currentPointSelected.set("p_selection", -1, -1, 10));
     pg->add(isDraw.set("draw", false));
     pg->add(isAddObstacle.set("add obstacle", false));
     pg->add(clearButton.set("clear", false));
-    pg->add(saveImage.set("save", false));
+    pg->add(save.set("save", false));
     
     //List of Point/obstacle
     
@@ -49,11 +50,17 @@ PolyBackground::PolyBackground(ofParameterGroup* _pg, int _w, int _h){
 //-----------------------------------------------------------
 void PolyBackground::init(){
     
-    int fixNumberOfPolyline = POLYBACKGROUND_NUM;
-    listOfPolyline.clear();
-    for(int i=0; i<fixNumberOfPolyline; i++){
-        listOfPolyline.push_back(createRandomPolyline());
+    //Open Xml file first
+    // If doesn't exist of wrong file, then create randomness
+    if(!loadXml()){
+        int fixNumberOfPolyline = POLYBACKGROUND_NUM;
+        listOfPolyline.clear();
+        for(int i=0; i<fixNumberOfPolyline; i++){
+            listOfPolyline.push_back(createRandomPolyline());
+        }
     }
+    
+
     
 }
 
@@ -168,7 +175,8 @@ ofPolyline PolyBackground::getCurrentSelected(){
 //-----------------------------------------------------------
 ofPolyline PolyBackground::createRandomPolyline(){
     
-    int fixPointNumber = 5;
+    //Number of Point per polyline is const value
+    int fixPointNumber = POINTPERPOLYLINE_NUM;
     
     ofPolyline newPoly;
     for(int i=0; i<fixPointNumber; i++){
@@ -183,4 +191,78 @@ ofPolyline PolyBackground::createRandomPolyline(){
     
     return newPoly;
     
+}
+
+//------------------------------------------------------------
+void PolyBackground::saveToXml(bool & isSave){
+    
+    if(isSave){
+        
+        xml.clear();
+        xml.addTag("polybackground");
+        xml.pushTag("polybackground");
+        
+        for( int pIndex = 0; pIndex<POLYBACKGROUND_NUM; pIndex++){
+            
+            xml.addTag("polyline");
+            xml.pushTag("polyline", pIndex);
+            
+            for( int i=0; i<POINTPERPOLYLINE_NUM; i++){
+                xml.addTag("point");
+                xml.pushTag("point", i);
+                xml.addValue("x", listOfPolyline.at(pIndex)[i].x);
+                xml.addValue("y", listOfPolyline.at(pIndex)[i].y);
+                xml.popTag();
+            }
+            xml.popTag();
+        }
+        
+        xml.popTag();
+        
+        xml.save(xml_file);
+        
+    }
+        
+    
+}
+
+//------------------------------------------------------------
+bool PolyBackground::loadXml(){
+    
+    bool isOk = xml.loadFile(xml_file);
+    if(!isOk){
+        return false;
+    }else{
+        
+        listOfPolyline.clear();
+        xml.pushTag("polybackground");
+        int nbPolyline = xml.getNumTags("polyline");
+        for( int pIndex = 0; pIndex<nbPolyline; pIndex++){
+            
+            xml.pushTag("polyline", pIndex);
+            ofPolyline poly;
+            int nbPoint = xml.getNumTags("point");
+            
+            for( int p=0; p<nbPoint; p++){
+                xml.pushTag("point", p);
+                int x = xml.getValue("x", 300);
+                int y = xml.getValue("y", 300);
+                poly.addVertex(x, y);
+                xml.popTag();
+                
+            }
+            
+            poly.close();
+            listOfPolyline.push_back(poly);
+            xml.popTag();
+            
+            
+        }
+        xml.popTag();
+        
+        
+    }
+    
+    
+    return true;
 }

@@ -10,8 +10,10 @@
 
 #include <stdio.h>
 #include "ofMain.h"
+#include "ofxXmlSettings.h"
 
-#define POLYBACKGROUND_NUM 4
+#define POLYBACKGROUND_NUM 8
+#define POINTPERPOLYLINE_NUM 8
 
 class PolyBackground{
 
@@ -30,6 +32,8 @@ public :
     void clickForMove(ofVec2f mouse);
     void clickForSelect(ofVec2f mouse);
     ofPolyline getCurrentSelected();
+
+    
     
     //Selection radius
     int radius = 20;
@@ -41,10 +45,17 @@ public :
     ofParameter<bool> isDraw;
     ofParameter<bool> isAddObstacle;
     ofParameter<bool> clearButton;
-    ofParameter<bool> saveImage;
+    ofParameter<bool> save;
     
     //FBO image for pencil. Draw on it from mouse and save to file
-    ofFbo fbo;
+    ofFbo fbo; //TODO : not used ?
+    
+    //Xml settings, save settings
+    void saveToXml(bool & isSave);
+    bool loadXml();
+    ofxXmlSettings xml;
+    const string xml_file = "polybackgroundXML.xml";
+    
     
     
     //Geometry
