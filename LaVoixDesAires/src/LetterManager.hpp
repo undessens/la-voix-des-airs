@@ -6,6 +6,8 @@
 #include "NicheManager.hpp"
 #include "Letter.hpp"
 #include "Niche.hpp"
+#include "ofxXmlSettings.h"
+
 #define MAX_LETTER 300
 #define MAX_LETTER_PER_LINE 44
 
@@ -45,6 +47,11 @@ public:
     ofTrueTypeFont birdFont;
     string msgFontName = "atwriter.ttf"; //TODO supprimer la distinction entre les 2
     string birdFontName = "atwriter.ttf"; // plus lieu d'être.
+    ofRectangle rectWithoutLetter;
+    ofxXmlSettings settingsRectWithoutLetter;
+    void updateRectangle(int &x);
+    void saveRectangle(bool &b);
+    bool loadRectangle(string path);
     
     int w, h;
     
@@ -83,7 +90,10 @@ public:
     ofParameter<int> gMsgPositionY;
     ofParameter<float> gfontDistSampling;
     ofParameter<float> zoomBigLetter;
-    ofParameter<int> alphaBigLetter;		
+    ofParameter<int> alphaBigLetter;
+    ofParameter<int> rectWithoutLetterX;
+    ofParameter<int> rectWithoutLetterW;
+    ofParameter<bool> saveRectangleWithoutLetter;
     
     //Setter to all instances. CAN NOT be in NicheManager
     void setDebug(int &i);

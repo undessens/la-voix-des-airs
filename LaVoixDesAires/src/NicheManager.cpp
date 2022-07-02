@@ -63,9 +63,6 @@ void NicheManager::setup(){
     
     loadModel("../../../model/birds/bird_04.fbx");
     
-
-    
-    
     //Attraction
     att = ofVec2f(w/2, h/2);
     

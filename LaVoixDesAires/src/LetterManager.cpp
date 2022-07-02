@@ -23,10 +23,6 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     fontDistSampling = 7.0;
     changeFontSize(fontSize);
     
-//    msgFont.load("ttwpglot.ttf", fontSize, true, true, true);
-//    msgFont.load("ralewayDots.ttf", fontSize, true, true, true);
-//    birdFont.load(, fontSize, true, true, true);
-    
     nicheManager = b;
     polybackground = p;
     
@@ -45,13 +41,14 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     permanentNiche = nicheManager->createInvicibleArmy();
     temporaryNiche.clear();
 
-
     gFontSize.addListener(this, &LetterManager::changeFontSize);
     gFontSpacing.addListener(this, &LetterManager::changeFontSpacing);
     gMsgPositionX.addListener(this, &LetterManager::changeMsgPositionX);
     gMsgPositionY.addListener(this, &LetterManager::changeMsgPositionY);
     gfontDistSampling.addListener(this, &LetterManager::changeFontSampling);
-    
+    rectWithoutLetterX.addListener(this, &LetterManager::updateRectangle);
+    rectWithoutLetterW.addListener(this, &LetterManager::updateRectangle);
+    saveRectangleWithoutLetter.addListener(this, &LetterManager::saveRectangle);
     
     pg = _pg;
     pg->setName("Text Manager");
@@ -64,13 +61,23 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
     pg->add(zoomBigLetter.set("zoom big letter", 13 , 1, 40));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
+    pg->add(rectWithoutLetterX.set("rect letter X", w/2 , 0, w));
+    pg->add(rectWithoutLetterW.set("rect letter W", w/8 , 0, w/2));
+    pg->add(saveRectangleWithoutLetter.set("save rect", false));
 
+    
+    //WRITING SPEED . TIME OF LAST LETTER
 	for (int i = 0; i < MAX_LETTER; i++) {
 		timeOfLastLetter[i] = 0.f;
 	}
     writingSpeed = 0;
     
-    
+    // RECTANGLE WITHOUT LETTER
+    if(loadRectangle("rectanglewithoutletter.xml")){
+        
+    }else{
+        rectWithoutLetter = ofRectangle(rectWithoutLetterX, 0, rectWithoutLetterW, h);
+    }
     
 }
 
@@ -181,12 +188,16 @@ void LetterManager::drawBirds() {
 //--------------------------------------------------------------
 void LetterManager::drawDebug() {
 
-    
     if(nicheManager->debug>0){
         ofSetColor(0,255,0);
         ofNoFill();
         ofDrawCircle(nextLetterPosition.x, nextLetterPosition.y, 20);
+        
+        ofSetColor(ofColor::blue);
+        ofDrawRectangle(rectWithoutLetter);
     }
+    
+    
     
 }
 
@@ -242,12 +253,9 @@ vector<ofPolyline> LetterManager::reduceDistanceSampling( ofPath path){
         listOfPoly.push_back(poly);
     }
     
-    
     return listOfPoly;
     
 }
-
-
 
 //--------------------------------------------------------------
 void LetterManager::addLetter(int letter) {
@@ -312,7 +320,9 @@ void LetterManager::addLetter(int letter) {
                     /******   UPDATE CURSOR   ******/
                     ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
                     nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
-                    
+                    if( (nextLetterPosition.x + fontSpacing   ) > rectWithoutLetter.x && nextLetterPosition.x < (rectWithoutLetter.x + rectWithoutLetter.width)  ){
+                        nextLetterPosition.x += ( rectWithoutLetter.width + fontSpacing);
+                    }
                     if(msg.size() != listOfLetter.size()){
                         ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
                     }
@@ -516,3 +526,63 @@ void LetterManager::setFlyDuration(int &i){
         bird.flyingDuration = i;
     }
 }
+
+//--------------------------------------------------------------
+void LetterManager::updateRectangle(int &i){
+    
+    rectWithoutLetter = ofRectangle(rectWithoutLetterX, 0, rectWithoutLetterW, h);
+    
+}
+
+//--------------------------------------------------------------
+void LetterManager::saveRectangle(bool &b){
+    
+    if(b){
+        
+        settingsRectWithoutLetter.clear();
+        settingsRectWithoutLetter.addTag("rectangle");
+        settingsRectWithoutLetter.pushTag("rectangle");
+        settingsRectWithoutLetter.addValue("x", rectWithoutLetter.x);
+        settingsRectWithoutLetter.addValue("y", rectWithoutLetter.y);
+        settingsRectWithoutLetter.addValue("w", rectWithoutLetter.width);
+        settingsRectWithoutLetter.addValue("h", rectWithoutLetter.height);
+        settingsRectWithoutLetter.popTag();
+        settingsRectWithoutLetter.save("rectanglewithoutletter.xml");
+        
+        
+    }
+    
+}
+
+//--------------------------------------------------------------
+bool LetterManager::loadRectangle(string path){
+
+    settingsRectWithoutLetter.clear();
+    bool loadOk = settingsRectWithoutLetter.load(path);
+    if(!loadOk){
+        return false;
+    }else{
+        
+        settingsRectWithoutLetter.pushTag("rectangle");
+        int rx = settingsRectWithoutLetter.getValue("x", w/2);
+        int ry = settingsRectWithoutLetter.getValue("y", 0);
+        int rwidth = settingsRectWithoutLetter.getValue("w", w/4);
+        int rheight = settingsRectWithoutLetter.getValue("x", h);
+        settingsRectWithoutLetter.popTag();
+        settingsRectWithoutLetter.clear();
+        
+        //rectWithoutLetter = ofRectangle(rx, ry, rwidth, rheight);
+        //ofLog(OF_LOG_NOTICE, ofToString(rectWithoutLetter.getWidth()));
+        //ofLog(OF_LOG_NOTICE, ofToString(rectWithoutLetter.width));
+        
+        rectWithoutLetterW = rwidth;
+        rectWithoutLetterX = rx;
+        
+        
+        return true;
+        
+    }
+    
+    
+}
+
