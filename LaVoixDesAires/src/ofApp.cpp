@@ -65,6 +65,7 @@ void ofApp::setup() {
     
     // WARPER
     warper.setup(0, 0, final_w*0.99, final_h*0.99);
+    warper.load("warper.xml");
     warper.deactivate();
     
     //FPS
@@ -380,7 +381,17 @@ void ofApp::keyPressed(int key) {
 
     }else if ( key == 4){
         // ALT
-        if(warper.isActive())warper.deactivate();
+        if(warper.isActive()){
+            warper.deactivate();
+            warper.saveToXml(xml_warper);
+            warper.saveToXml(xml_warper);
+            ofLogNotice(xml_warper.toString());
+            //xml.setName("war_settings");
+            if (!xml_warper.save("warper.xml")) {
+                ofLogError() << "Couldn't save points.xml";
+            }
+            
+        }
         else warper.activate();
     }else{
 		

@@ -72,6 +72,7 @@ class ofApp : public ofBaseApp{
     
         // Quad Warper
         ofxGLWarper warper;
+        ofXml xml_warper;
     
     
 
