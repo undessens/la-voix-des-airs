@@ -73,6 +73,9 @@ class ofApp : public ofBaseApp{
         // Quad Warper
         ofxGLWarper warper;
         ofXml xml_warper;
+
+		// IS FULLSCREEN
+		bool isFullscreen;
     
     
 
@@ -100,6 +103,7 @@ class ofApp : public ofBaseApp{
 
 		// OSC receiver
 		ofxOscReceiver osc_receiver; 
+		
 
 		// ASCII char from osc
 		int32_t letter;

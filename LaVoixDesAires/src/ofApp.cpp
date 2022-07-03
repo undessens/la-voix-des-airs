@@ -9,8 +9,8 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1280;
-    final_h = 720;
+    final_w = 1920;
+    final_h = 1080;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
     
@@ -67,12 +67,17 @@ void ofApp::setup() {
     warper.setup(0, 0, final_w, final_h);
     warper.load("warper.xml");
     warper.deactivate();
+
+	// FULLSCREEN
+	isFullscreen = false;
     
     //FPS
     ofSetFrameRate(frameRate);
     
-	// OSC receiver
+	// OSC receiver + sender
 	osc_receiver.setup(12345);
+
+
     
     //Lighting
     ofSetSmoothLighting(true);
@@ -163,7 +168,7 @@ void ofApp::update() {
             nicheManager->birdLineWidth = m.getArgAsFloat(0);
         }
         else if(m.getAddress() =="/bird/linedist"){
-            nicheManager->birdLineWidth = m.getArgAsFloat(0);
+            nicheManager->birdDistanceLine = m.getArgAsFloat(0);
         }
         else if(m.getAddress() =="/bird/atty"){
             nicheManager->attractionHeight = m.getArgAsFloat(0);
@@ -187,7 +192,69 @@ void ofApp::update() {
             int x = m.getArgAsFloat(0)*final_w;
             int y = m.getArgAsFloat(1)*final_h;
             warper.setCorner(warper.BOTTOM_RIGHT, x, y);
-        }
+		} else if (m.getAddress() == "/polybg/fire/1") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(0));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+		}
+		else if (m.getAddress() == "/polybg/fire/0") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(0));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/1") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(1));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/2") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(2));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/3") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(3));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/4") {
+		Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(4));
+		if (n.listOfBird.size() > 0) {
+			letterManager->addTemporaryNiche(n);
+		}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/5") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(5));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/6") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(6));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		else if (m.getAddress() == "/polybg/fire/7") {
+			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getPolyBackground(7));
+			if (n.listOfBird.size() > 0) {
+				letterManager->addTemporaryNiche(n);
+			}
+
+		}
+		
         
 
 	}
@@ -308,8 +375,8 @@ void ofApp::draw() {
 
 		if (debug) {
             ofSetColor(255);
-			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), ofGetWidth() / 2, ofGetHeight() );
-            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), ofGetWidth() / 2, ofGetHeight()-20);
+			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), final_w / 2, final_h);
+            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), final_w / 2, final_h-20);
 		}
 
 		fbo.end();
@@ -380,12 +447,8 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(key);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
-		if (key == 3680) {
-			Niche n = nicheManager->createEphemereNicheFromPolyline(polyBackground->getCurrentSelected());
-			if (n.listOfBird.size() > 0) {
-				letterManager->addTemporaryNiche(n);
-			}
-		}
+		isFullscreen = !isFullscreen;
+		ofSetFullscreen(isFullscreen);
 			
         return;
 	}else if(key == 3682) {

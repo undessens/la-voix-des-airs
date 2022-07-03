@@ -7,6 +7,7 @@
 #include "Letter.hpp"
 #include "Niche.hpp"
 #include "ofxXmlSettings.h"
+#include "ofxOsc.h"
 
 #define MAX_LETTER 300
 #define MAX_LETTER_PER_LINE 44
@@ -80,6 +81,9 @@ public:
 
     //OfParameter group
     ofParameterGroup* pg;
+
+	//OSC sender
+	ofxOscSender osc_sender;
     
     //Parameter
     ofParameter<bool> drawMsgFill;

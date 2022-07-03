@@ -27,6 +27,7 @@ public :
     int getClosestPoint(ofVec2f);
     bool isEditing;
     vector<ofPolyline> listOfPolyline;
+	ofPolyline getPolyBackground(int i);
     
     ofPolyline createRandomPolyline();
     void clickForMove(ofVec2f mouse);

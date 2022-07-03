@@ -78,6 +78,8 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     }else{
         rectWithoutLetter = ofRectangle(rectWithoutLetterX, 0, rectWithoutLetterW, h);
     }
+
+	osc_sender.setup("10.0.1.104", 12340);
     
 }
 
@@ -123,7 +125,9 @@ void LetterManager::update(){
     
 
     nicheManager->update(permanentNiche);
-    for(vector<Niche>::iterator it = temporaryNiche.begin() ;it<temporaryNiche.end(); ){
+	vector<Niche>::iterator itToErase;
+
+    for(vector<Niche>::iterator it = temporaryNiche.begin() ;it!=temporaryNiche.end(); ){
         
         int miniState = nicheManager->update(*it);
         if(miniState>=5 ){ // Bird Die
@@ -283,6 +287,13 @@ void LetterManager::addLetter(int letter) {
         nextLetterPosition.x = msgPosition.x;
         currentLineCharacter = 0;
 
+		// SEND OSC MESSAGE TO MAC
+		ofxOscMessage m;
+		m.setAddress("/back");
+		m.addInt32Arg(0);
+		osc_sender.sendMessage(m);
+		m.clear();
+
     }else{
         // LETTRE NORMALE ( espace compris )
         if (prevMsgLength < MAX_LETTER && currentLineCharacter <= MAX_LETTER_PER_LINE)
@@ -295,6 +306,8 @@ void LetterManager::addLetter(int letter) {
             
             ofLog() << "New letter received: " << newLetter;
             ofLog() << "New message size:" << prevMsgLength + 1;
+
+			
             
             // NOT a space and font is loaded
             if(letter != 32  && msgFont.isLoaded()){
@@ -326,6 +339,13 @@ void LetterManager::addLetter(int letter) {
                     if(msg.size() != listOfLetter.size()){
                         ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
                     }
+
+					// SEND OSC MESSAGE TO MAC
+					ofxOscMessage m;
+					m.setAddress("/letter");
+					m.addInt32Arg(0);
+					osc_sender.sendMessage(m);
+					m.clear();
                     
                 }
                 

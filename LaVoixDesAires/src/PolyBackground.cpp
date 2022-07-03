@@ -135,6 +135,21 @@ void PolyBackground::clickForMove(ofVec2f mouse){
     }
     
 }
+
+//-----------------------------------------------------------
+ofPolyline PolyBackground::getPolyBackground(int i) {
+
+	if (i >= 0 && i < listOfPolyline.size()) {
+
+		return listOfPolyline.at(i);
+	}
+	else {
+		listOfPolyline.at(0);
+	}
+
+}
+
+
 //-----------------------------------------------------------
 int PolyBackground::getClosestPoint(ofVec2f p){
     
