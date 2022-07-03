@@ -128,6 +128,10 @@ void ofApp::update() {
 			}
 			
 		}
+        else if(m.getAddress() == "/alldebug"){
+            debug = m.getArgAsInt(0) == 1;
+            nicheManager->debug = m.getArgAsInt(0);
+        }
         else if(m.getAddress() == "/background"){
             int r = m.getArgAsFloat(0);
             int g = m.getArgAsFloat(1);
@@ -157,6 +161,15 @@ void ofApp::update() {
             nicheManager->flyDuration = m.getArgAsInt32(0);
         }else if(m.getAddress() == "/bird/line"){
             nicheManager->birdLineWidth = m.getArgAsFloat(0);
+        }
+        else if(m.getAddress() =="/bird/linedist"){
+            nicheManager->birdLineWidth = m.getArgAsFloat(0);
+        }
+        else if(m.getAddress() =="/bird/atty"){
+            nicheManager->attractionHeight = m.getArgAsFloat(0);
+        }
+        else if(m.getAddress() =="/bird/attradius"){
+            nicheManager->attractionRadius = m.getArgAsFloat(0);
         }
         else if(m.getAddress() == "/warper/topleft"){
             int x = m.getArgAsFloat(0)*final_w;

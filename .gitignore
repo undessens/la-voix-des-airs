@@ -1,6 +1,7 @@
 LaVoixDesAires/*
 !LaVoixDesAires/src
 !LaVoixDesAires/addons.make
+!LaVoixDesAires/bin/data
 *.obj
 .DS_Store
 .com.apple.timemachine.supported
