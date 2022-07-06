@@ -96,6 +96,7 @@ public:
     ofParameter<float> gfontDistSampling;
     ofParameter<float> zoomBigLetter;
     ofParameter<int> alphaBigLetter;
+	ofParameter<int> positionBigLetter;
     ofParameter<int> borderLetter1X; // Bonifacio . Colonne 1 de marbre sur façade . Adaptation sur mesure.
     ofParameter<int> borderLetter1W;
 	ofParameter<int> borderLetter2X; // Bonifacio . Colonne 2 de marbre sur façade

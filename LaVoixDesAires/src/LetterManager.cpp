@@ -61,8 +61,9 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
-    pg->add(zoomBigLetter.set("zoom big letter", 13 , 1, 40));
+    pg->add(zoomBigLetter.set("zoom big letter", 8 , 1, 30));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
+	pg->add(positionBigLetter.set("Y big letter", h/2, 0, h));
     pg->add(borderLetter1X.set("rect letter X", w/2 , 0, w));
     pg->add(borderLetter1W.set("rect letter W", w/8 , 0, w/2));
 	pg->add(borderLetter2X.set("rect letter X", w * 0.75, 0, w));
@@ -350,7 +351,8 @@ void LetterManager::addLetter(int letter) {
 						finalLetterPosition.y -= borderOffsetY;
 					}
 					// 2. Call Constructor
-                    Letter* newLetter = new Letter(letter, finalLetterPosition, listOfPolyline, nicheManager, w, h);
+					ofVec2f positionBL = ofVec2f(w / 2, positionBigLetter);
+                    Letter* newLetter = new Letter(letter, finalLetterPosition, positionBL,listOfPolyline, nicheManager, w, h, zoomBigLetter);
                     listOfLetter.push_back(newLetter);
                     
                     /******   UPDATE CURSOR   ******/

@@ -21,7 +21,7 @@ class Letter
 public:
     
     Letter();
-    Letter(char _c, ofVec2f p, vector<ofPolyline> liste, NicheManager* nicheManager, int w, int h);
+    Letter(char _c, ofVec2f ps, ofVec2f pb, vector<ofPolyline> liste, NicheManager* nicheManager, int w, int h, int scaleBigLetter);
     
     enum class StateOfLetter { BIG_LETTER = 1, FLYING, SMALL_LETTER , NONE};
     StateOfLetter state;
