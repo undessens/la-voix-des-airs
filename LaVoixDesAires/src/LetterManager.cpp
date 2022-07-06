@@ -46,8 +46,10 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     gMsgPositionX.addListener(this, &LetterManager::changeMsgPositionX);
     gMsgPositionY.addListener(this, &LetterManager::changeMsgPositionY);
     gfontDistSampling.addListener(this, &LetterManager::changeFontSampling);
-    rectWithoutLetterX.addListener(this, &LetterManager::updateRectangle);
-    rectWithoutLetterW.addListener(this, &LetterManager::updateRectangle);
+    borderLetter1X.addListener(this, &LetterManager::updateRectangle);
+    borderLetter1W.addListener(this, &LetterManager::updateRectangle);
+	borderLetter2X.addListener(this, &LetterManager::updateRectangle);
+	borderLetter2W.addListener(this, &LetterManager::updateRectangle);
     saveRectangleWithoutLetter.addListener(this, &LetterManager::saveRectangle);
     
     pg = _pg;
@@ -61,8 +63,11 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
     pg->add(zoomBigLetter.set("zoom big letter", 13 , 1, 40));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
-    pg->add(rectWithoutLetterX.set("rect letter X", w/2 , 0, w));
-    pg->add(rectWithoutLetterW.set("rect letter W", w/8 , 0, w/2));
+    pg->add(borderLetter1X.set("rect letter X", w/2 , 0, w));
+    pg->add(borderLetter1W.set("rect letter W", w/8 , 0, w/2));
+	pg->add(borderLetter2X.set("rect letter X", w * 0.75, 0, w));
+	pg->add(borderLetter2W.set("rect letter W", w / 8, 0, w / 2));
+	pg->add(borderOffsetY.set("border offsetY", 0, 0, 25));
     pg->add(saveRectangleWithoutLetter.set("save rect", false));
 
     
@@ -76,7 +81,7 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     if(loadRectangle("rectanglewithoutletter.xml")){
         
     }else{
-        rectWithoutLetter = ofRectangle(rectWithoutLetterX, 0, rectWithoutLetterW, h);
+        borderLetter1 = ofRectangle(borderLetter1X, 0, borderLetter1W, h);
     }
 
 	osc_sender.setup("10.0.1.104", 12340);
@@ -96,11 +101,19 @@ void LetterManager::changeFontSampling(float &s) {
 //--------------------------------------------------------------
 void LetterManager::changeMsgPositionX(int &x) {
 	msgPosition.x = x;
+	// If msg empty, update the new position in real time
+	if (msg.size() == 0) {
+		nextLetterPosition = msgPosition;
+	}
 }
 
 //--------------------------------------------------------------
 void LetterManager::changeMsgPositionY(int &y) {
 	msgPosition.y = y;
+	// If msg empty, update the new position in real time
+	if (msg.size() == 0) {
+		nextLetterPosition = msgPosition;
+	}
 }
 
 //--------------------------------------------------------------
@@ -198,7 +211,8 @@ void LetterManager::drawDebug() {
         ofDrawCircle(nextLetterPosition.x, nextLetterPosition.y, 20);
         
         ofSetColor(ofColor::blue);
-        ofDrawRectangle(rectWithoutLetter);
+        ofDrawRectangle(borderLetter1);
+		ofDrawRectangle(borderLetter2);
     }
     
     
@@ -327,15 +341,21 @@ void LetterManager::addLetter(int letter) {
                     vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                     
                     /******   CREATE NEW LETTER   ******/
-                    Letter* newLetter = new Letter(letter, nextLetterPosition, listOfPolyline, nicheManager, w, h);
+					// 1. Check if letter is inside a border
+					ofVec2f finalLetterPosition = nextLetterPosition;
+					if ((nextLetterPosition.x) > borderLetter1.x && nextLetterPosition.x < (borderLetter1.x + borderLetter1.width)) {
+						finalLetterPosition.y -= borderOffsetY;
+					}
+					if ((nextLetterPosition.x) > borderLetter2.x && nextLetterPosition.x < (borderLetter2.x + borderLetter2.width)) {
+						finalLetterPosition.y -= borderOffsetY;
+					}
+					// 2. Call Constructor
+                    Letter* newLetter = new Letter(letter, finalLetterPosition, listOfPolyline, nicheManager, w, h);
                     listOfLetter.push_back(newLetter);
                     
                     /******   UPDATE CURSOR   ******/
                     ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
                     nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
-                    if( (nextLetterPosition.x + fontSpacing   ) > rectWithoutLetter.x && nextLetterPosition.x < (rectWithoutLetter.x + rectWithoutLetter.width)  ){
-                        nextLetterPosition.x += ( rectWithoutLetter.width + fontSpacing);
-                    }
                     if(msg.size() != listOfLetter.size()){
                         ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";
                     }
@@ -550,7 +570,11 @@ void LetterManager::setFlyDuration(int &i){
 //--------------------------------------------------------------
 void LetterManager::updateRectangle(int &i){
     
-    rectWithoutLetter = ofRectangle(rectWithoutLetterX, 0, rectWithoutLetterW, h);
+	if (borderLetter2X < (borderLetter1X + borderLetter1W + 10)) {
+		borderLetter2X = (borderLetter1X + borderLetter1W + 10);
+	}
+    borderLetter1 = ofRectangle(borderLetter1X, 0, borderLetter1W, h);
+	borderLetter2 = ofRectangle(borderLetter2X, 0, borderLetter2W, h);
     
 }
 
@@ -562,10 +586,10 @@ void LetterManager::saveRectangle(bool &b){
         settingsRectWithoutLetter.clear();
         settingsRectWithoutLetter.addTag("rectangle");
         settingsRectWithoutLetter.pushTag("rectangle");
-        settingsRectWithoutLetter.addValue("x", rectWithoutLetter.x);
-        settingsRectWithoutLetter.addValue("y", rectWithoutLetter.y);
-        settingsRectWithoutLetter.addValue("w", rectWithoutLetter.width);
-        settingsRectWithoutLetter.addValue("h", rectWithoutLetter.height);
+        settingsRectWithoutLetter.addValue("x", borderLetter1.x);
+        settingsRectWithoutLetter.addValue("y", borderLetter1.y);
+        settingsRectWithoutLetter.addValue("w", borderLetter1.width);
+        settingsRectWithoutLetter.addValue("h", borderLetter1.height);
         settingsRectWithoutLetter.popTag();
         settingsRectWithoutLetter.save("rectanglewithoutletter.xml");
         
@@ -595,8 +619,8 @@ bool LetterManager::loadRectangle(string path){
         //ofLog(OF_LOG_NOTICE, ofToString(rectWithoutLetter.getWidth()));
         //ofLog(OF_LOG_NOTICE, ofToString(rectWithoutLetter.width));
         
-        rectWithoutLetterW = rwidth;
-        rectWithoutLetterX = rx;
+        borderLetter1W = rwidth;
+        borderLetter1X = rx;
         
         
         return true;

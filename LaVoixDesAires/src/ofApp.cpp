@@ -9,7 +9,7 @@ void ofApp::setup() {
 
 
 	//FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
-    final_w = 1920;
+    final_w = 1850;
     final_h = 1080;
     //FINAL DIMENSION - FINAL DIMENSION - FINAL DIMENSION
     
@@ -361,10 +361,11 @@ void ofApp::draw() {
 		// Fake cursor
 		if (fakeCursor) {
 
-			ofVec2f cursor = ofVec2f(ofGetMouseX() * (final_w*1.0) / ofGetWidth(), ofGetMouseY() * (final_h*1.0) / ofGetHeight());
+			//ofVec2f cursor = ofVec2f(ofGetMouseX() * (final_w*1.0) / ofGetWidth(), ofGetMouseY() * (final_h*1.0) / ofGetHeight());
+			ofVec2f cursor = ofVec2f(ofGetMouseX() , ofGetMouseY() );
 
 			ofSetColor(255, 0, 0);
-			ofDrawCircle(cursor, 20);
+			ofDrawCircle(cursor, 5);
 			ofDrawLine(cursor.x - 30, cursor.y, cursor.x + 30, cursor.y);
 			ofDrawLine(cursor.x, cursor.y - 30, cursor.x, cursor.y + 30);
 
@@ -375,8 +376,8 @@ void ofApp::draw() {
 
 		if (debug) {
             ofSetColor(255);
-			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), final_w / 2, final_h);
-            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), final_w / 2, final_h-20);
+			ofDrawBitmapStringHighlight("FrameRate : " + ofToString(ofGetFrameRate()), final_w / 2, final_h - 40);
+            ofDrawBitmapStringHighlight("Writing Speed : " + ofToString(letterManager->writingSpeed), final_w / 2, final_h-60);
 		}
 
 		fbo.end();
@@ -447,8 +448,8 @@ void ofApp::keyPressed(int key) {
         letterManager->addLetter(key);
 	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
 		//Maj  CMD , DO NOTHING
-		isFullscreen = !isFullscreen;
-		ofSetFullscreen(isFullscreen);
+		//isFullscreen = !isFullscreen;
+		//ofSetFullscreen(isFullscreen);
 			
         return;
 	}else if(key == 3682) {
