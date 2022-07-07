@@ -38,7 +38,7 @@ void NicheManager::setup(){
     pg->add(debugScale.set("debugScale", 14, 1, 50));
     pg->add(nbBird.set("nbBird", 0, 0, 300));
     pg->add(size.set("size", 50, 2, 150));
-    pg->add(model.set("model", 2, 1, 4));
+    pg->add(model.set("model", 3, 1, 4));
     pg->add(birdLineWidth.set("line width", 1.6, 0.1, 5));
     pg->add(birdDistanceLine.set("line btwn birds", 70, 1, 800));
     
@@ -61,7 +61,9 @@ void NicheManager::setup(){
     
     model.addListener(this, &NicheManager::loadModelFromList);
     
-    loadModel("../../../model/birds/bird_04.fbx");
+    //loadModel("../../../model/birds/bird_04.fbx");
+	int nbModel = model;
+	loadModelFromList(nbModel);
     
     //Attraction
     att = ofVec2f(w/2, h/2);

@@ -334,6 +334,7 @@ void LetterManager::addLetter(int letter) {
                 ofPath pathLetterToBird, pathLetterToDraw;
                 pathLetterToBird = createPathFromLetter(letter, ofVec2f(0,0));
                 pathLetterToDraw = createFilledPathFromLetter(letter, nextLetterPosition);
+				ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
                 
                  /******   CHECK IF NOT EMPTY ( special character for exemple )     ******/
                 if(pathLetterToBird.getOutline().size()>0){
@@ -342,7 +343,26 @@ void LetterManager::addLetter(int letter) {
                     vector<ofPolyline> listOfPolyline = reduceDistanceSampling( pathLetterToBird  );
                     
                     /******   CREATE NEW LETTER   ******/
-					// 1. Check if letter is inside a border
+					// 1. Translate horizontal letter if touching the  border
+					
+					// touching left border of 1st rectangle
+					if (nextLetterPosition.x  < borderLetter1.x && (nextLetterPosition.x + rectOfLetter.width) > borderLetter1.x) {
+						nextLetterPosition.x = borderLetter1.x + 5;
+					}
+					// touching right border of 1st rectangle
+					if (nextLetterPosition.x  < (borderLetter1.x + borderLetter1.width) && (nextLetterPosition.x + rectOfLetter.width) >(borderLetter1.x + borderLetter1.width)) {
+						nextLetterPosition.x = (borderLetter1.x + borderLetter1.width) + 5;
+					}
+					if (nextLetterPosition.x  < borderLetter2.x && (nextLetterPosition.x + rectOfLetter.width) > borderLetter2.x) {
+						nextLetterPosition.x = borderLetter2.x + 5;
+					}
+					// touching right border of 1st rectangle
+					if (nextLetterPosition.x  < (borderLetter2.x + borderLetter2.width) && (nextLetterPosition.x + rectOfLetter.width) >(borderLetter2.x + borderLetter2.width)) {
+						nextLetterPosition.x = (borderLetter2.x + borderLetter2.width) + 5;
+					}
+					
+
+					// 2. Translate vertically if inside the rectangle
 					ofVec2f finalLetterPosition = nextLetterPosition;
 					if ((nextLetterPosition.x) > borderLetter1.x && nextLetterPosition.x < (borderLetter1.x + borderLetter1.width)) {
 						finalLetterPosition.y -= borderOffsetY;
@@ -356,7 +376,7 @@ void LetterManager::addLetter(int letter) {
                     listOfLetter.push_back(newLetter);
                     
                     /******   UPDATE CURSOR   ******/
-                    ofRectangle rectOfLetter = getBoundingBoxOfPath(pathLetterToBird);
+                    
                     nextLetterPosition.x +=  rectOfLetter.width + 1; // space between letter
                     if(msg.size() != listOfLetter.size()){
                         ofLog(OF_LOG_ERROR) << " msg & listOfLetter sizes does not match";

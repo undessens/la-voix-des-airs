@@ -127,7 +127,7 @@ void Letter::drawLetter(){
         case StateOfLetter::BIG_LETTER:
             bigLetter.drawBig(1, 245);
             //bigLetter.drawDebug();
-            bigLetter.drawFinal(120);
+            bigLetter.drawFinal(200);
             break;
         case StateOfLetter::FLYING:
             //bigLetter.drawBasic(1, 127);
