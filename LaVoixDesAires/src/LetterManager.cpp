@@ -9,7 +9,7 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 {
     msg = "";
     currentLineCharacter = 0;
-    msgPosition = ofPoint(50, 100);
+    msgPosition = ofPoint(257, 377);
     nextLetterPosition = msgPosition;
     
     w = _w;
@@ -56,19 +56,19 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
     pg->setName("Text Manager");
     pg->add(drawMsgContour.set("Draw Contour", false));
     pg->add(drawMsgFill.set("Draw Fill", false));
-    pg->add(gFontSize.set("Font Size", fontSize, 38, 150));
+    pg->add(gFontSize.set("Font Size", fontSize, 45, 150));
     pg->add(gFontSpacing.set("Font Spacing", fontSpacing, 10, 200));
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
     pg->add(zoomBigLetter.set("zoom big letter", 8 , 1, 30));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
-	pg->add(positionBigLetter.set("Y big letter", h/2, 0, h));
-    pg->add(borderLetter1X.set("rect letter X", w/2 , 0, w));
-    pg->add(borderLetter1W.set("rect letter W", w/8 , 0, w/2));
-	pg->add(borderLetter2X.set("rect letter X", w * 0.75, 0, w));
-	pg->add(borderLetter2W.set("rect letter W", w / 8, 0, w / 2));
-	pg->add(borderOffsetY.set("border offsetY", 0, 0, 25));
+	pg->add(positionBigLetter.set("Y big letter", 810, 0, h));
+    pg->add(borderLetter1X.set("rect letter X", 519 , 0, w));
+    pg->add(borderLetter1W.set("rect letter W", 174, 0, w/2));
+	pg->add(borderLetter2X.set("rect letter X", 1123, 0, w));
+	pg->add(borderLetter2W.set("rect letter W", 146, 0, w / 2));
+	pg->add(borderOffsetY.set("border offsetY", 21, 0, 25));
     pg->add(saveRectangleWithoutLetter.set("save rect", false));
 
     
