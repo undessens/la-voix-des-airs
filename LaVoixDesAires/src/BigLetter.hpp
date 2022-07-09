@@ -18,7 +18,7 @@ class BigLetter
 public:
     
     BigLetter();
-    BigLetter(vector<ofPolyline> p, int w, int h);
+    BigLetter(vector<ofPolyline> p, int w, int h, ofVec2f pos, int scale);
     
     void init();
     void update(vector<Niche>* listOfNiche);
@@ -33,6 +33,7 @@ public:
     std::vector<ofPolyline> finalListOfPolyline;
     std::vector<ofPolyline> listOfPolyline;
     int scale;
+	ofVec2f position;
     
     int w, h;
 

@@ -55,10 +55,11 @@ Letter::Letter(){
 }
 
 //--------------------------------------------------------------
-Letter::Letter(char _c, ofVec2f p, vector<ofPolyline> shape, NicheManager* _nicheManager, int _w, int _h){
+Letter::Letter(char _c, ofVec2f ps, ofVec2f pb, vector<ofPolyline> shape, NicheManager* _nicheManager, int _w, int _h, int scaleBigLetter){
     
     c = _c;
-    positionSmallLetter = p;
+    positionSmallLetter = ps;
+	positionBigLetter = pb;
     state = StateOfLetter::BIG_LETTER;
     listOfPolyline = shape;
     w = _w;
@@ -69,7 +70,7 @@ Letter::Letter(char _c, ofVec2f p, vector<ofPolyline> shape, NicheManager* _nich
     for( auto &polyline : listOfPolyline){
         polyline.translate(positionSmallLetter);
     }
-    bigLetter = BigLetter(listOfPolyline, w, h);
+    bigLetter = BigLetter(listOfPolyline, w, h, positionBigLetter, scaleBigLetter);
     nicheManager = _nicheManager;
     
     listOfNiche = nicheManager->createNicheFromPolyline(bigLetter.listOfPolyline ,  listOfPolyline);
@@ -126,7 +127,7 @@ void Letter::drawLetter(){
         case StateOfLetter::BIG_LETTER:
             bigLetter.drawBig(1, 245);
             //bigLetter.drawDebug();
-            bigLetter.drawFinal(120);
+            bigLetter.drawFinal(200);
             break;
         case StateOfLetter::FLYING:
             //bigLetter.drawBasic(1, 127);

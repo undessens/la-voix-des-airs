@@ -12,15 +12,16 @@ BigLetter::BigLetter(){
 
 
 //-------------------------------------------------
-BigLetter::BigLetter( vector<ofPolyline> _path,int _w,int _h){
+BigLetter::BigLetter( vector<ofPolyline> _path,int _w,int _h, ofVec2f _pos, int _scale){
 
     listOfPolyline = _path;
     finalListOfPolyline = _path;
     iteration = 0;
     iterationMax = 80;
-    scale = 10;
+    scale = _scale;
     w = _w;
     h = _h;
+	position = _pos;
     init();
 
 }
@@ -31,8 +32,8 @@ void BigLetter::init(){
     bool vflip = true;
     bool filled = false;
     
-    scale +=ofRandom(15);
-    ofVec2f randomPos = ofVec2f(ofRandom(-50, 50),ofRandom(-50, 50));
+    scale +=ofRandom(scale/5);
+    ofVec2f randomPos = ofVec2f(ofRandom(-5, 5),ofRandom(-10, 10));
     
 
     for(auto &polyline : listOfPolyline){
@@ -42,7 +43,7 @@ void BigLetter::init(){
     }
     
     ofVec2f centroid = listOfPolyline[0].getCentroid2D();
-    ofVec2f translate = ofVec2f(w/2, h/2) - centroid;
+    ofVec2f translate = position - centroid;
     for(auto &polyline : listOfPolyline){
 
         polyline.translate(ofVec2f(translate.x, translate.y));
