@@ -11,6 +11,7 @@
 
 #define MAX_LETTER 300
 #define MAX_LETTER_PER_LINE 44
+//#define USE_BORDER_ON_LETTER 1   //If architecture implies somes "columns" on the wall were a displayed the lettter
 
 
 class LetterManager

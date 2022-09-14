@@ -446,10 +446,10 @@ void ofApp::keyPressed(int key) {
     }  else if(key== 232 || key == 233){
         // char "Ž" & ""
         letterManager->addLetter(key);
-	}else if(key == 3680 || key == 1 || key==3681 || key == 16 || key== 3587) {
-		//Maj  CMD , DO NOTHING
-		//isFullscreen = !isFullscreen;
-		//ofSetFullscreen(isFullscreen);
+	}else if(key == OF_KEY_UP) {
+		//ESCAPE
+		isFullscreen = !isFullscreen;
+		ofSetFullscreen(isFullscreen);
 			
         return;
 	}else if(key == 3682) {

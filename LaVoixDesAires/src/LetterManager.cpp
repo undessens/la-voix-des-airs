@@ -344,7 +344,7 @@ void LetterManager::addLetter(int letter) {
                     
                     /******   CREATE NEW LETTER   ******/
 					// 1. Translate horizontal letter if touching the  border
-					
+#ifdef USE_BORDER_ON_LETTER					
 					// touching left border of 1st rectangle
 					if (nextLetterPosition.x  < borderLetter1.x && (nextLetterPosition.x + rectOfLetter.width) > borderLetter1.x) {
 						nextLetterPosition.x = borderLetter1.x + 5;
@@ -360,16 +360,19 @@ void LetterManager::addLetter(int letter) {
 					if (nextLetterPosition.x  < (borderLetter2.x + borderLetter2.width) && (nextLetterPosition.x + rectOfLetter.width) >(borderLetter2.x + borderLetter2.width)) {
 						nextLetterPosition.x = (borderLetter2.x + borderLetter2.width) + 5;
 					}
-					
+#endif					
 
 					// 2. Translate vertically if inside the rectangle
 					ofVec2f finalLetterPosition = nextLetterPosition;
+#ifdef USE_BORDER_ON_LETTER
 					if ((nextLetterPosition.x) > borderLetter1.x && nextLetterPosition.x < (borderLetter1.x + borderLetter1.width)) {
 						finalLetterPosition.y -= borderOffsetY;
 					}
 					if ((nextLetterPosition.x) > borderLetter2.x && nextLetterPosition.x < (borderLetter2.x + borderLetter2.width)) {
 						finalLetterPosition.y -= borderOffsetY;
 					}
+#endif	
+
 					// 2. Call Constructor
 					ofVec2f positionBL = ofVec2f(w / 2, positionBigLetter);
                     Letter* newLetter = new Letter(letter, finalLetterPosition, positionBL,listOfPolyline, nicheManager, w, h, zoomBigLetter);
