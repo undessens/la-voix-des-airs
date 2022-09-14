@@ -8,7 +8,7 @@
 #define DIGITALIN 39  // Nombre de bouton
 #define DIGITALOUT 0  // Nombre de leds
 #define DEBUG 0
-#define DELAYLETTER 250 // Duration in ms between 2 letters, avoid misclick
+#define DELAYLETTER 120 // Duration in ms between 2 letters, avoid misclick
 
 // ------------  AVOID MISCLICK ------------
 unsigned long previousLetter = 0;
