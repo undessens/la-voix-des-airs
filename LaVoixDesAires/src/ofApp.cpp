@@ -32,7 +32,7 @@ void ofApp::setup() {
     pg.setName("main");
     pg.add(color.set("color",ofColor(0, 0, 0)));
     pg.add(frameRate.set("frameRate", 50, 0, 60));
-    pg.add(debug.set("debug", true));
+    pg.add(debug.set("debug", false));
     pg.add(fakeCursor.set("Fake cursor", false));
     pg.add(lightTopEnable.set("light Top Enable", true));
     pg.add(lightTopPosX.set("light X",final_w/2, 0, final_w));
@@ -125,6 +125,11 @@ void ofApp::update() {
             }  else if(letter== 232 || letter== 233){
             // char "Ž" & ""
                 letterManager->addLetter(101);
+			}
+			// char ç
+			else if (letter == 231) {
+				// char "Ž" & ""
+				letterManager->addLetter(99);
             } else if(letter =='#'){
                 clear_all();
             }

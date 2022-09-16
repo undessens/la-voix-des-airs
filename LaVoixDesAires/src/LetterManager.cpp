@@ -9,7 +9,7 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 {
     msg = "";
     currentLineCharacter = 0;
-    msgPosition = ofPoint(257, 377);
+    msgPosition = ofPoint(116, 205);
     nextLetterPosition = msgPosition;
     
     w = _w;
@@ -18,8 +18,8 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 //    Verdana 60pt bbox on 1440px
 //    top-left x:219, y:282
 //    down-right x:1207, y:349 ==> ~900
-    fontSpacing = 23;
-    fontSize= 40;
+    fontSpacing = 35;
+    fontSize= 70;
     fontDistSampling = 7.0;
     changeFontSize(fontSize);
     
@@ -61,9 +61,9 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
 	pg->add(gMsgPositionX.set("Pos X", msgPosition.x, 10, 1000));
 	pg->add(gMsgPositionY.set("Pos Y", msgPosition.y, 10, 600));
 	pg->add(gfontDistSampling.set("Char Sampling", fontDistSampling, 1, 20));
-    pg->add(zoomBigLetter.set("zoom big letter", 8 , 1, 30));
+    pg->add(zoomBigLetter.set("zoom big letter", 6.2 , 1, 30));
     pg->add(alphaBigLetter.set("alpha big letter", 245 , 0, 255));
-	pg->add(positionBigLetter.set("Y big letter", 810, 0, h));
+	pg->add(positionBigLetter.set("Y big letter", 848, 0, h));
     pg->add(borderLetter1X.set("rect letter X", 519 , 0, w));
     pg->add(borderLetter1W.set("rect letter W", 174, 0, w/2));
 	pg->add(borderLetter2X.set("rect letter X", 1123, 0, w));
@@ -85,7 +85,7 @@ LetterManager::LetterManager(NicheManager* b, PolyBackground* p, ofParameterGrou
         borderLetter1 = ofRectangle(borderLetter1X, 0, borderLetter1W, h);
     }
 
-	osc_sender.setup("10.0.1.104", 12340);
+	osc_sender.setup("127.0.0.1", 12340);
     
 }
 
@@ -388,7 +388,8 @@ void LetterManager::addLetter(int letter) {
 					// SEND OSC MESSAGE TO MAC
 					ofxOscMessage m;
 					m.setAddress("/letter");
-					m.addInt32Arg(0);
+					//m.addInt32Arg(0);
+					//m.addIntArg(0);
 					osc_sender.sendMessage(m);
 					m.clear();
                     
